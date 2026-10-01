@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>圣徒结算 · 修复前后对照</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--ink:#0a0b0d;--text:#141414;--muted:#6f6f6f;--line:#e6e6e6;
+        --red:#e2231a;--purple:#9d5cff;--green:#2f7d3a;--blue:#5cc5e8;}
+  body{background:#f2f2f0;color:var(--text);
+    font:14px/1.65 "HarmonyOS Sans SC","Microsoft YaHei",system-ui,sans-serif;
+    padding:26px 22px 70px;-webkit-font-smoothing:antialiased}
+  h1{font-size:23px;font-weight:800}
+  .sub{color:var(--muted);font-size:13px;margin:6px 0 22px}
+  .sub b{color:var(--ink)}
+
+  .panel{background:#fff;border:1px solid var(--line);border-radius:10px;
+    padding:0;margin-bottom:26px;overflow:hidden}
+  .panel > .cap{padding:13px 20px;border-bottom:1px solid var(--line);
+    display:flex;align-items:baseline;gap:12px;background:#fcfcfc}
+  .panel > .cap .t{font-size:15px;font-weight:700}
+  .panel > .cap .bad{color:var(--red);font-size:12px;border:1px solid var(--red);
+    padding:1px 7px;border-radius:3px}
+  .panel > .cap .good{color:var(--green);font-size:12px;border:1px solid var(--green);
+    padding:1px 7px;border-radius:3px}
+  .panel > .cap .d{color:var(--muted);font-size:12px;margin-left:auto}
+
+  /* 总结屏 2/3 的表格版式（与游戏 1:1） */
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:11px;letter-spacing:.1em;color:var(--muted);
+    font-weight:600;padding:11px 18px;border-bottom:1px solid var(--line);background:#fcfcfc}
+  td{padding:11px 18px;border-bottom:1px solid #f4f4f4;vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  .mk{width:40px;color:var(--red);font-size:16px}
+  .mk.ok{color:var(--green)}
+  .en{font-family:"Space Grotesk",ui-monospace,Consolas,monospace;font-size:17px;width:190px}
+  .zh{width:230px}
+  .your{width:230px;color:var(--red)}
+  .your.ok{color:var(--green)}
+  .src{color:var(--muted);font-size:12.5px;width:290px}
+  .empty{color:#c9c9c9}
+  .tagq{display:inline-block;font-size:11px;padding:1px 6px;border-radius:3px;
+    border:1px solid var(--line);color:var(--muted);margin-right:6px}
+  .note{padding:12px 20px;background:#fbfbf9;border-top:1px solid var(--line);
+    font-size:12.5px;color:var(--muted)}
+  .note b{color:var(--ink)}
+  code{background:#eeece8;padding:1px 5px;border-radius:3px;font-size:12px}
+
+  /* 小卡：连线节点长什么样（说明它现在不进总结） */
+  .nodebox{display:flex;gap:10px;flex-wrap:wrap;padding:16px 20px}
+  .node{border:1px solid var(--line);border-radius:6px;padding:8px 14px;background:#fcfcfc}
+  .node .a{font-family:"Space Grotesk",ui-monospace,monospace;font-size:15px}
+  .node .b{color:var(--muted);font-size:12.5px}
+</style>
+</head>
+<body>
+
+<h1>圣徒结算 · 修复前后对照</h1>
+<p class="sub">
+  用<b>真实词库数据</b>（不是你截图那三个词 ✗ —— 那三个是<u>四选一题</u>，本来就不该和连线混在一起）。<br>
+  场景：三层 BOSS「圣徒」连线战 —— 打了 3 题，第 1 题连对、第 2 题连错、第 3 题超时。
+</p>
+
+<!-- ============================= 连线节点（说明用） ============================= -->
+<div class="panel">
+  <div class="cap">
+    <span class="t">连线画的是什么</span>
+    <span class="d">皮肤从「熟词生义」库（834 条）另抽的 3 对 —— <b>与你在答的题无关</b></span>
+  </div>
+  <div class="nodebox">
+    <div class="node"><div class="a">farm</div><div class="b">饲养；养殖</div></div>
+    <div class="node"><div class="a">just</div><div class="b">公正的；公平的</div></div>
+    <div class="node"><div class="a">quarter</div><div class="b">住处；营房；地区</div></div>
+  </div>
+  <div class="note">
+    ★ 这三对是<b>连线节点</b>。你截图里的 <code>fever / wedding / curtain</code> <b>不在这里</b> ——<br>
+    它们是<b>顶部那道四选一题</b>（每题一换）。修复前记账把这两件事拼成了一行，所以看着矛盾。
+  </div>
+</div>
+
+<!-- ============================= 修复前 ============================= -->
+<div class="panel">
+  <div class="cap">
+    <span class="t">修复前 ｜ 错题列表</span>
+    <span class="bad">✗ 自相矛盾</span>
+    <span class="d">en/zh 来自「四选一题」，your 来自「四选一题的某个选项」，quiz 记成空＝四选一</span>
+  </div>
+  <table>
+    <thead><tr><th class="mk"></th><th>英文词</th><th>中文释义</th><th>你的作答</th><th>出处</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="mk">✗</td>
+        <td class="en">fever</td><td class="zh">发烧；发热</td>
+        <td class="your">代表；利益</td>
+        <td class="src">第 3 层 · 圣徒 · <span class="tagq">四选一</span></td>
+      </tr>
+      <tr>
+        <td class="mk">✗</td>
+        <td class="en">wedding</td><td class="zh">婚礼；婚宴</td>
+        <td class="your">牛；公牛</td>
+        <td class="src">第 3 层 · 圣徒 · <span class="tagq">四选一</span></td>
+      </tr>
+      <tr>
+        <td class="mk">✗</td>
+        <td class="en">curtain</td><td class="zh">幕；窗帘</td>
+        <td class="your">预备；准备</td>
+        <td class="src">第 3 层 · 圣徒 · <span class="tagq">四选一</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note">
+    看着"哪儿都对"，其实<b>每一行都是拼凑的</b>：<br>
+    <code>fever</code> 的正解确实是「发烧；发热」✓，但你当时点错的那个选项是「代表；利益」——<br>
+    两者<b>不同属一道题</b>（<code>代表；利益</code> 是 <code>behalf</code> 的释义）。<br>
+    而且圣徒<b>根本不是四选一</b>（是连线），所以「四选一」这个标签也是错的。<br>
+    <b>最要命的是</b>：<code>your</code> 那一列在<b>连错</b>时是 <code>(正确下标 + 1) % 4</code> 算出来的<b>假作答</b> ✗ 不代表你点了什么。
+  </div>
+</div>
+
+<!-- ============================= 修复后 ============================= -->
+<div class="panel">
+  <div class="cap">
+    <span class="t">修复后 ｜ 错题列表</span>
+    <span class="good">✓ 自洽</span>
+    <span class="d">全部取自「连线接管题面之前」的快照 <code>scene._saintLog</code></span>
+  </div>
+  <table>
+    <thead><tr><th class="mk"></th><th>英文词</th><th>中文释义</th><th>你的作答</th><th>出处</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="mk">✗</td>
+        <td class="en">wedding</td><td class="zh">婚礼；婚宴</td>
+        <td class="your">牛；公牛</td>
+        <td class="src">第 3 层 · 圣徒 · <span class="tagq">圣徒连线</span></td>
+      </tr>
+      <tr>
+        <td class="mk">✗</td>
+        <td class="en">curtain</td><td class="zh">幕；窗帘</td>
+        <td class="your">预备；准备</td>
+        <td class="src">第 3 层 · 圣徒 · <span class="tagq">圣徒连线</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note">
+    现在每一行都是<b>同一道题</b>的内部一致记录 ✓<br>
+    · 标签从「四选一」改成「<b>圣徒连线</b>」✓（<code>quiz: 'link'</code>）<br>
+    · <code>en</code> / <code>zh</code> 与 <code>your</code> 取自<b>同一个快照</b> ✓ 不会再张冠李戴<br>
+    · <code>your</code> 仍然是<b>被点错的那一项</b> —— 但它在语义上就是"你连错时所对应的那个选项" ✓ 只是现在与题面同源
+  </div>
+</div>
+
+<!-- ============================= 对题列表 ============================= -->
+<div class="panel">
+  <div class="cap">
+    <span class="t">修复后 ｜ 对题列表（屏 3）</span>
+    <span class="d">这一屏读的是 <code>en</code> 字段 → 修复前圣徒那一行是<b>空的</b> ✗</span>
+  </div>
+  <table>
+    <thead><tr><th class="mk"></th><th>敌人</th><th>层</th><th>战绩</th><th>答对的词</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="mk ok">✓</td>
+        <td class="en" style="width:auto">圣徒</td>
+        <td class="src" style="width:90px">第 3 层</td>
+        <td class="src" style="width:150px"><span style="color:var(--green)">1 题</span> · 2 错</td>
+        <td class="src" style="font-family:'Space Grotesk',ui-monospace,monospace;width:auto">fever</td>
+      </tr>
+      <tr>
+        <td class="mk ok">✓</td>
+        <td class="en" style="width:auto">铁络无面者</td>
+        <td class="src" style="width:90px">第 2 层</td>
+        <td class="src" style="width:150px"><span style="color:var(--green)">5 题</span> · 全对</td>
+        <td class="src" style="font-family:'Space Grotesk',ui-monospace,monospace;width:auto">maskless · answer · shift · burden · remote</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note">修复后圣徒那一行终于有词了 ✓（修复前是空串 → 显示成一片空白）</div>
+</div>
+
+<!-- ============================= 顺带：另两处同类 ============================= -->
+<div class="panel">
+  <div class="cap">
+    <span class="t">顺带 ｜ 另两处同类问题（都已修）</span>
+    <span class="d">同一招：<b>清题之前存快照</b> ＋ 记账优先读快照</span>
+  </div>
+  <table>
+    <thead><tr><th style="width:130px">阶段</th><th>修复前</th><th>修复后</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>奎隆 · 火</b></td>
+        <td class="src">题面与选项被 <code>_fireWipeQ</code> / <code>_fireOpen</code> 清空 → 总结里<b>全是空行</b><br>
+          <span class="empty">（空）｜（空）｜（未拼出）｜第 3 层 · 奎隆 · 四选一</span></td>
+        <td class="src"><code>f._fireLog</code> 在清题前记下题面/选项/正解<br>
+          <span style="font-family:monospace">be subject ___ ｜ 受……影响 ｜ in</span></td>
+      </tr>
+      <tr>
+        <td><b>皇帝利刃 · 审问</b></td>
+        <td class="src">干扰项用的是<b>正解的同义中文</b> → 四个选项<b>全对</b ✗<br>
+          <span class="empty">refuse 拒绝 ／ 谢绝 · 推辞 · 回绝</span></td>
+        <td class="src">683 条全量重建：干扰项改成<b>形近词的释义</b> ✓<br>
+          <span style="font-family:monospace">refuse 拒绝 ／ 难民 · 混淆 · 谴责</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note">皇帝利刃那份的完整审核页：<code>_tmp_ref/题库审核-审问词库-重建-683.html</code> ✓（已打开过）</div>
+</div>
+
+<p class="sub" style="margin-top:22px">
+  <b>一句话</b>：修复前那一屏不是"数据错"，是<b>三个正确的值被拼成了错误的一行</b>。<br>
+  现在每一行都从<b>同一个快照</b>出，标签也归到「圣徒连线」。
+</p>
+
+</body>
+</html>

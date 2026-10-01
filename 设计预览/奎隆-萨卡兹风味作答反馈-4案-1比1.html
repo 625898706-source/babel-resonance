@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8">
+<title>萨卡兹风味 · 作答反馈 · 4 案</title>
+<style>
+  html,body{margin:0;background:#0b0b0f;font-family:"HarmonyOS Sans SC","Microsoft YaHei",sans-serif}
+  #stage{position:relative;width:1280px;height:720px;overflow:hidden;
+         background:radial-gradient(ellipse at 50% 42%, #16161d 0%, #0c0c11 62%, #08080b 100%)}
+  /* 极淡的织纹（模拟皮肤的底纹 ✓）*/
+  #stage::before{content:'';position:absolute;inset:0;opacity:.05;
+    background-image:repeating-linear-gradient(0deg,#fff 0 1px,transparent 1px 3px)}
+  .title{position:absolute;left:0;right:0;top:16px;text-align:center;color:#6f6f7a;
+         font-size:15px;letter-spacing:.28em}
+  .row{position:absolute;left:0;right:0;height:132px;display:flex;align-items:center;justify-content:center}
+  .r1{top:52px}.r2{top:198px}.r3{top:344px}.r4{top:490px}
+  .case{position:absolute;left:26px;top:8px;color:#5a5a66;font:12px/1 monospace;letter-spacing:.1em}
+  .pair{display:flex;flex-direction:column;gap:20px;align-items:center}
+  .line{display:flex;align-items:baseline;gap:16px;white-space:nowrap}
+
+  /* ============ 共用：三种字色 ============ */
+  .vRed   {color:#e2231a}
+  .vWine  {color:#c8556a}
+  .vBone  {color:#efe7d8}
+  .vGold  {color:#c8a24a}
+  .vAsh   {color:#a89a86}
+  .dim    {opacity:.62}
+
+  /* ============ 案 1 · 碑铭：断句 + 细线 + 小三角 ============ */
+  .a1 .tag{font-family:"Times New Roman",serif;font-size:28px;letter-spacing:.16em}
+  .a1 .tag::before{content:'◆';font-size:11px;vertical-align:middle;margin-right:12px;opacity:.75}
+  .a1 .tag::after {content:'◆';font-size:11px;vertical-align:middle;margin-left:12px;opacity:.75}
+  .a1 .body{font-size:22px;letter-spacing:.04em}
+  .a1 .sep{color:#4a3a3a;font-size:22px}
+
+  /* ============ 案 2 · 脉纹：竖线 + 菱形 + 字距更开 ============ */
+  .a2 .tag{font-size:23px;letter-spacing:.34em;padding-left:.34em}
+  .a2 .bar{width:3px;height:30px;background:currentColor;opacity:.85;box-shadow:0 0 12px currentColor}
+  .a2 .body{font-size:23px;letter-spacing:.08em}
+
+  /* ============ 案 3 · 残响：引号包裹 + 斜体衬线 ============ */
+  .a3 .tag{font-family:"Times New Roman",serif;font-style:italic;font-size:29px;letter-spacing:.1em}
+  .a3 .tag::before{content:'「';opacity:.5;margin-right:6px}
+  .a3 .tag::after {content:'」';opacity:.5;margin-left:6px}
+  .a3 .body{font-size:23px;color:#cfc6b6}
+  .a3 .body b{color:#efe7d8;font-weight:600}
+
+  /* ============ 案 4 · 血誓：大字 + 上划线 + 印记 ============ */
+  .a4 .wrap{position:relative;padding-top:14px}
+  .a4 .wrap::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:currentColor;opacity:.6}
+  .a4 .tag{font-size:31px;letter-spacing:.2em;font-weight:600}
+  .a4 .body{font-size:22px;letter-spacing:.05em}
+  .a4 .mark{font-size:13px;vertical-align:super;opacity:.8}
+
+  /* 小注：底色说明 */
+  .note{position:absolute;left:0;right:0;bottom:14px;text-align:center;color:#4a4a55;font-size:12px;letter-spacing:.14em}
+</style></head><body>
+<div id="stage">
+  <div class="title">萨 卡 兹 风 味 · 作 答 反 馈 · 四 案</div>
+
+  <!-- 案 1 -->
+  <div class="row r1 a1">
+    <div class="case">案 1 · 碑铭</div>
+    <div class="pair">
+      <div class="line"><span class="tag vGold">判词无误</span><span class="sep">/</span>
+        <span class="body vBone">to</span><span class="body vAsh dim">受……影响；取决于</span></div>
+      <div class="line"><span class="tag vRed">判词谬误</span><span class="sep">/</span>
+        <span class="body vBone">正解</span><span class="body vBone">to</span><span class="body vAsh dim">受……影响；取决于</span></div>
+    </div>
+  </div>
+
+  <!-- 案 2 -->
+  <div class="row r2 a2">
+    <div class="case">案 2 · 脉纹</div>
+    <div class="pair">
+      <div class="line"><span class="bar vGold"></span><span class="tag vGold">契 合</span>
+        <span class="body vBone">to</span><span class="body vAsh dim">受……影响；取决于</span></div>
+      <div class="line"><span class="bar vRed"></span><span class="tag vRed">背 契</span>
+        <span class="body vAsh">正解</span><span class="body vBone">to</span><span class="body vAsh dim">受……影响；取决于</span></div>
+    </div>
+  </div>
+
+  <!-- 案 3 -->
+  <div class="row r3 a3">
+    <div class="case">案 3 · 残响</div>
+    <div class="pair">
+      <div class="line"><span class="tag vGold">回响</span>
+        <span class="body"><b>to</b> · 受……影响；取决于</span></div>
+      <div class="line"><span class="tag vRed">失响</span>
+        <span class="body">正解 <b>to</b> · 受……影响；取决于</span></div>
+    </div>
+  </div>
+
+  <!-- 案 4 -->
+  <div class="row r4 a4">
+    <div class="case">案 4 · 血誓</div>
+    <div class="pair">
+      <div class="wrap vGold"><span class="tag">判 定 成 立</span><span class="mark">◆</span>
+        <span class="body vBone">to</span> <span class="body vAsh dim">受……影响；取决于</span></div>
+      <div class="wrap vRed"><span class="tag">判 定 破 弃</span><span class="mark">◆</span>
+        <span class="body vAsh">正解</span> <span class="body vBone">to</span> <span class="body vAsh dim">受……影响；取决于</span></div>
+    </div>
+  </div>
+
+  <div class="note">统一底色 · 1280×720 · 反馈行位于页脚线上方（与游戏同几何）</div>
+</div>
+</body></html>

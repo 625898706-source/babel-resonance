@@ -1,0 +1,460 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒 · 三阶段「箭头粒子消散」预览（1:1 · 可交互）</title>
+<style>
+/* ============================================================================
+   圣徒 三阶段 · 它的线「从箭头开始粒子消散」（2026-09-21 用户要求 ✓ 出预览 ✓）
+   ── 要解决的两个问题 ──
+     ① 答对时**只消散一根** ✓ —— 就是**最前面那根**（最先要到达的 ✓ p 最大 ✓）
+        后面那根**继续飞** ✗（不跟着散 ✓ 用户 2026-09-23 明确："答对只消散一根啊，最前面最先要到达的消散掉" ✓）
+     ② 旧的"线瞬间消失 ＋ 中点炸一堆方块"不好看 ✗
+        → 新：**从箭头开始被粒子吃掉** ✓ —— 前沿从箭头往源头退 ✓ 退到哪就吐粒子到哪 ✓
+   ── 画面：与游戏逐项对齐（1:1 · 1280×720 · s=1）──
+     真背景 assets/skin-saint/bg.png ＋ 白纱 .52 ＋ 4px 冰蓝细纹 .10 ＋ 40px 蓝图网格 .13
+     图版 272×264 @(14,160)/(994,160) ｜ 立绘 逻各斯 150×196 @(150,292) ／ 圣徒 220×220 @(1130,310)
+     名字 y=446 ｜ 血条 272×16 @y=472 ｜ 数值行 @y=494 ｜ 页眉 52 ｜ 底栏 y=656
+     倒计时：标签 (320,99) ／ 条 (320,117,640×12) ／ 数字右对齐 958
+     节点 220×86：左 lx=400 行距 130（230/360/490）｜右 rx=880 行距 104（204/308/412/516）
+     它的线：红 3px 实线 ＋ 每 700ms 故障 180ms 青红色散 ＋ 小红箭头
+   ── 本页只演示「消逝」这一件事，所以：──
+     · 两根线固定从最近的错误释义飞向两个词 ✓（等于游戏里"点两个词"之后的画面 ✓）
+     · 点画面任意处 ／ 按「答对了」＝ 你答对了一次 ✓ → **只消散最前面那根** ✓
+     · 剩下那根会继续飞到词上 ✓ 顺便让你看到"只散一根"的代价 ✓
+     · 「自动」＝ 最前面那根飞到 ~80% 时自动触发 ✓ 可以放手看 ✓ ／ 「慢放」＝ 0.35× ✓ 看细节用 ✓
+   ============================================================================ */
+:root{--ink:#12232e;--fg:#141414;--muted:#6b6f76;--slate:#54686a;--red:#e2231a;--cy:#3ce0e0;
+      --ice:#8fa8bd;--line:#e6e6e6;--card:#fffdf9;--crim:#ff625d}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;color:#fff;font-family:'HarmonyOS Sans SC','Microsoft YaHei',sans-serif;padding:14px 0 30px}
+.lab,.ctl,.note{width:1280px;margin:0 auto}
+.lab{font-size:13px;line-height:20px}.lab b{font-size:16px}.lab i{font-style:normal;color:#a9c6d6}.lab u{text-decoration:none;color:#ffd9a0}
+#st{position:relative;width:1280px;height:720px;margin:8px auto 0;overflow:hidden;background:#eaf2f7;
+    cursor:crosshair;user-select:none}
+#st>div,#st>canvas{position:absolute}
+.bg{inset:0;background:url('../assets/skin-saint/bg.png') center/cover no-repeat;z-index:0}
+.veil{inset:0;background:#fff;opacity:.52;z-index:1}
+.hair{inset:0;z-index:2;opacity:.10;background-image:repeating-linear-gradient(#8fa8bd 0 1px,transparent 1px 4px)}
+.grid{inset:0;z-index:3;opacity:.13;
+  background-image:linear-gradient(#54686a 1px,transparent 1px),linear-gradient(90deg,#54686a 1px,transparent 1px);
+  background-size:40px 40px}
+.plate{top:160px;width:272px;height:264px;background:#141519;border:2px solid #2a2b30;border-radius:4px;
+       box-shadow:3px 3px 0 rgba(31,32,36,.13);z-index:4}
+.plateL{left:14px}.plateR{left:994px}
+.flag{position:absolute;left:-2px;top:-2px;width:0;height:0;border-top:18px solid #fff44f;border-right:18px solid transparent}
+#spL{left:75px;top:194px;width:150px;height:196px;z-index:5}
+#spR{left:1020px;top:200px;width:220px;height:220px;z-index:5}
+.nm{top:436px;font-family:'Novecento Wide','HarmonyOS Sans SC';font-size:17px;font-weight:600;line-height:20px;z-index:6;white-space:nowrap}
+.nmL{left:14px;color:var(--fg)}.nmR{left:994px;color:var(--crim)}
+.bar{top:464px;width:272px;height:16px;background:var(--card);border:1px solid var(--line);z-index:6}
+.barL{left:14px}.barR{left:994px}
+.bar>i{position:absolute;left:0;top:0;bottom:0;display:block}
+.tk{position:absolute;top:2px;bottom:2px;width:1px;background:rgba(31,32,36,.22)}
+.hpn{top:484px;font-family:'Space Grotesk',monospace;font-size:20px;line-height:20px;color:var(--fg);z-index:6;white-space:nowrap}
+.hpl{top:489px;font-family:'Novecento Wide';font-size:10px;line-height:10px;color:var(--muted);z-index:6;letter-spacing:.06em;white-space:nowrap}
+.pill{left:20px;width:84px;height:26px;top:13px;background:#fff44f;border:1px solid #1f2024;display:flex;
+      align-items:center;justify-content:center;font-family:'Novecento Wide';font-size:12px;color:#1f2024;z-index:6}
+.hudl{top:16px;line-height:20px;z-index:6;white-space:nowrap}
+#hst{left:116px;font-family:'Novecento Wide';font-size:11px;color:var(--muted)}
+#hhp{right:386px;font-family:'Space Grotesk',monospace;font-size:15px;color:var(--fg)}
+#hcur{right:244px;font-family:'Space Grotesk',monospace;font-size:15px;color:var(--fg)}
+#quit{right:14px;top:9px;width:104px;height:34px;background:var(--card);border:1px solid var(--line);
+      display:flex;align-items:center;justify-content:center;font-size:14px;color:#24252a;z-index:6}
+.hudrule{left:0;right:0;top:52px;height:1px;background:var(--ice);opacity:.65;z-index:6}
+.footrule{left:300px;top:656px;width:680px;height:1px;background:var(--ice);opacity:.55;z-index:6}
+#ftl{left:300px;top:673px;font-family:'Novecento Wide';font-size:10.5px;line-height:10.5px;color:var(--muted);z-index:6}
+#ftc{left:344px;top:666px;display:flex;gap:8px;z-index:6}
+.chip{height:24px;padding:0 10px;display:flex;align-items:center;background:#fff;border:1px solid var(--line);font-size:12px;color:#24252a}
+#cdlab{left:320px;top:90px;font-size:13px;line-height:18px;color:var(--ink);z-index:6}
+#cd{left:320px;top:117px;width:640px;height:12px;background:#ececec;border:1px solid var(--line);z-index:6}
+#cdfill{position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--slate)}
+#cdnum{right:322px;top:82px;font-family:'Space Grotesk',monospace;font-size:22px;line-height:22px;color:var(--slate);z-index:6}
+#cvBack{inset:0;z-index:10}
+#cvFront{inset:0;z-index:40;pointer-events:none}
+.node{position:absolute;width:220px;height:86px;background:rgba(255,255,255,.5);border:1px solid var(--slate);
+      display:flex;align-items:center;justify-content:center;padding:6px;text-align:center;color:var(--ink);
+      line-height:24px;z-index:30}
+.node.en{font-family:'Space Grotesk',monospace;font-weight:700;font-size:34px}
+.node:not(.en){font-family:'HarmonyOS Sans SC';font-size:17px}
+.node.sel{border-width:3px;background:rgba(255,255,255,.72)}
+#toast{left:0;top:250px;width:1280px;text-align:center;font-size:40px;font-weight:700;color:var(--slate);
+       opacity:0;transition:opacity .25s;z-index:50;line-height:48px;text-shadow:0 2px 0 rgba(255,255,255,.8)}
+#flash{inset:0;background:#e2231a;opacity:0;pointer-events:none;z-index:60;transition:opacity .18s}
+.ctl{margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px}
+.ctl button{font-family:'HarmonyOS Sans SC';font-size:13px;padding:7px 14px;background:#2c3439;color:#dfe9ee;
+            border:1px solid #4a565d;border-radius:3px;cursor:pointer}
+.ctl button:hover{background:#3a444a}
+.ctl button.on{background:#54686a;border-color:#8fb0b3;color:#fff}
+.note{margin-top:8px;background:#2c3439;border-left:3px solid var(--slate);padding:8px 12px;color:#dfe9ee;
+      font-size:13px;line-height:20px}
+.note em{font-style:normal;color:#9fb3bd}
+.note b{color:#ffd9a0}
+</style></head><body>
+
+<div class="lab"><b>圣徒 · 三阶段「箭头粒子消散」</b>　<i>答对时：最快到达的那根<b>先</b>消逝</i> ✓
+　<u>消逝方式：从箭头开始被粒子吃掉，前沿往源头退</u> ✓</div>
+
+<div id="st">
+  <div class="bg"></div><div class="veil"></div><div class="hair"></div><div class="grid"></div>
+  <canvas id="cvBack" width="1280" height="720"></canvas>
+  <div class="plate plateL"><div class="flag"></div></div>
+  <div class="plate plateR"><div class="flag"></div></div>
+  <canvas id="spL" width="300" height="392"></canvas>
+  <canvas id="spR" width="440" height="440"></canvas>
+  <div class="nm nmL">逻各斯</div><div class="nm nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#5cc5e8;width:100%"></i></div>
+  <div class="bar barR"><i style="background:#d8c9a3;width:100%"></i></div>
+  <div class="hpn" style="left:14px">10 / 10</div>
+  <div class="hpl" style="left:286px;transform:translateX(-100%)">目标生命</div>
+  <div class="hpn" style="left:994px">38</div>
+  <div class="hpl" style="left:1266px;transform:translateX(-100%)">ENEMY HP</div>
+  <div class="pill">B1 / 01</div>
+  <div class="hudl" id="hst">// 回声层 · 待定</div>
+  <div class="hudl" id="hhp">目标生命 10 / 10</div>
+  <div class="hudl" id="hcur">残页 15</div>
+  <div id="quit">退出</div>
+  <div class="hudrule"></div><div class="footrule"></div>
+  <div id="ftl">藏品</div><div id="ftc"><div class="chip">回响残片</div><div class="chip">定音锤</div></div>
+  <div id="cdlab">剩余时间</div><div id="cd"><i id="cdfill"></i></div><div id="cdnum">12</div>
+  <canvas id="cvFront" width="1280" height="720"></canvas>
+  <div id="toast"></div><div id="flash"></div>
+</div>
+
+<div class="ctl">
+  <button id="bReplay">▶ 答对了（只消散最前面那根）</button>
+  <button id="bRelaunch">↺ 重新起飞</button>
+  <button id="bAuto" class="on">自动循环</button>
+  <button id="bSlow">慢放 0.35×</button>
+  <span id="readout" style="color:#dfe9ee"></span>
+</div>
+
+<div class="note">
+  <em>画面里两根线＝游戏里"点了两个词"之后的样子（各自来自最近的错误释义）；两根之间<b>至少隔 2 秒</b>才会出现 ✓ 不然反应不过来 ✓。</em><br>
+  <em>点画面任意处＝答对一次。</em>　<b>答对只消散一根 ✓</b> —— 消散的永远是<b>最前面那根</b>（最先要到达的 ✓），
+  后面那根<b>继续飞</b> ✓，它飞到词上就是游戏里的「被它连上了 → −1.5 ＋ 下一题」✓。
+  <em>消散方式：从箭头开始被粒子吃掉，前沿往源头退（箭头本体先没 ✓）。</em>
+</div>
+
+<script>
+/* 特效参数（与 saint.js 保持同一套数字 ✓ 改一处两边一起改 ✓）*/
+var DIS_MS = 560;       // 单根从箭头吃到源头的时间（用户："稍微慢一点" ✓ 380 → 560）
+var DIS_ACC = 120;      // 箭头本体在头 120ms 内先没
+var FLY_MS = 4500;      // 飞行全程（＝游戏 ✓）
+var MIN_GAP = 2000;     // ★ 两根线**至少隔 2 秒**出现（用户要求 ✓ 不然反应不过来）
+var GL_MS = 700, GL_ON = 180;
+var EMIT_PER_S = 190;   // 消逝时每秒吐多少粒子（按 dt 累计 ✓ 不按帧 ✓）
+
+(function () {
+  var stage = document.getElementById('st');
+  var cb = document.getElementById('cvBack'), ctx = cb.getContext('2d');
+  var cf = document.getElementById('cvFront'), ctx2 = cf.getContext('2d');
+  var toastEl = document.getElementById('toast'), flashEl = document.getElementById('flash');
+  var readout = document.getElementById('readout'), bSlow = document.getElementById('bSlow');
+  var bAuto = document.getElementById('bAuto'), bScope = document.getElementById('bScope');
+
+  var IMG = {};
+  ['../assets/skin-saint/bg.png', '../assets/skin-saint/glass-1.png', '../assets/skin-saint/glass-2.png',
+   '../assets/skin-saint/glass-3.png', '../assets/skin-saint/glass-4.png', '../assets/skin-saint/flash.png',
+   '../assets/img/logos-idle.png', '../assets/img/saint-idle.png'].forEach(function (u) {
+    var im = new Image(); im.src = u; IMG[u] = im;
+  });
+  var GLASS = ['../assets/skin-saint/glass-1.png', '../assets/skin-saint/glass-2.png',
+               '../assets/skin-saint/glass-3.png', '../assets/skin-saint/glass-4.png'];
+  var FLASH = '../assets/skin-saint/flash.png';
+
+  /* 立绘逐帧（照游戏 ✓ 列数按 PNG 实际宽度算 ✓）*/
+  var SPR = [
+    { cv: document.getElementById('spL'), url: '../assets/img/logos-idle.png', fw: 260, fh: 340, last: 149, flip: false, fps: 30 },
+    { cv: document.getElementById('spR'), url: '../assets/img/saint-idle.png', fw: 180, fh: 180, last: 174, flip: true, fps: 30 }
+  ];
+  SPR.forEach(function (p) { var c = p.cv.getContext('2d'); c.scale(2, 2); p.ctx = c; p.w = p.cv.width / 2; p.h = p.cv.height / 2; });
+  function drawSpr(p, now) {
+    var im = IMG[p.url];
+    if (!im || !im.complete || !im.naturalWidth) return;
+    if (!p.ready) { p.cols = Math.max(1, Math.round(im.naturalWidth / p.fw)); p.ready = true; }
+    var i = Math.floor(now / 1000 * p.fps) % (p.last + 1);
+    p.ctx.clearRect(0, 0, p.w, p.h);
+    p.ctx.save();
+    if (p.flip) { p.ctx.translate(p.w, 0); p.ctx.scale(-1, 1); }
+    p.ctx.drawImage(im, (i % p.cols) * p.fw, Math.floor(i / p.cols) * p.fh, p.fw, p.fh, 0, 0, p.w, p.h);
+    p.ctx.restore();
+  }
+
+  /* ---- 版面（全部照 CombatScene / saint.js 的真实坐标 ✓ s=1）---- */
+  var CX = 640, CY = 360, LX = 400, RX = 880;
+  var dyL = 130, dyR = 104, y0L = CY - dyL, y0R = CY - 1.5 * dyR;
+  var nodes = [], air = [], parts = [], fx = [], slow = false, auto = true;
+  var triggerAt = 0.8, fired = false, cool = 0;
+
+  function mk(side, text, pair, x, y, isEn, phase) {
+    var d = document.createElement('div');
+    d.className = 'node' + (isEn ? ' en' : '');
+    d.textContent = text;
+    d.style.left = (x - 110) + 'px'; d.style.top = (y - 43) + 'px';
+    stage.appendChild(d);
+    var nd = { el: d, side: side, pair: pair, x: x, y: y, ph: phase, dur: 2 * (2100 + phase * 320) / 1000 };
+    nodes.push(nd); return nd;
+  }
+  /* 演示用的 3 对（词／生义都是真词库里的真数据 ✓ 直接写死保证每次看到的是同一幕 ✓）*/
+  var DEMO = [
+    { en: 'address', zh: '向……讲话；对……发表演说' },
+    { en: 'book',    zh: '预订' },
+    { en: 'last',    zh: '持续' }
+  ];
+  var JUNK = ['把……归因于', '使……平静下来', '（法律）废除'];
+  function build() {
+    nodes.forEach(function (n) { n.el.remove(); });
+    nodes = [];
+    DEMO.forEach(function (p, i) { mk('L', p.en, p.en, LX, y0L + i * dyL, true, i); });
+    /* 右栏：3 个正确 + 1 个干扰（照二/三阶段"左三右四" ✓ 打乱时避开正对面 ✓）*/
+    var rights = DEMO.map(function (p, i) { return { zh: p.zh, pair: p.en }; });
+    rights.push({ zh: JUNK[0], pair: '__extra__' });
+    var order = [1, 3, 0, 2];                        // 固定一个"斜着连"的排布 ✓ 每轮一样 ✓
+    order.forEach(function (oi, i) {
+      var r = rights[oi];
+      mk('R', r.zh, r.pair, RX, y0R + i * dyR, false, i);
+    });
+  }
+  function rectOf(nd) {
+    var r = nd.el.getBoundingClientRect(), s2 = stage.getBoundingClientRect();
+    return { cx: r.left - s2.left + r.width / 2, cy: r.top - s2.top + r.height / 2 };
+  }
+  function nodeAt(side, pair) { return nodes.find(function (n) { return n.side === side && n.pair === pair; }); }
+
+  /* ---- 起飞两根：从"最近的错误释义"飞向词 ✓（照游戏 revWrongNear ✓）---- */
+  function wrongNear(nd) {
+    var a = rectOf(nd), best = null, bd = 1e9;
+    nodes.forEach(function (n) {
+      if (n.side === nd.side || n.pair === nd.pair) return;
+      var b = rectOf(n), d = Math.hypot(b.cx - a.cx, b.cy - a.cy);
+      if (d < bd) { bd = d; best = n; }
+    });
+    return best;
+  }
+  function launch() {
+    air = []; parts = []; fx = []; fired = false; cool = 0;
+    nodes.forEach(function (n) { n.el.classList.remove('sel'); });
+    /* ★ 两根之间**至少隔 2 秒** ✓（照游戏 REV_MIN_GAP ✓ 第 2 根排队 2 秒后才出现 ✓）*/
+    var t1 = nodeAt('L', 'address'), t2 = nodeAt('L', 'book');
+    var s1 = wrongNear(t1), s2 = wrongNear(t2);
+    if (s1) { air.push({ src: s1, word: t1, pair: t1.pair, p: 0, dis: 0, disAt: 0, dying: false, seed: 1 }); t1.el.classList.add('sel'); }
+    if (s2) {
+      air.push({ src: s2, word: t2, pair: t2.pair, p: -MIN_GAP / FLY_MS, dis: 0, disAt: 0, dying: false, seed: 5 });
+      t2.el.classList.add('sel');
+    }
+    toastEl.style.opacity = 0;
+  }
+  /* ---- ★★ 消逝：**只消散一根** ✓ = 最前面那根（最先要到达的，p 最大 ✓）
+   *   其余还在飞的线**继续飞** ✗（不跟着一起散 ✓ 用户 2026-09-23 明确："答对只消散一根" ✓）---- */
+  function dissolve() {
+    if (fired) return;
+    var live = air.filter(function (L) { return !L.dying; });
+    if (!live.length) return;
+    live.sort(function (a, b) { return b.p - a.p; });          // ★ 最前面 / 最先要到达的 ✓
+    var L = live[0];
+    fired = true;
+    L.dying = true; L.dis = 0; L.disAt = 0;
+    var a = rectOf(L.src), b = rectOf(L.word);
+    accent(a.cx + (b.cx - a.cx) * L.p, a.cy + (b.cy - a.cy) * L.p);   // 箭头位置：碎玻璃 ＋ 小闪 ✓
+    var others = air.filter(function (x) { return !x.dying; });
+    toastEl.textContent = '答对 ✓ 只消散最前面那一根（' + L.word.pair + '）' +
+      (others.length ? '　·　后面那根还在飞' : '');
+    toastEl.style.opacity = 1;
+  }
+  function accent(x, y) {
+    for (var i = 0; i < 10; i++) {
+      var a = Math.random() * Math.PI * 2, v = 90 + Math.random() * 330;
+      parts.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 40, life: .3 + Math.random() * .4,
+                   size: 3 + Math.random() * 6, col: (i % 3 === 0) ? '#f2f7fa' : '#e2231a' });
+    }
+    for (var q = 0; q < 3; q++) {
+      fx.push({ img: GLASS[q % 4], x: x, y: y, vx: (Math.random() - .5) * 300, vy: -90 - Math.random() * 140,
+                rot: 0, life: 1, size: 46 });
+    }
+    fx.push({ img: FLASH, x: x, y: y, vx: 0, vy: 0, rot: 0, life: 1, size: 130, isFlash: true });
+    flashEl.style.opacity = .1;
+    setTimeout(function () { flashEl.style.opacity = 0; }, 130);
+  }
+  /* 前沿位置：路径比例 = p × (1 − dis) ✓ 也就是"退到哪" ✓ */
+  function frontOf(L) { return L.p * (1 - L.dis); }
+  function emit(L, dt) {
+    var a = rectOf(L.src), b = rectOf(L.word);
+    var t = frontOf(L);
+    var x = a.cx + (b.cx - a.cx) * t, y = a.cy + (b.cy - a.cy) * t;
+    var dx = b.cx - a.cx, dy = b.cy - a.cy, len = Math.hypot(dx, dy) || 1;
+    var ux = dx / len, uy = dy / len;
+    L.acc = (L.acc || 0) + EMIT_PER_S * dt;
+    while (L.acc >= 1) {
+      L.acc -= 1;
+      var sp = 40 + Math.random() * 190;
+      parts.push({ x: x + (Math.random() - .5) * 7, y: y + (Math.random() - .5) * 7,
+                   vx: -ux * sp + (Math.random() - .5) * 130,      // 主要往**源头方向**退 ✓ 像被吹散 ✓
+                   vy: -uy * sp + (Math.random() - .5) * 130 - 30,
+                   life: .28 + Math.random() * .45, size: 2 + Math.random() * 5,
+                   col: Math.random() < .22 ? '#3ce0e0' : '#e2231a' });   // 掺一点青 ✓ 故障语言 ✓
+    }
+    if (parts.length > 260) parts.splice(0, parts.length - 260);
+  }
+
+  /* ---- 主循环 ---- */
+  var lastT = performance.now();
+  function loop(now) {
+    var raw = Math.min((now - lastT) / 1000, .05); lastT = now;
+    var dt = raw * (slow ? 0.35 : 1);
+    var tsec = now / 1000;
+    SPR.forEach(function (p) { drawSpr(p, now); });
+
+    /* 线推进 / 消逝推进 */
+    for (var i = air.length - 1; i >= 0; i--) {
+      var L = air[i];
+      if (L.dying) {
+        L.disAt -= dt * 1000;
+        if (L.disAt > 0) continue;                     // 还没轮到它 ✓ 原地不动 ✓
+        L.dis = Math.min(1, L.dis + dt * 1000 / DIS_MS);
+        emit(L, dt);
+        if (L.dis >= 1) air.splice(i, 1);
+      } else {
+        L.p = Math.min(1, L.p + dt * 1000 / FLY_MS);
+        /* ★ 没被你散掉的那根**照旧飞到底** ✓ → 这就是游戏里的「被它连上了」✓
+         *   （本页只演示"消散"，所以到这儿就画红 ＋ 报一句 ＋ 等重播 ✓）*/
+        if (L.p >= 1) {
+          L.word.el.classList.add('sel');
+          L.word.el.style.boxShadow = '0 0 0 6px rgba(226,35,26,.6)';
+          toastEl.textContent = '『' + L.word.pair + '』被它连上了 ✗ （游戏里：−1.5 ＋ 下一题）';
+          toastEl.style.opacity = 1;
+          air.splice(i, 1);
+          setTimeout(function () { L.word.el.style.boxShadow = ''; L.word.el.classList.remove('sel'); }, 700);
+        }
+      }
+    }
+    /* 粒子 */
+    parts.forEach(function (q) {
+      q.life -= dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vy += 330 * dt; q.vx *= (1 - 1.6 * dt);
+    });
+    parts = parts.filter(function (q) { return q.life > 0; });
+    fx.forEach(function (f) {
+      f.life -= dt * (f.isFlash ? 3.2 : 1.5); f.x += f.vx * dt; f.y += f.vy * dt; f.vy += 240 * dt; f.rot += dt * 4;
+    });
+    fx = fx.filter(function (f) { return f.life > 0; });
+
+    /* 自动循环：最快那根飞到 80% → 触发"你答对了" ✓ 之后再等 2.6s 重播 ✓ */
+    if (auto) {
+      if (!fired) {
+        var lead = air.filter(function (L) { return !L.dying; }).sort(function (a, b) { return b.p - a.p; })[0];
+        if (lead && lead.p >= triggerAt) dissolve();
+      } else if (!air.length) {
+        cool += dt;
+        if (cool > 2.6) launch();
+      }
+    }
+    /* 读出一行状态 ✓（看"谁先走"最直观 ✓）*/
+    var live = air.filter(function (L) { return !L.dying; });
+    var dying = air.filter(function (L) { return L.dying; });
+    var fmt = function (L) { return L.word.pair + ' ' + (L.p <= 0 ? '排队中（还没出现 ✓）' : Math.round(L.p * 100) + '%'); };
+    readout.textContent = fired
+      ? '消逝中：' + dying.map(function (L) { return L.word.pair + ' ' + Math.round(L.dis * 100) + '%'; }).join('　·　') +
+        (live.length ? '　｜　还在飞：' + live.map(fmt).join('　·　') : '')
+      : '在飞：' + (live.length ? live.map(fmt).join('　·　') : '（还没起飞）') +
+        '　（最前面那根到 80% 自动触发"答对"）';
+
+    /* 节点漂浮 */
+    nodes.forEach(function (n) {
+      var off = 12 * Math.sin(2 * Math.PI * tsec / n.dur + n.ph * 1.1);
+      n.el.style.transform = 'translateY(' + off.toFixed(2) + 'px)';
+    });
+
+    /* ================= 画 ================= */
+    ctx.clearRect(0, 0, 1280, 720);
+    var gph = (now % GL_MS) < GL_ON;
+    air.forEach(function (L) {
+      var a = rectOf(L.src), b = rectOf(L.word);
+      var t = frontOf(L);                                       // ★ 可见的线 = 从源头到"前沿" ✓
+      var hx = a.cx + (b.cx - a.cx) * t, hy = a.cy + (b.cy - a.cy) * t;
+      var pdx = b.cx - a.cx, pdy = b.cy - a.cy, plen = Math.hypot(pdx, pdy) || 1;
+      var ux = pdx / plen, uy = pdy / plen, nx = -uy, ny = ux;
+      if (t > 0.001) {
+        if (gph && !L.dying) {                                   // 故障色散（消逝中就不再抖 ✗ 专心消散 ✓）
+          seg(ctx, a.cx + nx * 3, a.cy + ny * 3, hx + nx * 3, hy + ny * 3, 'rgba(60,224,224,.5)', 3);
+          seg(ctx, a.cx - nx * 3, a.cy - ny * 3, hx - nx * 3, hy - ny * 3, 'rgba(226,35,26,.5)', 3);
+        }
+        /* 线体：消逝时**前沿那一小段更亮更粗** ✓ 像正在被"吃掉" ✓ */
+        seg(ctx, a.cx, a.cy, hx, hy, '#e2231a', 3);
+        if (L.dying) {
+          var seg10 = 42;
+          var fx0 = hx - ux * Math.min(seg10, plen * t), fy0 = hy - uy * Math.min(seg10, plen * t);
+          seg(ctx, fx0, fy0, hx, hy, 'rgba(255,120,90,.95)', 5);
+          ctx.globalAlpha = Math.min(1, L.dis * 4);
+          seg(ctx, fx0, fy0, hx, hy, '#fff2ee', 2);
+          ctx.globalAlpha = 1;
+        }
+      }
+      /* ★ 箭头：跟着前沿一起往后退 ✓ 且在头 90ms 内先没掉 ✓（＝"从箭头开始"消散 ✓）*/
+      var headGone = L.dying ? Math.min(1, (L.dis * DIS_MS) / DIS_ACC) : 0;
+      var aAlpha = 1 - headGone;
+      if (aAlpha > 0.02 && t > 0.02) {
+        var ah = 15 * (1 - 0.45 * headGone);
+        ctx.globalAlpha = aAlpha;
+        ctx.fillStyle = '#e2231a';
+        ctx.beginPath();
+        ctx.moveTo(hx + ux * 2, hy + uy * 2);
+        ctx.lineTo(hx - ux * ah + nx * ah * .62, hy - uy * ah + ny * ah * .62);
+        ctx.lineTo(hx - ux * ah - nx * ah * .62, hy - uy * ah - ny * ah * .62);
+        ctx.closePath(); ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+      /* 快到了：词框染红（照游戏 ✓）*/
+      if (!L.dying && L.p > .62) {
+        L.word.el.style.boxShadow = '0 0 0 ' + (2 + (L.p - .62) * 9).toFixed(1) + 'px rgba(226,35,26,' + ((L.p - .62) * 1.6).toFixed(2) + ')';
+      }
+    });
+
+    /* 粒子（全部 Graphics 画 ✓ 与游戏同一套做法 ✓ 零对象零 tween ✓）*/
+    parts.forEach(function (q) {
+      var al = Math.min(1, q.life * 2.6);
+      ctx.globalAlpha = al; ctx.fillStyle = q.col;
+      ctx.fillRect(q.x - q.size / 2, q.y - q.size / 2, q.size, q.size);
+    });
+    ctx.globalAlpha = 1;
+
+    /* 碎玻璃 / 小闪走上层（游戏 depth 24 > 节点 20 ✓）*/
+    ctx2.clearRect(0, 0, 1280, 720);
+    fx.forEach(function (f) {
+      var im = IMG[f.img];
+      if (!im || !im.complete) return;
+      ctx2.save();
+      ctx2.globalAlpha = Math.max(0, Math.min(1, f.life));
+      ctx2.translate(f.x, f.y); ctx2.rotate(f.rot);
+      var sz = f.isFlash ? f.size * (0.6 + (1 - f.life) * 0.8) : f.size;
+      ctx2.drawImage(im, -sz / 2, -sz / 2, sz, sz);
+      ctx2.restore();
+    });
+    requestAnimationFrame(loop);
+  }
+  function seg(c, x0, y0, x1, y1, col, w) {
+    c.strokeStyle = col; c.lineWidth = w; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke();
+  }
+
+  /* ---- 控件 ---- */
+  document.getElementById('bReplay').onclick = function () { dissolve(); };
+  document.getElementById('bRelaunch').onclick = function () { launch(); };
+  bAuto.onclick = function () { auto = !auto; bAuto.className = auto ? 'on' : ''; };
+  bSlow.onclick = function () { slow = !slow; bSlow.className = slow ? 'on' : ''; bSlow.textContent = slow ? '慢放 0.35×（开）' : '慢放 0.35×'; };
+  /* 点画面：还在飞 → 触发消散 ✓ 已经散完 → 重新起飞 ✓ */
+  stage.addEventListener('mousedown', function (e) { if (!fired) dissolve(); else launch(); });
+
+  /* 血条刻度（照 _makeBattlePortrait：i/9 八道 ✓）*/
+  ['barL', 'barR'].forEach(function (cls) {
+    var b = document.querySelector('.' + cls);
+    for (var i = 1; i < 9; i++) {
+      var t = document.createElement('div');
+      t.className = 'tk'; t.style.left = (272 * i / 9) + 'px';
+      b.appendChild(t);
+    }
+  });
+
+  build(); launch();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body></html>

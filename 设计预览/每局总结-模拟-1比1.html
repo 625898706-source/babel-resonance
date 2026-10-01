@@ -1,0 +1,447 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>巴别残响 · 每局总结（模拟 · 1:1）</title>
+<style>
+:root{--paper:#fff;--ink:#111;--muted:#6f6f6f;--line:#e6e6e6;--red:#e2231a;--yellow:#fff44f}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2') format('woff2');font-weight:700}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#8a8a8a;font-family:'HarmonyOS Sans SC',sans-serif;color:var(--ink)}
+#bar{width:1280px;margin:14px auto 0;font-size:12px;color:#fff;display:flex;align-items:center;gap:10px}
+#bar button{font:inherit;font-size:12px;padding:4px 12px;border:1px solid #111;background:#fff;cursor:pointer}
+#bar button.on{background:var(--yellow)}
+#stage{position:relative;width:1280px;height:720px;margin:8px auto 20px;background:var(--paper);overflow:hidden}
+#stage .ab{position:absolute}
+.hdr{font-family:'Novecento Wide',sans-serif;font-size:11px;letter-spacing:.12em;color:var(--muted)}
+.t1{font-family:'Novecento Wide',sans-serif;font-size:12px;letter-spacing:.1em;color:var(--muted)}
+.t2{font-size:34px;font-weight:700;line-height:44px}
+.t2 i{font-style:normal;color:var(--red)}
+.sub{font-size:14px;color:var(--muted)}
+.say{font-size:15px;line-height:27px;color:#3f4145}
+.small{font-size:12px;color:var(--muted)}
+.num{font-family:'Space Grotesk',monospace;font-weight:700}
+.big{font-family:'Novecento Wide',sans-serif;font-weight:600}
+.hr{height:1px;background:var(--line)}
+.hr2{height:1px;background:#f2f2f2}
+.kv{height:38px}
+.kv .k{font-size:14px;color:var(--muted)}
+.kv .v{font-family:'Space Grotesk',monospace;font-weight:700;font-size:22px}
+.pg{width:34px;height:30px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);cursor:pointer}
+.pg:hover{background:#fafafa}
+.pg.on{border-color:var(--ink);color:var(--ink);font-weight:700}
+.act{display:flex;gap:10px}
+.act div{height:30px;padding:0 16px;border:1px solid var(--ink);background:#fff;display:flex;align-items:center;font-size:13px;cursor:pointer;position:relative}
+.act div:hover{background:var(--yellow)}
+/* 滚动区：视口 overflow:hidden ＋ 内容 translateY ＋ 自绘细线滑块
+   —— 正是 Phaser 里的做法（GeometryMask ＋ 容器位移 ＋ 两条矩形）✓ 1:1 可复现 ✓ */
+.vp{overflow:hidden}
+.pp{width:1px;background:var(--line)}
+.th{width:5px;background:#c9c8c2;cursor:pointer}
+.th:hover{background:var(--ink)}
+.bar{height:5px;background:#efefef}
+.bar i{display:block;height:5px;background:var(--ink)}
+</style></head><body>
+
+<div id="bar">
+  <b>预览控件（不在游戏里）：</b>
+  <button data-v="win" class="on">模拟 · 通关</button>
+  <button data-v="lose">模拟 · 战败</button>
+  <button data-v="quit">模拟 · 中途退出</button>
+  <span>｜ 5 屏：封卷 · 战绩 · 错题 · 对题 · 见闻　　滚轮可滚动长列表　　← → 或点数字翻屏</span>
+</div>
+<div id="stage"></div>
+
+<script>
+/* ================= 数据（模拟真实一局；词汇/敌人/藏品都取自游戏本体） ================= */
+var ROLE = { '':'四选一', anagram:'拼词', maskless:'无面者拼词', rail:'轨道接字母' };
+function W(f, e, q, w, y, c, ok) { return { floor:f, enemy:e, quiz:q, word:w, your:y, correct:c, ok:ok }; }
+
+var ANSWERS = [
+  W(1,'源石虫','','abandon','放任；狂热','放任；狂热',1),
+  W(1,'源石虫','','ability','能力；能耐','能力；能耐',1),
+  W(1,'源石虫','','abrupt','生硬的；突然的','生硬的；突然的',1),
+  W(1,'源石虫','','absurd','荒诞；荒诞作品','荒诞；荒诞作品',1),
+  W(1,'源石虫','','abundant','丰富的；充裕的','丰富的；充裕的',1),
+  W(1,'猎狗pro','anagram','academic','acad','学术的；学院的',0),
+  W(1,'猎狗pro','anagram','accelerate','accel','使……加快',0),
+  W(1,'猎狗pro','anagram','access','acc','进入；使用权',0),
+  W(1,'猎狗pro','anagram','accident','acci','事故；意外',0),
+  W(1,'猎狗pro','anagram','account','acco','账户；解释',0),
+  W(1,'猎狗pro','anagram','accurate','accu','精确的',0),
+  W(1,'猎狗pro','anagram','achieve','achi','取得；获得',0),
+  W(2,'萨卡兹宿主卫巢百夫长','','accompany','陪伴；伴随','陪伴；伴随',1),
+  W(2,'萨卡兹宿主卫巢百夫长','','accomplish','完成；实现','完成；实现',1),
+  W(2,'萨卡兹宿主卫巢百夫长','','accumulate','积攒；累积','积攒；累积',1),
+  W(2,'萨卡兹宿主卫巢百夫长','','accuse','控告；指控','控告；指控',1),
+  W(2,'萨卡兹宿主卫巢百夫长','','adapt','适应；使适应','适应；使适应',1),
+  W(1,'殉道者 · 安多恩','','adequate','充足的；适当的','充足的；适当的',1),
+  W(1,'殉道者 · 安多恩','','adjust','调整；适应','调整；适应',1),
+  W(1,'殉道者 · 安多恩','','admire','钦佩；欣赏','钦佩；欣赏',1),
+  W(1,'殉道者 · 安多恩','','adopt','采纳；收养','采纳；收养',1),
+  W(1,'殉道者 · 安多恩','','advocate','提倡；拥护者','提倡；拥护者',1),
+  W(1,'殉道者 · 安多恩','','aggressive','好斗的；有进取心的','好斗的；有进取心的',1),
+  W(1,'殉道者 · 安多恩','','alternative','可供替代的选择','可供替代的选择',1),
+  W(1,'殉道者 · 安多恩','','ambitious','有雄心的','有雄心的',1),
+  W(1,'殉道者 · 安多恩','','analyze','分析','分析',1),
+  W(1,'殉道者 · 安多恩','','ancient','古代的；古老的','古代的；古老的',1),
+  W(1,'殉道者 · 安多恩','','announce','宣布；宣告','宣布；宣告',1),
+  W(1,'殉道者 · 安多恩','','annual','每年的；年度的','每年的；年度的',1),
+  W(1,'殉道者 · 安多恩','','anxious','焦虑的；渴望的','焦虑的；渴望的',1),
+  W(1,'殉道者 · 安多恩','','apparent','明显的；表面上的','明显的；表面上的',1),
+  W(1,'殉道者 · 安多恩','','appeal','呼吁；吸引力','呼吁；吸引力',1),
+  W(1,'殉道者 · 安多恩','','appreciate','欣赏；感激','欣赏；感激',1),
+  W(1,'里恩','','resonance','共鸣；回响','共鸣；回响',1),
+  W(2,'复仇者','anagram','approach','appr','接近；方法',0),
+  W(2,'复仇者','anagram','appropriate','approp','适当的',0),
+  W(2,'复仇者','anagram','assume','ass','假定；承担',0),
+  W(2,'复仇者','anagram','attempt','atte','尝试；企图',0),
+  W(2,'复仇者','anagram','attitude','atti','态度；看法',0),
+  W(2,'复仇者','anagram','avoid','avo','避免；躲开',0),
+  W(2,'幽影','anagram','hypocrisy','hypoc','伪善；虚伪',0),
+  W(2,'幽影','anagram','neon','ne','氖；霓虹灯',0),
+  W(2,'铁络无面者','maskless','subtle','subt','微妙的；细微的',0),
+  W(2,'铁络无面者','maskless','assess','评估；评定','评估；评定',1),
+  W(2,'铁络无面者','maskless','assure','使确信；保证','使确信；保证',1),
+  W(2,'铁络无面者','maskless','attach','附上；系上','附上；系上',1),
+  W(2,'铁络无面者','maskless','attract','吸引；引起','吸引；引起',1),
+  W(2,'铁络无面者','maskless','authority','权威；当局','权威；当局',1),
+  W(2,'铁络无面者','maskless','available','可获得的','可获得的',1),
+  W(2,'铁络无面者','maskless','aware','意识到的','意识到的',1),
+  W(2,'铁络无面者','maskless','burden','负担；重担','负担；重担',1),
+  W(2,'铁络无面者','maskless','campaign','运动；战役','运动；战役',1),
+  W(2,'铁络无面者','maskless','capable','有能力的','有能力的',1),
+  W(2,'塔露拉','rail','catastrophe','catast','大灾难',0),
+  W(2,'塔露拉','rail','integrity','integ','正直；完整',0),
+];
+var NODES = [
+  { f:1, n:'入口 · 初响' },
+  { f:1, n:'商店', d:'买下「温汤匙」（6 残页）' },
+  { f:1, n:'不期而遇', d:'白得「轻拾残页」' },
+  { f:1, n:'普通 · 源石虫', d:'胜利 · +2 残页' },
+  { f:1, n:'得偿所愿', d:'大份判对 → 随机藏品「铅字」' },
+  { f:1, n:'紧急 · 猎狗pro', d:'胜利 · +3 残页' },
+  { f:1, n:'失与得', d:'用「温汤匙」换得「速读者」（+2 残页）' },
+  { f:1, n:'残响之隙 · 里恩', d:'胜利 · +4 残页 · 掉落「指令机」' },
+  { f:1, n:'BOSS · 殉道者 · 安多恩', d:'胜利 · 掉落「破环之诫」' },
+  { f:2, n:'入口 · 叠响' },
+  { f:2, n:'普通 · 萨卡兹宿主卫巢百夫长', d:'胜利 · +2 残页' },
+  { f:2, n:'商店', d:'买下「护页纸」（12 残页）' },
+  { f:2, n:'紧急 · 复仇者', d:'胜利 · +3 残页' },
+  { f:2, n:'不期而遇', d:'白得「空页」' },
+  { f:2, n:'BOSS · 铁络无面者', d:'胜利 · +6 残页 · 掉落「不灭之页」' },
+  { f:2, n:'BOSS · 塔露拉', d:'胜利 · 通关' }
+];
+var GAINED = ['轻拾残页','铅字','速读者','指令机','破环之诫','护页纸','空页','不灭之页','巨力之页'];
+var TRADED = ['温汤匙'];
+
+var DATA = {
+  win:  { outcome:'win',  floor:2, floorName:'回响层', roman:'II', used:'12:47', currency:38, hp:6, maxHp:10, coll:9,
+          answers:ANSWERS, nodes:NODES, gained:GAINED, traded:TRADED, earned:61, spent:23 },
+  lose: { outcome:'lose', floor:2, floorName:'回响层', roman:'II', used:'09:12', currency:4,  hp:0, maxHp:10, coll:6,
+          answers:ANSWERS.slice(0,42), nodes:NODES.slice(0,14),
+          gained:['轻拾残页','铅字','速读者','护页纸','空页','破环之诫'], traded:[], earned:41, spent:37 },
+  quit: { outcome:'quit', floor:2, floorName:'回响层', roman:'II', used:'06:35', currency:21, hp:7, maxHp:10, coll:7,
+          answers:ANSWERS.slice(0,30), nodes:NODES.slice(0,12),
+          gained:['轻拾残页','铅字','速读者','护页纸','空页','破环之诫','指令机'], traded:[], earned:44, spent:23 }
+};
+
+/* ================= 小工具 ================= */
+var stage = document.getElementById('stage');
+var cur = 0, D = DATA.win, ST = null;
+var NAMES = ['封卷','战绩','错题','对题','见闻'];
+
+function stats(d) {
+  var ok = 0, combo = 0, maxc = 0, byQuiz = {}, byEnemy = {};
+  d.answers.forEach(function (a) {
+    if (a.ok) { ok++; combo++; if (combo > maxc) maxc = combo; } else { combo = 0; }
+    var q = a.quiz === 'anagram' ? 'anagram' : (a.quiz === 'rail' ? 'rail' : '');
+    if (!byQuiz[q]) byQuiz[q] = { n:0, ok:0 }; byQuiz[q].n++; if (a.ok) byQuiz[q].ok++;
+    if (!byEnemy[a.enemy]) byEnemy[a.enemy] = { n:0, ok:0, f:a.floor, words:[] };
+    byEnemy[a.enemy].n++; if (a.ok) { byEnemy[a.enemy].ok++; byEnemy[a.enemy].words.push(a.word); }
+  });
+  return { ok:ok, bad:d.answers.length - ok, rate:Math.round(ok / Math.max(1, d.answers.length) * 100), max:maxc, byQuiz:byQuiz, byEnemy:byEnemy };
+}
+function div(cls, text, css) {
+  var d = document.createElement('div');
+  d.className = 'ab ' + (cls || '');
+  if (text != null) d.innerHTML = text;
+  if (css) d.setAttribute('style', css);
+  return d;
+}
+function at(node, l, t, w, h) {
+  node.style.left = l + 'px'; node.style.top = t + 'px';
+  if (w != null) node.style.width = w + 'px';
+  if (h != null) node.style.height = h + 'px';
+  return node;
+}
+
+/* 可滚动区：返回一个 DocumentFragment（视口 + 滚动条）
+   build(inner) 需返回内容总高 ✓（子元素都是绝对定位 → scrollHeight 读不到 ✗） */
+function scroller(left, top, w, h, build) {
+  var frag = document.createDocumentFragment();
+  var vp = div('vp'); at(vp, left, top, w, h);
+  var inner = div(''); inner.style.position = 'absolute'; inner.style.left = '0'; inner.style.top = '0'; inner.style.width = w + 'px';
+  var total = build(inner) || 0;
+  inner.style.height = total + 'px';
+  vp.appendChild(inner);
+  var pp = div('pp'); at(pp, left + w + 14, top, 1, h);
+  var th = div('th'); at(th, left + w + 12, top, 5, 40);
+  var off = 0;
+  function apply() {
+    if (total <= h) { th.style.display = 'none'; return; }
+    th.style.display = '';
+    var thh = Math.max(28, Math.round(h * h / total));
+    th.style.height = thh + 'px';
+    off = Math.max(0, Math.min(total - h, off));
+    inner.style.transform = 'translateY(' + (-off) + 'px)';
+    th.style.top = (top + Math.round((h - thh) * (off / (total - h)))) + 'px';
+  }
+  vp.addEventListener('wheel', function (e) { e.preventDefault(); off += e.deltaY; apply(); }, { passive:false });
+  frag.appendChild(vp); frag.appendChild(pp); frag.appendChild(th);
+  setTimeout(apply, 0);
+  return frag;
+}
+
+/* ================= 屏 1 · 封卷 ================= */
+function screen1() {
+  var f = document.createDocumentFragment();
+  f.appendChild(at(div('hdr', 'BABEL RESONANCE · RUN SUMMARY / 第' + (D.roman === 'II' ? '二' : '一') + '卷'), 44, 20));
+  f.appendChild(at(div('hr'), 44, 38, 1192, 1));
+  f.appendChild(at(div('t1', 'RUN SUMMARY'), 44, 62));
+  var title, say;
+  var roman = (D.roman === 'II' ? '二' : '一');
+  if (D.outcome === 'win') {
+    title = '语域<i>贯通</i>';
+    say = '你走完了回声与回响。档案馆把你的名字收进了这一册——<br>这一趟，你是被记住的那一个。';
+  } else if (D.outcome === 'lose') {
+    title = '残响<i>未竟</i>';
+    say = '你的声音在语域里散了。档案馆收回了这一卷，<br>另留一页空白，等你再来写。';
+  } else {
+    title = '中途<i>搁笔</i>';
+    say = '你在中途停了笔。档案馆不催人，<br>只把它按原样收好——写过的，都算数。';
+  }
+  f.appendChild(at(div('t2', title), 44, 78, 1000, 54));
+  f.appendChild(at(div('sub', '第 ' + D.floor + ' 层 · ' + D.floorName + '　　第' + roman + '卷'), 46, 138, 1000, 24));
+  f.appendChild(at(div('say', say), 44, 172, 1000, 62));
+  var rows = [['本局用时', D.used], ['残页', String(D.currency)], ['目标生命', D.hp + ' / ' + D.maxHp], ['藏品', D.coll + ' 件']];
+  rows.forEach(function (r, i) {
+    var y = 292 + i * 46;
+    var box = div('kv'); at(box, 44, y, 1192, 38);
+    box.appendChild(at(div('k', r[0]), 0, 9, 180, 20));
+    box.appendChild(at(div('v', r[1]), 180, 2, 400, 30));
+    f.appendChild(box);
+    f.appendChild(at(div('hr'), 44, y + 38, 1192, 1));
+  });
+  f.appendChild(at(div('say', '按 ← → 或点下方数字翻屏：战绩 · 错题 · 对题 · 见闻'), 44, 510, 1000, 30));
+  return f;
+}
+
+/* ================= 屏 2 · 战绩 ================= */
+function screen2() {
+  var f = document.createDocumentFragment();
+  f.appendChild(at(div('hdr', 'BABEL RESONANCE · RUN SUMMARY'), 44, 20));
+  f.appendChild(at(div('hr'), 44, 38, 1192, 1));
+  f.appendChild(at(div('t2', '战绩'), 44, 62, 400, 46));
+  f.appendChild(at(div('', '<span class="big" style="font-size:76px;line-height:84px">' + ST.rate + '</span><span class="big" style="font-size:30px">%</span>'), 44, 116, 400, 92));
+  f.appendChild(at(div('sub', '正确率'), 190, 176, 200, 24));
+  f.appendChild(at(div('say', '答对 <b class="num">' + ST.ok + '</b> ／ 答错 <b class="num">' + ST.bad + '</b>'), 44, 222, 500, 26));
+  f.appendChild(at(div('say', '最长连对 <b class="num">' + ST.max + '</b>'), 44, 254, 500, 26));
+  f.appendChild(at(div('hr'), 44, 298, 560, 1));
+  f.appendChild(at(div('sub', '按作答形式'), 44, 312, 300, 24));
+  var qn = { '':'四选一', anagram:'拼词', rail:'轨道接字母' };
+  var y = 348;
+  ['', 'anagram', 'rail'].forEach(function (k) {
+    var v = ST.byQuiz[k];
+    var pct = v ? Math.round(v.ok / v.n * 100) : 0;
+    var box = div(''); at(box, 44, y, 560, 44);
+    box.appendChild(at(div('', qn[k], 'font-size:14px'), 0, 7, 120, 22));
+    box.appendChild(at(div('small', v ? v.n + ' 题' : '—'), 122, 8, 90, 20));
+    box.appendChild(at(div('bar', '<i style="width:' + (v ? pct : 0) + '%"></i>'), 222, 13, 180, 5));
+    box.appendChild(at(div('num', v ? pct + '%' : '—', 'font-size:14px'), 414, 6, 100, 22));
+    f.appendChild(box);
+    f.appendChild(at(div('hr'), 44, y + 44, 560, 1));
+    y += 44;
+  });
+  f.appendChild(at(div('hr'), 660, 116, 576, 1));
+  f.appendChild(at(div('sub', '按战斗'), 660, 130, 300, 24));
+  var frag = scroller(660, 166, 576, 456, function (inner) {
+    var yy = 0;
+    Object.keys(ST.byEnemy).forEach(function (k) {
+      var v = ST.byEnemy[k];
+      var pct = Math.round(v.ok / v.n * 100);
+      var row = div(''); at(row, 0, yy, 576, 40);
+      row.appendChild(at(div('', k, 'font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'), 0, 9, 290, 22));
+      row.appendChild(at(div('small', '第 ' + v.f + ' 层 · ' + v.n + ' 题'), 296, 10, 130, 20));
+      row.appendChild(at(div('num', pct + '%', 'font-size:14px;color:' + (pct === 100 ? '#111' : '#e2231a')), 420, 8, 80, 22));
+      inner.appendChild(row);
+      inner.appendChild(at(div('hr'), 0, yy + 40, 576, 1));
+      yy += 40;
+    });
+    return yy;
+  });
+  f.appendChild(frag);
+  return f;
+}
+
+/* ================= 屏 3 · 错题 ================= */
+function screen3() {
+  var f = document.createDocumentFragment();
+  f.appendChild(at(div('hdr', 'BABEL RESONANCE · RUN SUMMARY'), 44, 20));
+  f.appendChild(at(div('hr'), 44, 38, 1192, 1));
+  f.appendChild(at(div('t1', 'WRONG ANSWERS'), 44, 62));
+  f.appendChild(at(div('t2', '错题 <i>' + ST.bad + '</i> 道'), 44, 80, 700, 46));
+  f.appendChild(at(div('say', '被划掉的那几行，才是这一趟真正的收获。'), 44, 132, 900, 26));
+  f.appendChild(at(div('hr'), 44, 166, 1192, 1));
+  f.appendChild(at(div('small', '英文词'), 70, 176, 180, 18));
+  f.appendChild(at(div('small', '中文释义'), 294, 176, 180, 18));
+  f.appendChild(at(div('small', '你的作答'), 556, 176, 180, 18));
+  f.appendChild(at(div('small', '出处'), 1010, 176, 200, 18));
+  f.appendChild(at(div('hr'), 44, 198, 1192, 1));
+  var frag = scroller(44, 206, 1192, 432, function (inner) {
+    var yy = 0;
+    var byE = {};
+    D.answers.forEach(function (a) { if (!a.ok) { (byE[a.enemy] = byE[a.enemy] || []).push(a); } });
+    var keys = Object.keys(byE);
+    keys.forEach(function (k) {
+      var head = div(''); at(head, 0, yy, 1188, 26);
+      head.appendChild(at(div('small', '── ' + k + ' ──', 'letter-spacing:.08em;background:#fff;padding-right:10px'), 0, 0, 400, 20));
+      head.appendChild(at(div('hr'), 0, 12, 1188, 1));
+      inner.appendChild(head);
+      yy += 30;
+      byE[k].forEach(function (a) {
+        var row = div(''); at(row, 0, yy, 1188, 34);
+        row.appendChild(at(div('', '✗', 'font-size:15px;font-weight:700;color:#e2231a'), 0, 6, 22, 22));
+        var latin = /^[\x00-\x7F]+$/.test(a.your || '');
+        var ans = (a.your && a.your.length) ? a.your : '（未拼出）';
+        row.appendChild(at(div('', a.word, 'font-family:\'Space Grotesk\',sans-serif;font-size:16px'), 26, 7, 214, 22));
+        row.appendChild(at(div('', a.correct), 250, 8, 258, 22));
+        row.appendChild(at(div('', ans, 'color:#e2231a;' + (latin ? 'font-family:\'Space Grotesk\',sans-serif;' : '')), 512, 8, 300, 22));
+        row.appendChild(at(div('small', '第 ' + a.floor + ' 层 · ' + a.enemy + ' · ' + (ROLE[a.quiz] || '四选一'), 'text-align:right'), 830, 9, 358, 20));
+        inner.appendChild(row);
+        inner.appendChild(at(div('hr2'), 0, yy + 34, 1188, 1));
+        yy += 35;
+      });
+      yy += 10;
+    });
+    if (!keys.length) inner.appendChild(at(div('say', '这一局没有错题。'), 26, 8, 600, 26));
+    return yy;
+  });
+  f.appendChild(frag);
+  return f;
+}
+
+/* ================= 屏 4 · 对题（按战斗折叠） ================= */
+function screen4() {
+  var f = document.createDocumentFragment();
+  f.appendChild(at(div('hdr', 'BABEL RESONANCE · RUN SUMMARY'), 44, 20));
+  f.appendChild(at(div('hr'), 44, 38, 1192, 1));
+  f.appendChild(at(div('t1', 'CORRECT ANSWERS'), 44, 62));
+  f.appendChild(at(div('t2', '对题 ' + ST.ok + ' 道'), 44, 80, 700, 46));
+  f.appendChild(at(div('say', '笔迹稳定。这些词，你已经记住了。'), 44, 132, 900, 26));
+  f.appendChild(at(div('hr'), 44, 166, 1192, 1));
+  var frag = scroller(44, 182, 1192, 434, function (inner) {
+    var yy = 0;
+    Object.keys(ST.byEnemy).forEach(function (k) {
+      var v = ST.byEnemy[k];
+      var miss = v.n - v.ok;
+      var row = div(''); at(row, 0, yy, 1188, 38);
+      row.appendChild(at(div('', '✓', 'font-size:14px'), 0, 10, 22, 22));
+      row.appendChild(at(div('', k, 'font-size:14px'), 26, 9, 420, 22));
+      row.appendChild(at(div('small', '第 ' + v.f + ' 层'), 452, 10, 150, 20));
+      row.appendChild(at(div('small', v.ok + ' 题 · ' + (miss ? miss + ' 错' : '全对'), miss ? '#e2231a' : '#6f6f6f'), 606, 10, 300, 20));
+      row.appendChild(at(div('small', v.words.join(' · '), 'color:#9b9fa5;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'), 900, 10, 288, 20));
+      inner.appendChild(row);
+      inner.appendChild(at(div('hr'), 0, yy + 38, 1188, 1));
+      yy += 39;
+    });
+    return yy;
+  });
+  f.appendChild(frag);
+  f.appendChild(at(div('small', '（对题按战斗折叠 —— 想看逐题明细说一声，我改成完整列表并自动滚动 ✓）'), 44, 636, 1000, 20));
+  return f;
+}
+
+/* ================= 屏 5 · 见闻 ================= */
+function screen5() {
+  var f = document.createDocumentFragment();
+  f.appendChild(at(div('hdr', 'BABEL RESONANCE · RUN SUMMARY'), 44, 20));
+  f.appendChild(at(div('hr'), 44, 38, 1192, 1));
+  f.appendChild(at(div('t1', 'FIELD NOTES'), 44, 62));
+  f.appendChild(at(div('t2', '见闻'), 44, 80, 700, 46));
+  f.appendChild(at(div('say', '这一趟你走过的地方，和你留下的东西。'), 44, 132, 900, 26));
+  f.appendChild(at(div('hr'), 44, 166, 1192, 1));
+  var frag = scroller(44, 182, 1192, 434, function (inner) {
+    var yy = 0;
+    function head(t) {
+      var d = div(''); at(d, 0, yy, 1188, 26);
+      d.appendChild(at(div('small', '── ' + t + ' ──', 'letter-spacing:.08em;background:#fff;padding-right:10px'), 0, 0, 400, 20));
+      d.appendChild(at(div('hr'), 0, 12, 1188, 1));
+      inner.appendChild(d);
+      yy += 34;
+    }
+    function tx(t, cls) {
+      inner.appendChild(at(div(cls || '', t, 'width:1150px;line-height:22px'), 6, yy, 1150, 24));
+      yy += 26;
+    }
+    head('路线');
+    var lastF = 0;
+    D.nodes.forEach(function (n) {
+      if (n.f !== lastF) { lastF = n.f; tx('· 第 ' + n.f + ' 层', 'small'); }
+      tx('　' + n.n + (n.d ? '　<span style="color:#6f6f6f">' + n.d + '</span>' : ''));
+    });
+    yy += 8; head('藏品');
+    tx('获得 ' + D.gained.length + ' 件：' + D.gained.join(' → '));
+    tx(D.traded.length ? '换出 ' + D.traded.length + ' 件：' + D.traded.join(' · ') + '（已放回池中，仍可获得）' : '换出 0 件：这一趟没有割舍。');
+    yy += 8; head('账目');
+    tx('残页收入 <b class="num">' + D.earned + '</b>　支出 <b class="num">' + D.spent + '</b>　结余 <b class="num">' + D.currency + '</b>');
+    yy += 10;
+    tx('这一册到此为止。要再走一趟，就从头开始；要留下错的那几行，档案馆替你收着。', 'say');
+    return yy;
+  });
+  f.appendChild(frag);
+  return f;
+}
+
+/* ================= 组装与交互 ================= */
+function render() {
+  ST = stats(D);
+  stage.innerHTML = '';
+  var makers = [screen1, screen2, screen3, screen4, screen5];
+  makers.forEach(function (mk, i) {
+    var s = div('', null, 'position:absolute;left:0;top:0;width:1280px;height:720px;display:' + (i === cur ? 'block' : 'none'));
+    s.appendChild(mk());
+    stage.appendChild(s);
+  });
+  var box = at(div('', null, 'display:flex;gap:8px'), 44, 666);
+  NAMES.forEach(function (nm, i) {
+    var d = div('pg' + (i === cur ? ' on' : ''), String(i + 1));
+    d.style.position = 'relative';
+    d.onclick = function () { cur = i; render(); };
+    box.appendChild(d);
+  });
+  stage.appendChild(box);
+  stage.appendChild(at(div('small', NAMES[cur]), 44 + 5 * 42 + 10, 673));
+  stage.appendChild(at(div('small', '滚轮滚动长列表 · 点数字或按 ← → 翻屏'), 0, 630)).style.right = '44px';
+  if (cur === 4) {
+    var act = div('act'); act.style.position = 'absolute'; act.style.left = 'auto'; act.style.right = '44px'; act.style.bottom = '22px';
+    var again = div('', '再走一次'); again.onclick = function () { alert('（示意）重开一局'); };
+    var back = div('', '继续'); back.onclick = function () { alert('（示意）回主菜单'); };
+    act.appendChild(again); act.appendChild(back);
+    stage.appendChild(act);
+  }
+}
+document.querySelectorAll('#bar button').forEach(function (b) {
+  b.onclick = function () {
+    document.querySelectorAll('#bar button').forEach(function (x) { x.className = ''; });
+    b.className = 'on';
+    D = DATA[b.getAttribute('data-v')] || DATA.win;
+    cur = 0; render();
+  };
+});
+window.addEventListener('keydown', function (e) {
+  if (e.key === 'ArrowRight') { cur = Math.min(4, cur + 1); render(); }
+  if (e.key === 'ArrowLeft') { cur = Math.max(0, cur - 1); render(); }
+});
+render();
+</script></body></html>

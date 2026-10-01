@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>巴别残响 · 地图视觉六版（非交叉连线）</title>
+<style>
+/* ============================================================================
+   地图【视觉】方案 v2 —— 结构/连线 100% 照代码
+   连线规则（floorConfig.generateFloor ⑤）：非交叉单调
+     上排(idx0) → [0,1] ∩ {≤ mMin}   中排(idx1) → 连续区间 [mMin..mMax]   下排(idx2) → [1,2] ∩ {≥ mMax}
+     入口 → 首列全部；末列中转 → BOSS
+   几何：nodeW 173 · nodeH 92 · colGap 209 · rowGap 196 · 车道 [-1,0,1]
+   六版差异刻意放大（形状/状态编码/连线样式各成一派），不再只是改线宽
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2')format('woff2');font-weight:900}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111;-webkit-font-smoothing:antialiased}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 16px 80px}
+.head{width:100%;max-width:1340px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.head h1{font-size:18px;margin:0;font-weight:900}
+.head p{margin:0;font-size:12.5px;color:#6f6f6f}
+.tabs{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
+.tabs button{font-weight:700;font-size:12px;padding:6px 11px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#111;color:#fff;border-color:#111}
+.viewport{position:relative;width:100%;max-width:1340px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 18px 50px rgba(0,0,0,.18);overflow:hidden}
+.screen{position:absolute;inset:0;width:1280px;height:720px;display:none}
+.screen.on{display:block}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.8}
+
+/* ---------- 页眉（六版共用，只是配色随令牌） ---------- */
+.hudTop{position:absolute;left:0;top:0;width:1280px;height:52px;display:flex;align-items:center;gap:16px;padding:0 30px;border-bottom:1px solid var(--rule)}
+.pill{font-family:'Novecento';font-weight:600;font-size:11.5px;letter-spacing:.08em;color:#e2231a;border:1px solid #e2231a;padding:3px 8px}
+.hlab{font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.spacer{flex:1}
+.btn{font-weight:700;font-size:12.5px;color:var(--ink);background:transparent;border:1px solid var(--rule);padding:6px 16px;cursor:pointer}
+.hudState{position:absolute;left:30px;top:62px;font-family:'Grotesk';font-size:15px;color:var(--ink)}
+.hudState span{color:var(--muted);font-size:12.5px;font-family:'HOS';margin-right:6px}
+.hint{position:absolute;left:50%;transform:translateX(-50%);bottom:76px;font-size:12.5px;color:var(--muted)}
+.bag{position:absolute;left:0;bottom:0;width:1280px;height:64px;background:var(--bagBg);border-top:1px solid var(--rule);display:flex;align-items:center;gap:20px;padding:0 30px}
+.bag .t{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.bag .it{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink);white-space:nowrap}
+.bag .dot{width:7px;height:7px;border-radius:50%;background:#e2231a}
+
+/* 节点基础几何（六版共用位置/尺寸） */
+.tile{position:absolute;width:173px;height:92px;margin-left:-86.5px;margin-top:-46px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.tile .lab{line-height:1;margin-bottom:8px}
+.tile .desc{font-family:'Novecento';font-weight:600;font-size:9px;letter-spacing:.16em;text-transform:uppercase}
+
+/* 连线：SVG（形状照 _drawEdge） */
+svg.edges{position:absolute;inset:0;width:1280px;height:720px;pointer-events:none}
+
+/* ================= V1 白卡瓷砖（细边 + 红左条） ================= */
+body.v1{--bg:#fff;--ink:#111;--muted:#6f6f6f;--rule:#e6e6e6;--bagBg:#fff}
+#v1 .tile{background:#fff;border:1px solid #e6e6e6}
+#v1 .tile .lab{font-weight:700;font-size:22px;color:#111}
+#v1 .tile .desc{color:#6f6f6f}
+#v1 .tile.visited{opacity:.42}
+#v1 .tile.cur{border-color:#e2231a;border-left:4px solid #e2231a}
+#v1 .tile.cur .here{position:absolute;top:-20px;font-family:'Novecento';font-weight:600;font-size:9.5px;letter-spacing:.2em;color:#e2231a;white-space:nowrap}
+#v1 .tile.sel{box-shadow:0 0 0 2px rgba(17,17,17,.5)}
+#v1 svg path{stroke:#d5d5d5;stroke-width:1.5;fill:none} #v1 svg polygon{fill:#d5d5d5}
+
+/* ================= V2 实心块（当前=黑块白字） ================= */
+body.v2{--bg:#fff;--ink:#111;--muted:#6f6f6f;--rule:#e6e6e6;--bagBg:#fff}
+#v2 .tile{background:#f1f1f1;border:0}
+#v2 .tile .lab{font-weight:700;font-size:22px;color:#111}
+#v2 .tile .desc{color:#6f6f6f}
+#v2 .tile.visited{opacity:.38}
+#v2 .tile.cur{background:#111}
+#v2 .tile.cur .lab{color:#fff} #v2 .tile.cur .desc{color:#c9c9c9}
+#v2 .tile.cur .here{position:absolute;top:-20px;font-family:'Novecento';font-weight:600;font-size:9.5px;letter-spacing:.2em;color:#e2231a;white-space:nowrap}
+#v2 .tile.sel{background:#fff;box-shadow:inset 0 0 0 2px #111}
+#v2 svg path{stroke:#cfcfcf;stroke-width:2;fill:none} #v2 svg polygon{fill:#cfcfcf}
+
+/* ================= V3 纯文字（无框 + 红顶线） ================= */
+body.v3{--bg:#fff;--ink:#111;--muted:#8a8a8a;--rule:#e6e6e6;--bagBg:#fff}
+#v3 .tile{background:transparent;border:0;border-top:1px solid #e6e6e6;justify-content:flex-start;padding-top:16px}
+#v3 .tile .lab{font-weight:500;font-size:20px;color:#111}
+#v3 .tile .desc{color:#8a8a8a}
+#v3 .tile.visited{opacity:.3}
+#v3 .tile.cur{border-top:4px solid #e2231a}
+#v3 .tile.cur .lab{color:#e2231a} #v3 .tile.cur .desc{color:#e2231a;opacity:.7}
+#v3 .tile.cur .here{display:none}
+#v3 .tile.sel{border-top:1px solid #e2231a}
+#v3 svg path{stroke:#ededed;stroke-width:1;fill:none} #v3 svg polygon{fill:#ededed}
+
+/* ================= V4 线框 + 角标（虚线连线） ================= */
+body.v4{--bg:#fff;--ink:#111;--muted:#6f6f6f;--rule:#e6e6e6;--bagBg:#fff}
+#v4 .tile{background:#fff;border:0}
+#v4 .tile::before{content:'';position:absolute;inset:0;background:
+  linear-gradient(#111,#111) left top/14px 1px no-repeat,
+  linear-gradient(#111,#111) left top/1px 14px no-repeat,
+  linear-gradient(#111,#111) right top/14px 1px no-repeat,
+  linear-gradient(#111,#111) right top/1px 14px no-repeat,
+  linear-gradient(#111,#111) left bottom/14px 1px no-repeat,
+  linear-gradient(#111,#111) left bottom/1px 14px no-repeat,
+  linear-gradient(#111,#111) right bottom/14px 1px no-repeat,
+  linear-gradient(#111,#111) right bottom/1px 14px no-repeat}
+#v4 .tile .lab{font-weight:700;font-size:21px;color:#111}
+#v4 .tile .desc{color:#6f6f6f}
+#v4 .tile.visited{opacity:.35}
+#v4 .tile.cur::after{content:'';position:absolute;inset:-6px;border:1px solid #e2231a}
+#v4 .tile.cur .here{position:absolute;top:-22px;font-family:'Novecento';font-weight:600;font-size:9.5px;letter-spacing:.2em;color:#e2231a}
+#v4 .tile.sel{background:#fcfcfc}
+#v4 .tile.sel::after{content:'';position:absolute;inset:-6px;border:1px dashed #111}
+#v4 svg path{stroke:#c8c8c8;stroke-width:1;stroke-dasharray:5 4;fill:none} #v4 svg polygon{fill:#c8c8c8}
+
+/* ================= V5 线路图（小方块 + 名字在外侧） ================= */
+body.v5{--bg:#fff;--ink:#111;--muted:#6f6f6f;--rule:#e6e6e6;--bagBg:#fff}
+#v5 .tile{background:#fff;border:1px solid #111;width:26px;height:26px;margin-left:-13px;margin-top:-13px;justify-content:flex-start}
+#v5 .tile .lab{position:absolute;top:-34px;left:50%;transform:translateX(-50%);font-weight:500;font-size:15px;color:#111;white-space:nowrap;margin:0}
+#v5 .tile .desc{position:absolute;top:34px;left:50%;transform:translateX(-50%);color:#6f6f6f;white-space:nowrap}
+#v5 .tile.visited{opacity:.35}
+#v5 .tile.cur{background:#e2231a;border-color:#e2231a}
+#v5 .tile.cur .lab{color:#e2231a}
+#v5 .tile.cur .here{display:none}
+#v5 .tile.sel{background:#fff;border-color:#e2231a;box-shadow:0 0 0 3px rgba(226,35,26,.18)}
+#v5 svg path{stroke:#bbb;stroke-width:1.25;fill:none} #v5 svg polygon{display:none}
+
+/* ================= V6 深色 ================= */
+body.v6{--bg:#0f0f11;--ink:#f2f0ec;--muted:#8b8b8b;--rule:#2a2a2e;--bagBg:#0f0f11}
+#v6 .tile{background:#151518;border:1px solid #2a2a2e}
+#v6 .tile .lab{font-weight:700;font-size:22px;color:#f2f0ec}
+#v6 .tile .desc{color:#8b8b8b}
+#v6 .tile.visited{opacity:.34}
+#v6 .tile.cur{background:#e2231a;border-color:#e2231a}
+#v6 .tile.cur .lab{color:#fff} #v6 .tile.cur .desc{color:#ffdedb}
+#v6 .tile.cur .here{position:absolute;top:-20px;font-family:'Novecento';font-weight:600;font-size:9.5px;letter-spacing:.2em;color:#e2231a;white-space:nowrap}
+#v6 .tile.sel{box-shadow:0 0 0 2px rgba(242,240,236,.45)}
+#v6 svg path{stroke:#34343a;stroke-width:1.5;fill:none} #v6 svg polygon{fill:#34343a}
+#v6 .hudTop{border-bottom-color:#2a2a2e}
+#v6 .bag{border-top-color:#2a2a2e} #v6 .bag .it{color:#f2f0ec}
+</style>
+</head>
+<body class="v1">
+
+<div class="desk">
+  <div class="head">
+    <h1>地图视觉六版（<b>非交叉</b>连线 · 真实结构 6×3）</h1>
+    <p>连线规则照 generateFloor ⑤（上排 ≤ 中排 ≤ 下排，单调不交叉）· 六版差异刻意放大</p>
+    <div class="tabs" id="tabs">
+      <button data-s="v1" class="on">V1 白卡瓷砖</button>
+      <button data-s="v2">V2 实心块</button>
+      <button data-s="v3">V3 纯文字</button>
+      <button data-s="v4">V4 线框角标</button>
+      <button data-s="v5">V5 线路图</button>
+      <button data-s="v6">V6 深色</button>
+    </div>
+  </div>
+
+  <div class="viewport"><div class="stage" id="stage"></div></div>
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+/* ================= 几何（照 MapScene） ================= */
+const W = 1280;
+const cols = 6, rows = 3, margin = 30, minGap = 36;
+const nodeW = Math.max(120, Math.min(215, Math.floor((W - 2 * margin - minGap * (cols - 1)) / cols)));
+const nodeH = Math.round(nodeW * 0.53);
+const colGap = Math.min(420, (W - 2 * margin - nodeW) / (cols - 1));
+const rowGap = Math.round(nodeH + nodeW * 0.6);
+const centerY = 356;
+const totalW = (cols - 1) * colGap + nodeW;
+const startX = (W - totalW) / 2 + nodeW / 2;
+const colX = (c) => startX + c * colGap;
+const laneY = (r) => centerY + r * rowGap;      // r = 偏移(-1,0,1)
+
+/* ================= 真实连边规则（generateFloor ⑤） =================
+   每对相邻列取一组 (size, mMin)，生成非交叉单调连边：
+     上排(idx0) → [0,1]∩{≤mMin}   中排(idx1) → [mMin..mMax]   下排(idx2) → [1,2]∩{≥mMax}
+   这里用固定示例，保证"上≤中≤下"不交叉 */
+const LANE = [-1, 0, 1];                        // 车道偏移，索引 0/1/2 = 上/中/下
+const BANDS = [
+  { size: 2, mMin: 0 },   // 1→2 列
+  { size: 1, mMin: 1 },   // 2→3 列
+  { size: 3, mMin: 0 },   // 3→4 列
+];
+function bandEdges(fromIds, toIds, band) {
+  const mMin = band.mMin, mMax = band.mMin + band.size - 1;
+  const out = [];
+  const top = [0, 1].filter(t => t <= mMin);
+  const mid = []; for (let i = mMin; i <= mMax; i++) mid.push(i);
+  const bot = [1, 2].filter(t => t >= mMax);
+  [top, mid, bot].forEach((set, fromIdx) => set.forEach(toIdx => out.push([fromIds[fromIdx], toIds[toIdx]])));
+  return out;
+}
+
+/* ================= 节点（14 个：入口 + 4×3 + BOSS） ================= */
+const T = {
+  entry: ['入口', 'START'], ordinary: ['战', '普通作战'], emergency: ['紧急', '紧急作战'],
+  shop: ['商店', '旧货摊'], reward: ['奖励', '得偿所愿'], exchange: ['失与得', '交换藏品'],
+  boss: ['险路恶敌', '层尾 BOSS'],
+};
+const NODES = [{ id: 's0', col: 0, row: 0, type: 'entry', state: 'visited' }];
+const nodeTypes = [
+  [['ordinary', 'emergency', 'shop'], ['reward', 'ordinary', 'emergency'], ['emergency', 'shop', 'ordinary'], ['reward', 'emergency', 'exchange']],
+];
+for (let c = 1; c <= 4; c++) {
+  for (let i = 0; i < 3; i++) {
+    NODES.push({ id: 'n' + c + i, col: c, row: LANE[i], type: nodeTypes[0][c - 1][i], state: 'idle' });
+  }
+}
+NODES.push({ id: 'boss', col: 5, row: 0, type: 'boss', state: 'idle' });
+/* 状态：入口+首列已走过；首列中车道 = 当前位置；次列两格 = 可走（对应 band 1→2 的 mMin=0 → 连到 idx0/idx1） */
+NODES.forEach(n => {
+  if (n.col === 0) n.state = 'visited';
+  if (n.col === 1 && n.row === 1) n.state = 'cur';
+  if (n.col === 1 && n.row !== 1) n.state = 'visited';
+  if (n.col === 2 && (n.row === -1 || n.row === 0)) n.state = 'sel';
+});
+
+const byId = {}; NODES.forEach(n => byId[n.id] = n);
+const colOf = (c) => NODES.filter(n => n.col === c).map(n => n.id);
+
+/* 连边：入口 → 首列全部；中转列按 band 规则；末列 → BOSS */
+const EDGES = [];
+colOf(1).forEach(id => EDGES.push(['s0', id]));
+for (let c = 1; c <= cols - 3; c++) bandEdges(colOf(c), colOf(c + 1), BANDS[c - 1]).forEach(e => EDGES.push(e));
+colOf(cols - 2).forEach(id => EDGES.push([id, 'boss']));
+
+/* 路径：_drawEdge 同款 S 形（源右缘 → 目标左缘，控制点 0.4/0.6） */
+function edgePath(a, b) {
+  const sx = colX(a.col) + nodeW / 2 - 4, sy = laneY(a.row);
+  const tx = colX(b.col) - nodeW / 2 + 4, ty = laneY(b.row);
+  const cx1 = sx + (tx - sx) * 0.4, cy1 = sy;
+  const cx2 = sx + (tx - sx) * 0.6, cy2 = ty;
+  return { d: `M ${sx} ${sy} C ${cx1} ${cy1} ${cx2} ${cy2} ${tx} ${ty}`, tx, ty, dim: a.state === 'visited' };
+}
+
+function build() {
+  const paths = EDGES.map(([x, y]) => {
+    const p = edgePath(byId[x], byId[y]);
+    const cls = p.dim ? ' class="dim" style="opacity:.55"' : '';
+    return `<path${cls} d="${p.d}"/><polygon${cls} points="${p.tx},${p.ty} ${p.tx - 9},${p.ty - 4.5} ${p.tx - 9},${p.ty + 4.5}"/>`;
+  }).join('');
+
+  const tiles = NODES.map(n => {
+    const [lab, desc] = T[n.type];
+    const cls = 'tile' + (n.state === 'cur' ? ' cur' : n.state === 'sel' ? ' sel' : n.state === 'visited' ? ' visited' : '');
+    const here = n.state === 'cur' ? '<span class="here">当前位置</span>' : '';
+    return `<div class="${cls}" style="left:${colX(n.col)}px;top:${laneY(n.row)}px">${here}
+      <div class="lab">${lab}</div><div class="desc">${desc}</div></div>`;
+  }).join('');
+
+  const bag = ['破环之诫', '迅捷之羽', '凝视之瞳'].map(n => `<span class="it"><i class="dot"></i>${n}</span>`).join('');
+
+  return `
+    <div class="hudTop">
+      <span class="pill">B1 / 01</span>
+      <span class="hlab">// FLOOR · 回声层</span>
+      <span class="hlab" style="color:#e2231a">险路恶敌</span>
+      <span class="spacer"></span>
+      <button class="btn">返回</button>
+    </div>
+    <div class="hudState"><span>目标生命</span>12 / 15　　<span>残页</span>27　　<span>藏品</span>3</div>
+    <svg class="edges">${paths}</svg>
+    ${tiles}
+    <div class="hint">点击高亮的节点前进（战斗 / 事件）</div>
+    <div class="bag"><span class="t">藏品背包</span>${bag}</div>`;
+}
+
+const HTML = build();
+['v1','v2','v3','v4','v5','v6'].forEach(id => {
+  const d = document.createElement('div');
+  d.className = 'screen' + (id === 'v1' ? ' on' : '');
+  d.id = id; d.innerHTML = HTML;
+  document.querySelector('.stage').appendChild(d);
+});
+
+const NOTES = {
+ v1:'<b>V1 白卡瓷砖</b>：节点＝白底细边卡片，<b>当前位置＝红色左粗边 + 上方红小标</b>，可走＝外扩细黑框，已走过 42%。连线 1.5px 淡灰 + 小箭头（形状＝_drawEdge）。',
+ v2:'<b>V2 实心块</b>：节点＝浅灰实心块（无边框），<b>当前位置＝纯黑块白字</b>，可走＝白底 + 内描边。色块面积大、对比强，一眼看清路径。',
+ v3:'<b>V3 纯文字</b>：节点<b>完全无框</b>，只有一条顶线 + 文字；<b>当前位置＝红顶线 + 红字</b>，可走＝红顶线。连线近隐形（#ededed）。最轻、最"名录"。',
+ v4:'<b>V4 线框角标</b>：节点＝四角 L 型角标（无整框），<b>当前位置＝红细框 + 红小标</b>，可走＝虚线框；<b>连线改虚线</b>。图纸/工程感。',
+ v5:'<b>V5 线路图</b>：节点缩成 <b>26px 小方块</b>（名字在上、说明在下），<b>当前位置＝红色实心方块</b>，可走＝红描边 + 淡红光晕；连线 1.25px 灰、<b>去掉箭头</b>。像地铁线路图，最清爽。',
+ v6:'<b>V6 深色</b>：近黑底 + 深灰瓷砖，<b>当前位置＝红色实心块白字</b>，连线 #34343a。与战斗页黑底立绘最协调。'
+};
+const tabs = document.getElementById('tabs'), notes = document.getElementById('notes');
+function setV(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.s === id));
+  notes.innerHTML = NOTES[id] || '';
+}
+tabs.addEventListener('click', e => { if (e.target.dataset.s) setV(e.target.dataset.s); });
+setV('v1');
+
+const stage = document.getElementById('stage'), vp = document.querySelector('.viewport');
+function fit(){const k=Math.min(vp.clientWidth/1280,Math.max(.42,(window.innerHeight-320)/720));
+  stage.style.transform='scale('+k+')';vp.style.height=(720*k)+'px';}
+window.addEventListener('resize',fit);document.fonts&&document.fonts.ready.then(fit);fit();
+</script>
+</body>
+</html>

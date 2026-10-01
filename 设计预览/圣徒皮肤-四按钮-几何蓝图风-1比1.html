@@ -1,0 +1,150 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒皮肤 · 四按钮 · 几何蓝图风（位置照代码 · 1:1）</title>
+<style>
+/* ============================================================================
+   ★ 语言＝用户给的参考图（几何蓝图 ✓）：坐标轴 ✓ 标注点 ✓ 同心圆 ✓ 虚线 ✓ 十字准星 ✓
+     大写细体拉丁（Novecento ✓ 项目已有 ✓）✓ 蓝框裁切 ✓ 方角 ✓ 1px 细线 ✓
+   ★ 配色＝`月行水上/bkg_1.png` 实测气质：**电光蓝 ＋ 黑 ＋ 白**（＋一点黄绿做强调 ✓）
+   ★ 位置尺寸**照代码一字不改** ✓：`Babel.UI.row` 的 (x,y) 是**格子中心** ✓
+       四中心 (468,436) (812,436) (468,536) (812,536) ✓ 尺寸 320×84 ✓ 文字居中 ✓
+   ★ 全部可复现 ✓：矩形 ＋ 1px 线 ＋ 圆（Graphics.strokeCircle ✓）＋ 虚线（分段短线 ✓）＋ tween ✓
+   ============================================================================ */
+:root{--blue:#2b7fe0;--blue2:#1f6fd8;--deep:#0f1a26;--lime:#e8f32b;--ink:#12232e;--ice:#8fa8bd}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.lab{width:1280px;margin:26px auto 8px;color:#fff;font-size:13px;line-height:21px}
+.lab b{font-size:16px}.lab i{color:#7fb6ff;font-style:normal}.lab u{text-decoration:none;color:#e8f32b}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto 10px;overflow:hidden;background:#eaf2f7}
+.stage *{position:absolute;box-sizing:border-box}
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.veil{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:.52}
+.grid{left:0;top:0;width:1280px;height:720px;opacity:.5;
+      background-image:linear-gradient(rgba(43,127,224,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(43,127,224,.16) 1px,transparent 1px);
+      background-size:40px 40px}
+.plate{top:160px;width:272px;height:264px;background:#141a20;border:1px solid #3d5a70}
+.plateL{left:14px}.plateR{left:994px}
+.sprL{left:49px;top:160px;width:202px;height:264px;background:url('../assets/img/logos-idle.png') 0 0/3030px 2640px no-repeat}
+.sprR{left:1020px;top:182px;width:220px;height:220px;background:url('../assets/img/saint-idle.png') 0 0/1760px 4840px no-repeat;transform:scaleX(-1)}
+.nmL{left:14px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.nmR{left:994px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.bar{top:488px;width:272px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.barL{left:14px}.barR{left:994px}
+.bar i{left:0;top:0;height:10px;display:block}
+.card{left:420px;top:150px;width:440px;height:180px;background:rgba(255,255,255,.86);border:1px solid var(--blue)}
+.cardtag{left:436px;top:161px;font-family:'Novecento Wide',sans-serif;font-size:10px;letter-spacing:.18em;color:var(--blue)}
+.word{left:440px;top:200px;width:400px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:700;color:var(--deep)}
+.cdlab{left:420px;top:96px;font-size:13px;color:var(--deep)}
+.cd{left:420px;top:126px;width:440px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.cdfill{left:0;top:0;height:10px;width:62%;background:#54686a}
+.cdtxt{left:872px;top:120px;width:64px;text-align:right;font-size:16px;font-weight:700;color:#54686a;font-family:'Space Grotesk',sans-serif}
+.hudr{right:44px;top:26px;font-size:14px;color:var(--deep)}
+/* ---- ★ 四格：中心定位（照代码 ✓） ---- */
+.opt{width:320px;height:84px;transform:translate(-50%,-50%)}
+.a1{left:468px;top:436px}.a2{left:812px;top:436px}
+.a3{left:468px;top:536px}.a4{left:812px;top:536px}
+.opt .t{left:0;top:0;width:320px;height:84px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:20px;color:var(--deep);line-height:26px}
+/* 蓝图元素：角标 ✓ 坐标标注 ✓ 端部小方块 ✓ 十字准星 ✓ */
+.opt .fr{left:0;top:0;width:320px;height:84px;border:1px solid rgba(43,127,224,.55)}
+.opt .tk{width:7px;height:7px;border:1px solid var(--blue)}
+.opt .tk1{left:-3px;top:-3px}.opt .tk2{left:316px;top:-3px}.opt .tk3{left:-3px;top:80px}.opt .tk4{left:316px;top:80px}
+.opt .id{left:8px;top:80px;font-family:'Novecento Wide',sans-serif;font-size:9px;letter-spacing:.16em;color:var(--blue)}
+.opt .ln{left:0;top:82px;width:320px;height:1px;background:var(--blue);opacity:.6}
+.opt .dot{left:316px;top:79px;width:7px;height:7px;background:var(--blue)}
+.opt .cross{left:296px;top:6px;width:18px;height:18px;opacity:0}
+.opt .cross i{background:var(--blue)}
+.opt .cross .h{left:0;top:8px;width:18px;height:1px}
+.opt .cross .v{left:8px;top:0;width:1px;height:18px}
+/* ---- 方案 Ⅰ 蓝图标注：细蓝框 ＋ 四角刻度 ＋ 坐标标注 ＋ 端部方块 ---- */
+.vI .opt .cross{opacity:0}
+.vI .opt.hov .fr{border-color:var(--blue);box-shadow:0 0 0 1px rgba(43,127,224,.35)}
+.vI .opt.hov .cross{opacity:1}
+.vI .opt.hov .dot{background:var(--lime)}
+.vI .opt.hov .ln{background:var(--lime);opacity:1;height:2px;top:81px}
+.vI .opt.sel .fr{border-color:var(--blue);background:var(--blue)}
+.vI .opt.sel .t{color:#fff}
+.vI .opt.sel .id{color:#fff}
+.vI .opt.sel .ln{background:var(--lime);opacity:1;height:2px;top:81px}
+.vI .opt.sel .dot{background:var(--lime)}
+/* ---- 方案 Ⅱ 坐标轴生长：悬停时一条亮蓝粗线自左端生长 ✓ ＋ 十字准星落在中心 ---- */
+.vII .opt .fr{border-color:rgba(43,127,224,.28)}
+.vII .opt .grow{left:0;top:80px;width:0;height:4px;background:var(--blue)}
+.vII .opt.hov .grow{width:320px;transition:width .36s cubic-bezier(.2,.8,.2,1)}
+.vII .opt.hov .cross{opacity:1;left:151px;top:33px}
+.vII .opt.hov .id{color:var(--blue)}
+.vII .opt.sel .grow{width:320px}
+.vII .opt.sel .id{color:var(--blue)}
+/* ---- 方案 Ⅲ 同心圆取点：悬停时格右浮出一组同心圆 ＋ 取点小方块 ✓（参考图的同心圆语言 ✓）---- */
+.vIII .opt .rings{left:246px;top:6px;width:72px;height:72px;opacity:0}
+.vIII .opt .rings b{position:absolute;border:1px solid var(--blue);border-radius:50%}
+.vIII .opt .rings .r1{left:0;top:0;width:72px;height:72px}
+.vIII .opt .rings .r2{left:12px;top:12px;width:48px;height:48px}
+.vIII .opt .rings .r3{left:24px;top:24px;width:24px;height:24px}
+.vIII .opt .rings .pt{left:33px;top:33px;width:6px;height:6px;background:var(--blue);border:0;border-radius:0}
+.vIII .opt.hov .rings{opacity:1}
+.vIII .opt.hov .t{color:var(--blue2)}
+.vIII .opt.sel .rings{opacity:1}
+.vIII .opt.sel .t{color:#fff}
+.vIII .opt.sel .fr{background:var(--blue);border-color:var(--blue)}
+.vIII .opt.sel .id{color:#fff}
+.vIII .opt.sel .ln{background:var(--lime);opacity:1;height:2px;top:81px}
+</style></head><body>
+
+<div class="lab"><b>语言来源</b>：你给的参考图 ✓ —— <i>几何蓝图</i>（坐标轴 ✓ 标注点 ✓ 同心圆 ✓ 虚线 ✓ 十字准星 ✓ 大写细体拉丁 ✓ 蓝框裁切 ✓）
+　<b>配色</b>：取自 <i>月行水上/bkg_1.png</i> 的气质 —— <u>电光蓝 #2b7fe0 ＋ 黑 ＋ 白</u>（黄绿 #e8f32b 只做极小面积强调 ✓）
+　<b>版面照代码一字不改</b> ✓ 四格中心 (468,436) (812,436) (468,536) (812,536) ✓ 320×84 ✓ 文字居中 ✓</div>
+
+<div class="lab"><b>方案 Ⅰ 蓝图标注</b>　细蓝框 ＋ <b>四角刻度小方块</b> ✓ ＋ 左下角<b>坐标标注</b>（A1/B1/A2/B2 ✓ Novecento 疏排 ✓）＋ 端部小方块
+　悬停：框线变亮蓝 ＋ 右上浮出<b>十字准星</b> ＋ 底线转<b>黄绿</b> ✓　选中：<b>整格填充电光蓝、文字变白</b> ✓✓（右下图 ✓）</div>
+<div class="stage vI">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:var(--ice);width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">majority</div>
+  <div class="opt a1"><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A1</div><div class="t">多数；成年</div><div class="ln"></div><div class="dot"></div><div class="cross"><i class="h"></i><i class="v"></i></div></div>
+  <div class="opt a2 hov"><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B1</div><div class="t">倾泻；流出</div><div class="ln"></div><div class="dot"></div><div class="cross"><i class="h"></i><i class="v"></i></div></div>
+  <div class="opt a3"><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A2</div><div class="t">中东<br>包括亚洲西南部和非洲东北部</div><div class="ln"></div><div class="dot"></div><div class="cross"><i class="h"></i><i class="v"></i></div></div>
+  <div class="opt a4 sel"><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B2</div><div class="t">装饰；布置</div><div class="ln"></div><div class="dot"></div><div class="cross"><i class="h"></i><i class="v"></i></div></div>
+</div>
+
+<div class="lab"><b>方案 Ⅱ 坐标轴生长</b>　格内极淡蓝框 ✓ 悬停时一条 <b>4px 亮蓝粗线自左端生长到右端</b> ✓ ＋ <b>十字准星落在格子正中</b> ✓（参考图的准星语言 ✓）</div>
+<div class="stage vII">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:var(--ice);width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">majority</div>
+  <div class="opt a1"><div class="fr"></div><div class="id">A1</div><div class="t">多数；成年</div><div class="grow"></div><div class="cross"><i class="h"></i><i class="v"></i></div></div>
+  <div class="opt a2 hov"><div class="fr"></div><div class="id">B1</div><div class="t">倾泻；流出</div><div class="grow"></div><div class="cross"><i class="h"></i><i class="v"></i></div></div>
+  <div class="opt a3"><div class="fr"></div><div class="id">A2</div><div class="t">中东<br>包括亚洲西南部和非洲东北部</div><div class="grow"></div><div class="cross"><i class="h"></i><i class="v"></i></div></div>
+  <div class="opt a4 sel"><div class="fr"></div><div class="id">B2</div><div class="t">装饰；布置</div><div class="grow"></div><div class="cross"><i class="h"></i><i class="v"></i></div></div>
+</div>
+
+<div class="lab"><b>方案 Ⅲ 同心圆取点</b>　悬停时格子右侧浮出一组<b>同心圆 ＋ 中心取点方块</b> ✓（参考图右侧那排同心圆 ✓）＋ 文字转亮蓝 ✓
+　选中：整格填充电光蓝 ＋ 白字 ＋ 黄绿底线 ✓</div>
+<div class="stage vIII">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:var(--ice);width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">majority</div>
+  <div class="opt a1"><div class="fr"></div><div class="id">A1</div><div class="t">多数；成年</div><div class="ln"></div><div class="rings"><b class="r1"></b><b class="r2"></b><b class="r3"></b><b class="pt"></b></div></div>
+  <div class="opt a2 hov"><div class="fr"></div><div class="id">B1</div><div class="t">倾泻；流出</div><div class="ln"></div><div class="rings"><b class="r1"></b><b class="r2"></b><b class="r3"></b><b class="pt"></b></div></div>
+  <div class="opt a3"><div class="fr"></div><div class="id">A2</div><div class="t">中东<br>包括亚洲西南部和非洲东北部</div><div class="ln"></div><div class="rings"><b class="r1"></b><b class="r2"></b><b class="r3"></b><b class="pt"></b></div></div>
+  <div class="opt a4 sel"><div class="fr"></div><div class="id">B2</div><div class="t">装饰；布置</div><div class="ln"></div><div class="rings"><b class="r1"></b><b class="r2"></b><b class="r3"></b><b class="pt"></b></div></div>
+</div>
+
+<div class="lab" style="height:70px">
+<b>三案版面完全一致</b> ✓（四格中心 468/812 × 436/536 ✓ 320×84 ✓ 文字居中 ✓）—— 只有状态变化不同 ✓<br>
+全部可复现 ✓：矩形 ＋ 1px 线 ＋ <b>同心圆＝Graphics.strokeCircle</b> ✓ 虚线＝分段短线 ✓ 十字准星＝两条短线 ✓ 生长线＝宽度 tween ✓ —— <b>零图片 ✗ 零模糊 ✗ 零渐变边框 ✗</b>
+</div>
+</body></html>

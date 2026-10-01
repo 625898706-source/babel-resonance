@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>巴别残响 · 十种风格方向</title>
+<style>
+/* ============================================================================
+   十种风格方向（H~Q）· 几何锁死 = 游戏当前数值，落地零布局改动
+     H 密档涂黑  I 蓝晒蓝图  J 大理石博物馆  K 霓虹夜雨  L 复古米色电脑
+     M 等高线沙丘  N 教堂彩窗  O 瑞士极简白  P 手绘笔记本  Q 全息线框
+   几何基准：页眉52 | 立绘牌272×264 顶边160(左14/右994) | 名字带432 血条464 数值486
+             词卡 300~980 × 145~325 | 机制槽位 y=518 | 选项320×84 中心(468/812,436/536)
+             底栏 分隔线656 内容668
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2')format('woff2');font-weight:900}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#d9d7d1;font-family:'HOS',sans-serif;-webkit-font-smoothing:antialiased}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 16px 80px}
+.head{width:100%;max-width:1360px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.head h1{font-size:18px;margin:0;font-weight:900}
+.head p{margin:0;color:#6b6f76;font-size:12.5px}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto;max-width:820px;justify-content:flex-end}
+.tabs button{font-weight:700;font-size:12px;padding:6px 10px;border-radius:3px;cursor:pointer;border:1px solid #b9b6ad;background:#fff;color:#24252a}
+.tabs button.on{background:#101214;color:#fff;border-color:#101214}
+.viewport{position:relative;width:100%;max-width:1360px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 22px 60px rgba(0,0,0,.22);overflow:hidden}
+.notes{width:100%;max-width:1360px;background:#fff;border:1px solid #d9d8d3;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.8;color:#24252a}
+.notes b{font-weight:900}.notes code{font-family:'Grotesk';font-size:12px}
+
+/* ==================== 令牌（每方案一段） ==================== */
+/* H 密档涂黑 */
+body.s-h{--bg:#0e0e0e;--panel:#17171b;--ink:#eceae6;--muted:#8b8b8b;--line:#2b2b2b;--line-ink:#3a3a3a;--accent:#d21f2b;--on-accent:#fff;
+  --plate:#121214;--plate-line:#2e2e2e;--radius:0px;--shadow:none;--wordFont:'Grotesk';--wordWeight:600;--wordSize:52px;--wordSpacing:.03em;
+  --filter:grayscale(1) contrast(1.15);--extra:none}
+/* I 蓝晒蓝图 */
+body.s-i{--bg:#0a2b4a;--panel:rgba(255,255,255,.045);--ink:#e2f1ff;--muted:#86b4d8;--line:#3f7fb0;--line-ink:#8fd0ff;--accent:#9fd8ff;--on-accent:#052a44;
+  --plate:rgba(255,255,255,.05);--plate-line:#5aa6d8;--radius:0px;--shadow:none;--wordFont:'Grotesk';--wordWeight:600;--wordSize:52px;--wordSpacing:.02em;
+  --filter:hue-rotate(160deg) saturate(.7) brightness(1.1);--extra:linear-gradient(180deg,#0d3557,#062039)}
+/* J 大理石博物馆 */
+body.s-j{--bg:#efe9df;--panel:#fcfaf5;--ink:#23201c;--muted:#7d746a;--line:#d8cfc0;--line-ink:#a8842c;--accent:#a8842c;--on-accent:#fffaf0;
+  --plate:#2a2622;--plate-line:#a8842c;--radius:2px;--shadow:0 6px 26px rgba(35,32,28,.10);--wordFont:'Novecento';--wordWeight:700;--wordSize:48px;--wordSpacing:.04em;
+  --filter:grayscale(.25) contrast(1.05);--extra:none}
+/* K 霓虹夜雨 */
+body.s-k{--bg:#07060d;--panel:rgba(28,12,42,.55);--ink:#f6e9ff;--muted:#a382cc;--line:rgba(255,45,149,.35);--line-ink:#ff2d95;--accent:#ff2d95;--on-accent:#160018;
+  --plate:rgba(18,8,28,.6);--plate-line:rgba(0,229,255,.35);--radius:8px;--shadow:0 0 26px rgba(255,45,149,.22);--wordFont:'Grotesk';--wordWeight:600;--wordSize:54px;--wordSpacing:.02em;
+  --filter:saturate(1.25) contrast(1.1) hue-rotate(-15deg);--extra:radial-gradient(90% 70% at 18% 12%,#2a0b3d 0%,transparent 60%),radial-gradient(70% 60% at 84% 80%,#072c3a 0%,transparent 62%),#07060d}
+/* L 复古米色电脑 */
+body.s-l{--bg:#cfc7b4;--panel:#ded6c2;--ink:#3a3226;--muted:#7a705c;--line:#a89c85;--line-ink:#5c5344;--accent:#8a2b1f;--on-accent:#f2ead8;
+  --plate:#b9b0a0;--plate-line:#6b6353;--radius:0px;--shadow:inset 1px 1px 0 #fdf8ec,inset -2px -2px 0 #8b8371,2px 2px 0 rgba(0,0,0,.22);
+  --wordFont:'Grotesk';--wordWeight:600;--wordSize:50px;--wordSpacing:.06em;--filter:sepia(.35) contrast(1.05);--extra:none}
+/* M 等高线沙丘 */
+body.s-m{--bg:#d9c9a8;--panel:#e9dec4;--ink:#3d3222;--muted:#857455;--line:#bfa87e;--line-ink:#6b5836;--accent:#9c5b2a;--on-accent:#f7eddb;
+  --plate:#3a3021;--plate-line:#9c5b2a;--radius:3px;--shadow:inset 0 1px 0 rgba(255,255,255,.5),0 8px 22px rgba(61,50,34,.18);
+  --wordFont:'Novecento';--wordWeight:700;--wordSize:48px;--wordSpacing:.02em;--filter:sepia(.5) saturate(.9) contrast(1.05);--extra:linear-gradient(180deg,#e2d3b4,#cbb894)}
+/* N 教堂彩窗 */
+body.s-n{--bg:#100e0d;--panel:linear-gradient(160deg,rgba(28,44,120,.55),rgba(96,26,96,.45));--ink:#f8efdb;--muted:#bda98a;--line:#000;--line-ink:#000;--accent:#ffcc4d;--on-accent:#241a00;
+  --plate:#0c0b0a;--plate-line:#000;--radius:0px;--shadow:0 0 40px rgba(255,204,77,.12),inset 0 0 60px rgba(120,60,200,.18);
+  --wordFont:'Novecento';--wordWeight:700;--wordSize:50px;--wordSpacing:.03em;--filter:saturate(1.2) contrast(1.1);--extra:radial-gradient(60% 50% at 50% 12%,rgba(255,204,77,.18),transparent 70%),#100e0d}
+/* O 瑞士极简白 */
+body.s-o{--bg:#ffffff;--panel:#ffffff;--ink:#111111;--muted:#767676;--line:#dcdcdc;--line-ink:#111111;--accent:#e2231a;--on-accent:#fff;
+  --plate:#111111;--plate-line:#111111;--radius:0px;--shadow:none;--wordFont:'Grotesk';--wordWeight:600;--wordSize:54px;--wordSpacing:-.03em;
+  --filter:grayscale(1) contrast(1.25);--extra:none}
+/* P 手绘笔记本 */
+body.s-p{--bg:#fdfcf5;--panel:#fffdf6;--ink:#2f2b26;--muted:#8b8272;--line:#cfd6df;--line-ink:#2b6cb0;--accent:#ffd83d;--on-accent:#2f2b26;
+  --plate:#2b2b2b;--plate-line:#2b6cb0;--radius:12px;--shadow:2px 3px 0 rgba(43,43,43,.16);--wordFont:'Gilroy';--wordWeight:500;--wordSize:52px;--wordSpacing:.01em;
+  --filter:saturate(1.05);--extra:repeating-linear-gradient(180deg,transparent 0 27px,#dfe7f0 27px 28px)}
+/* Q 全息线框 */
+body.s-q{--bg:#02060a;--panel:rgba(79,216,255,.05);--ink:#c9ecff;--muted:#5f8ba3;--line:rgba(79,216,255,.35);--line-ink:#4fd8ff;--accent:#4fd8ff;--on-accent:#032430;
+  --plate:rgba(79,216,255,.04);--plate-line:rgba(79,216,255,.45);--radius:0px;--shadow:0 0 24px rgba(79,216,255,.16),inset 0 0 24px rgba(79,216,255,.06);
+  --wordFont:'Grotesk';--wordWeight:600;--wordSize:54px;--wordSpacing:.08em;--filter:hue-rotate(180deg) saturate(.5) brightness(1.15);--extra:none}
+
+/* ==================== 通用元件（几何与游戏一致） ==================== */
+.screen{position:relative;width:1280px;height:720px;background:var(--bg);background-image:var(--extra);color:var(--ink);overflow:hidden}
+.deco{position:absolute;inset:0;pointer-events:none;z-index:6}
+.deco>div{position:absolute;inset:0;display:none}
+/* 装饰层（按方案显示） */
+.gridlines{background-image:repeating-linear-gradient(0deg,currentColor 0 1px,transparent 1px 32px),repeating-linear-gradient(90deg,currentColor 0 1px,transparent 1px 32px);opacity:.10}
+.noise{mix-blend-mode:multiply;opacity:.35;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/></filter><rect width='180' height='180' filter='url(%23p)' opacity='0.5'/></svg>")}
+.scan{background-image:repeating-linear-gradient(0deg,currentColor 0 1px,transparent 1px 4px);opacity:.06}
+.contour{opacity:.28;background-image:repeating-radial-gradient(80% 60% at 30% 20%,transparent 0 26px,currentColor 26px 27px),repeating-radial-gradient(70% 70% at 80% 80%,transparent 0 34px,currentColor 34px 35px)}
+.mullion{background-image:repeating-linear-gradient(0deg,#000 0 3px,transparent 3px 120px),repeating-linear-gradient(90deg,#000 0 3px,transparent 3px 120px);opacity:.9}
+.rivets{background-image:radial-gradient(currentColor 1.6px,transparent 1.8px);background-size:38px 38px;opacity:.22}
+.leak{background-image:radial-gradient(38% 30% at 14% 18%,rgba(255,45,149,.30),transparent 70%),radial-gradient(30% 26% at 86% 74%,rgba(0,229,255,.22),transparent 72%)}
+.wire{background-image:repeating-linear-gradient(0deg,rgba(79,216,255,.16) 0 1px,transparent 1px 24px),repeating-linear-gradient(90deg,rgba(79,216,255,.16) 0 1px,transparent 1px 24px)}
+.margin{background-image:linear-gradient(90deg,transparent 0 62px,rgba(214,90,90,.5) 62px 63px,transparent 63px)}
+body.s-h .noise,body.s-h .scan{display:block}
+body.s-i .gridlines{display:block}
+body.s-j .noise{display:block;opacity:.18}
+body.s-k .leak,body.s-k .scan{display:block}
+body.s-l .rivets{display:block}
+body.s-m .contour{display:block}
+body.s-n .mullion{display:block}
+body.s-p .margin{display:block}
+body.s-q .wire{display:block}
+
+/* 页眉 */
+.hud{position:absolute;left:0;top:0;width:1280px;height:52px;display:flex;align-items:center;gap:12px;padding:0 24px;z-index:5;
+  background:var(--panel);border-bottom:1px solid var(--line-ink)}
+.pill{font-family:'Novecento';font-weight:600;font-size:12px;letter-spacing:.05em;background:var(--accent);color:var(--on-accent);padding:4px 10px;border-radius:var(--radius)}
+.floor{font-family:'Novecento';font-weight:600;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.floor b{font-family:'HOS';font-weight:700;font-size:14px;color:var(--ink)}
+.spacer{flex:1}
+.stat{font-family:'Grotesk';font-size:15px;letter-spacing:.02em}
+.stat i{font-style:normal;color:var(--muted);font-family:'HOS';font-size:12px}
+.btn-ghost{font-weight:700;font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:7px 18px;cursor:pointer}
+body.s-h .hud{border-bottom:3px solid var(--accent)}
+body.s-n .hud{border-bottom:3px solid #000}
+body.s-o .hud{border-bottom:1px solid #111}
+body.s-p .hud{background:transparent;border-bottom:2px dashed var(--line-ink)}
+
+/* 立绘牌 */
+.plate{position:absolute;top:160px;width:272px;height:264px;background:var(--plate);border:1px solid var(--plate-line);
+  border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;z-index:2}
+.plate.left{left:14px}.plate.right{left:994px}
+.plate .art{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background-repeat:no-repeat;background-position:0 0;filter:var(--filter)}
+.plate.left .art{width:150px;height:196px;background-image:url('../assets/img/logos-idle.png');background-size:2250px 1960px}
+.plate.right .art{width:190px;height:202px;background-image:url('../assets/img/andoain-idle.png');background-size:1900px 2020px;transform:translate(-50%,-50%) scaleX(-1)}
+body.s-n .plate{border:3px solid #000;border-radius:80px 80px 0 0}
+body.s-n .plate .corner-gl{position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,204,77,.14),rgba(120,60,200,.14))}
+body.s-o .plate{border-width:2px}
+body.s-p .plate{border-width:3px;border-style:solid;box-shadow:3px 4px 0 rgba(43,43,43,.18)}
+body.s-l .plate{border-width:2px;box-shadow:inset 1px 1px 0 rgba(255,255,255,.5),inset -2px -2px 0 rgba(0,0,0,.25)}
+
+.nameband{position:absolute;top:432px;width:272px;display:flex;align-items:baseline;z-index:3}
+.nameband.left{left:14px}.nameband.right{left:994px}
+.nameband .nm{font-weight:700;font-size:17px;color:var(--ink)}
+body.s-h .nameband .nm{font-family:'Grotesk';letter-spacing:.06em;text-transform:uppercase}
+body.s-j .nameband .nm{font-family:'Novecento';font-weight:600;letter-spacing:.08em;font-size:15px}
+body.s-o .nameband .nm{letter-spacing:-.02em}
+body.s-p .nameband .nm{font-family:'Gilroy';font-weight:500}
+.hp{position:absolute;top:464px;width:272px;height:16px;border:1px solid var(--line-ink);background:var(--panel);overflow:hidden;z-index:3}
+.hp.left{left:14px}.hp.right{left:994px}
+.hp i{position:absolute;inset:0;transform-origin:left center;background:var(--accent)}
+body.s-h .hp{border-width:2px}
+body.s-o .hp{border-width:2px;height:18px;top:463px}
+body.s-p .hp{border-radius:8px;border-width:2px}
+body.s-n .hp{border-width:2px}
+.hp .ticks{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent 0 30px,rgba(0,0,0,.30) 30px 31px)}
+body.s-h .hp .ticks,body.s-k .hp .ticks,body.s-n .hp .ticks,body.s-q .hp .ticks{background-image:repeating-linear-gradient(90deg,transparent 0 30px,rgba(255,255,255,.22) 30px 31px)}
+.numrow{position:absolute;top:486px;width:272px;display:flex;align-items:baseline;z-index:3}
+.numrow.left{left:14px}.numrow.right{left:994px}
+.numrow .n{font-family:'Grotesk';font-weight:600;font-size:20px;color:var(--ink);letter-spacing:.02em}
+.numrow .l{margin-left:auto;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.16em;color:var(--muted)}
+body.s-o .numrow .n{font-size:26px}
+body.s-h .numrow .n{font-size:18px;letter-spacing:.08em}
+
+/* 词卡 */
+.card{position:absolute;left:300px;top:145px;width:680px;height:180px;background:var(--panel);border:1px solid var(--line-ink);
+  border-radius:var(--radius);box-shadow:var(--shadow);z-index:4;overflow:hidden}
+body.s-n .card{border:3px solid #000;border-radius:110px 110px 2px 2px}
+body.s-o .card{border-top:3px solid #111;border-left:0;border-right:0;border-bottom:0}
+body.s-p .card{border-width:3px;transform:rotate(-.35deg)}
+body.s-l .card{border-width:2px}
+.card .word{position:absolute;left:40px;right:40px;top:78px;transform:translateY(-50%);text-align:center;
+  font-family:var(--wordFont);font-weight:var(--wordWeight);font-size:var(--wordSize);letter-spacing:var(--wordSpacing);color:var(--ink)}
+body.s-h .card .word{text-align:left;left:40px}
+body.s-o .card .word{text-align:left;left:24px;right:24px;text-transform:uppercase}
+body.s-q .card .word{text-align:left;left:30px;letter-spacing:.12em;text-transform:uppercase}
+body.s-n .card .word{color:#ffe9b0;text-shadow:0 0 26px rgba(255,204,77,.45)}
+body.s-k .card .word{text-shadow:2px 0 rgba(255,45,149,.55),-2px 0 rgba(0,229,255,.55)}
+body.s-p .card .word{font-weight:500}
+/* H 涂黑：词的一部分被黑条盖住（"被审查的词"） */
+.card .redact{position:absolute;left:40px;right:40px;top:58px;height:42px;display:none;
+  background:linear-gradient(90deg,transparent 0 46%,var(--ink) 46% 100%);mix-blend-mode:screen;opacity:.96}
+body.s-h .card .redact{display:block;background:linear-gradient(90deg,transparent 0 47%,#0e0e0e 47% 100%)}
+.card .rule{position:absolute;left:24px;right:24px;top:112px;height:1px;background:var(--line)}
+body.s-o .card .rule{background:#111;height:1px}
+body.s-p .card .rule{height:2px;background:repeating-linear-gradient(90deg,var(--line-ink) 0 8px,transparent 8px 14px)}
+body.s-m .card .rule{height:2px;background:repeating-linear-gradient(90deg,var(--line-ink) 0 3px,transparent 3px 7px)}
+.card .hint{position:absolute;left:22px;top:134px;transform:translateY(-50%);font-size:13px;color:var(--muted)}
+body.s-o .card .hint{text-transform:uppercase;letter-spacing:.2em;font-size:11px;font-weight:700;color:#767676}
+body.s-h .card .hint{font-family:'Grotesk';letter-spacing:.08em}
+body.s-p .card .hint{color:#2b6cb0;font-weight:500}
+.card .sec{position:absolute;right:22px;top:134px;transform:translateY(-50%);font-family:'Grotesk';font-weight:600;font-size:22px;color:var(--ink)}
+body.s-o .card .sec{font-size:30px;font-weight:700}
+body.s-l .card .sec{font-size:26px;letter-spacing:.08em;color:var(--accent)}
+.card .timer{position:absolute;left:20px;right:20px;bottom:12px;height:6px;background:rgba(127,127,127,.24);overflow:hidden}
+.card .timer i{position:absolute;left:0;top:0;bottom:0;width:61%;background:var(--accent)}
+body.s-h .card .timer{height:10px;background:#000;border:1px solid #3a3a3a}
+body.s-i .card .timer{background:rgba(255,255,255,.12);height:8px}
+body.s-j .card .timer{height:3px;background:#e2d9c9}
+body.s-k .card .timer{height:8px;border-radius:5px;background:rgba(255,255,255,.10)}
+body.s-k .card .timer i{box-shadow:0 0 16px var(--accent)}
+body.s-l .card .timer{height:14px;background:#c6bda9;box-shadow:inset 1px 1px 0 #8b8371,inset -1px -1px 0 #fdf8ec}
+body.s-l .card .timer i{background:repeating-linear-gradient(90deg,var(--accent) 0 6px,#b03a2c 6px 12px)}
+body.s-m .card .timer{height:12px;background:#cdbb96;box-shadow:inset 0 2px 4px rgba(61,50,34,.28)}
+body.s-n .card .timer{height:10px;background:rgba(0,0,0,.6);border:1px solid #000}
+body.s-n .card .timer i{background:linear-gradient(90deg,#ffcc4d,#ff7a4d);box-shadow:0 0 20px rgba(255,204,77,.5)}
+body.s-o .card .timer{height:2px;background:#dcdcdc}
+body.s-p .card .timer{height:14px;background:#ffe9a8;border-radius:7px}
+body.s-p .card .timer i{background:var(--accent);border-radius:7px}
+body.s-q .card .timer{height:4px;background:rgba(79,216,255,.18);box-shadow:0 0 12px rgba(79,216,255,.4)}
+/* K 霓虹反射、N 拱顶光、P 便利贴 */
+.card .glowtop{position:absolute;left:0;right:0;top:0;height:44px;display:none;background:linear-gradient(180deg,rgba(255,45,149,.22),transparent)}
+body.s-k .card .glowtop{display:block}
+.card .note{position:absolute;right:14px;top:-14px;width:96px;height:60px;display:none;background:#ffe36b;border-radius:3px;
+  transform:rotate(5deg);box-shadow:2px 3px 0 rgba(43,43,43,.18);font-size:11px;font-weight:700;color:#5a4a10;padding:7px 8px;line-height:1.3}
+body.s-p .card .note{display:block}
+
+/* 机制槽位 */
+.mech{position:absolute;left:994px;top:518px;display:flex;align-items:center;gap:10px;z-index:4}
+.chip{display:inline-flex;align-items:center;height:28px;padding:0 10px;gap:6px;background:var(--panel);border:1px solid var(--line-ink);
+  border-radius:var(--radius);font-family:'Grotesk';font-weight:600;font-size:13px;color:var(--ink)}
+body.s-n .chip{border-width:2px;background:rgba(0,0,0,.55);color:#ffe9b0}
+body.s-o .chip{border-width:2px;text-transform:uppercase;letter-spacing:.14em;font-size:11px}
+body.s-p .chip{border-width:2px;border-style:dashed}
+.pips{display:flex;gap:6px}
+.pip{width:18px;height:18px;border-radius:var(--radius);border:1px solid var(--line-ink);background:transparent}
+body.s-o .pip{border-radius:50%}
+body.s-p .pip{border-radius:50%;border-width:2px}
+body.s-n .pip{border-radius:50%;border:2px solid #000;background:rgba(0,0,0,.4)}
+.pip.on{background:var(--accent)}
+body.s-k .pip.on{box-shadow:0 0 12px var(--accent)}
+
+/* 选项 */
+.opt{position:absolute;width:320px;height:84px;display:flex;align-items:center;justify-content:center;background:var(--panel);
+  border:1px solid var(--line);border-radius:var(--radius);font-weight:500;font-size:25px;color:var(--ink);z-index:4;overflow:hidden;
+  transition:transform .16s cubic-bezier(.2,.7,.3,1),box-shadow .16s,border-color .16s,background .16s}
+.opt.a{left:308px;top:394px}.opt.b{left:652px;top:394px}.opt.c{left:308px;top:494px}.opt.d{left:652px;top:494px}
+body.s-h .opt{border-color:#3a3a3a;font-family:'Grotesk';letter-spacing:.04em;justify-content:flex-start;padding-left:26px}
+body.s-h .opt:hover{border-color:var(--accent);background:#1d1d21}
+body.s-i .opt{border-color:#5aa6d8;background:rgba(255,255,255,.05)}
+body.s-i .opt:hover{border-color:var(--accent);background:rgba(159,216,255,.12)}
+body.s-j .opt{border-color:#d8cfc0;box-shadow:0 4px 16px rgba(35,32,28,.06)}
+body.s-j .opt:hover{border-color:var(--accent);transform:translateY(-2px)}
+body.s-k .opt{backdrop-filter:blur(6px);border-color:rgba(255,45,149,.30)}
+body.s-k .opt:hover{border-color:var(--accent);box-shadow:0 0 24px rgba(255,45,149,.35);transform:translateY(-2px)}
+body.s-l .opt{border-width:2px;box-shadow:inset 1px 1px 0 #fdf8ec,inset -2px -2px 0 #8b8371,2px 2px 0 rgba(0,0,0,.22);letter-spacing:.05em;font-family:'Grotesk'}
+body.s-l .opt:hover{transform:translate(1px,1px);box-shadow:inset 2px 2px 0 #8b8371}
+body.s-m .opt{border-color:#bfa87e;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+body.s-n .opt{border:3px solid #000;background:rgba(0,0,0,.5);color:#ffe9b0}
+body.s-n .opt:hover{background:rgba(255,204,77,.16);box-shadow:0 0 26px rgba(255,204,77,.3)}
+body.s-o .opt{border:1px solid #dcdcdc;justify-content:flex-start;padding-left:24px;font-weight:700}
+body.s-o .opt:hover{border-color:#111;background:#fff;transform:none}
+body.s-o .opt:hover::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+body.s-p .opt{border:3px solid var(--line-ink);border-radius:14px;box-shadow:3px 4px 0 rgba(43,43,43,.16);font-family:'Gilroy'}
+body.s-p .opt:hover{transform:translate(1px,2px);box-shadow:1px 2px 0 rgba(43,43,43,.16);background:#fffbe8}
+body.s-q .opt{border-color:rgba(79,216,255,.45);box-shadow:inset 0 0 18px rgba(79,216,255,.06)}
+body.s-q .opt:hover{border-color:var(--accent);box-shadow:0 0 22px rgba(79,216,255,.35),inset 0 0 18px rgba(79,216,255,.10)}
+
+/* 底栏 */
+.foot{position:absolute;left:300px;top:656px;width:680px;height:1px;background:var(--line);z-index:3}
+.footrow{position:absolute;left:300px;top:668px;width:680px;display:flex;align-items:center;gap:8px;z-index:3}
+.footrow .lab{font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.16em;color:var(--muted);margin-right:6px}
+.footrow .c{display:inline-flex;align-items:center;height:24px;padding:0 9px;background:var(--panel);color:var(--ink);
+  border:1px solid var(--line);border-radius:var(--radius);font-size:12px}
+body.s-o .footrow .c{border-color:#dcdcdc}
+body.s-p .footrow .c{border:2px dashed var(--line-ink);border-radius:10px}
+body.s-n .footrow .c{border:2px solid #000;background:rgba(0,0,0,.5);color:#ffe9b0}
+</style>
+</head>
+<body class="s-h">
+
+<div class="desk">
+  <div class="head">
+    <h1>十种风格方向（H~Q）</h1>
+    <p>几何与游戏一致 · 材质 / 隐喻 / 字形 / 装饰各成一派</p>
+    <div class="tabs" id="tabs">
+      <button data-s="s-h" class="on">H 密档涂黑</button>
+      <button data-s="s-i">I 蓝晒蓝图</button>
+      <button data-s="s-j">J 大理石馆</button>
+      <button data-s="s-k">K 霓虹夜雨</button>
+      <button data-s="s-l">L 复古米色电脑</button>
+      <button data-s="s-m">M 等高线沙丘</button>
+      <button data-s="s-n">N 教堂彩窗</button>
+      <button data-s="s-o">O 瑞士极简白</button>
+      <button data-s="s-p">P 手绘笔记本</button>
+      <button data-s="s-q">Q 全息线框</button>
+    </div>
+  </div>
+
+  <div class="viewport"><div class="stage" id="stage">
+    <div class="screen">
+      <div class="deco">
+        <div class="gridlines"></div><div class="noise"></div><div class="scan"></div>
+        <div class="contour"></div><div class="mullion"></div><div class="rivets"></div>
+        <div class="leak"></div><div class="wire"></div><div class="margin"></div>
+      </div>
+
+      <div class="hud">
+        <span class="pill">B1 / 01</span>
+        <span class="floor">// FLOOR · <b>回声层</b> · BOSS</span>
+        <span class="spacer"></span>
+        <span class="stat"><i>残页</i> 27</span>
+        <span class="stat"><i>目标生命</i> 12 / 15</span>
+        <button class="btn-ghost">返回</button>
+      </div>
+
+      <div class="plate left"><div class="art"></div></div>
+      <div class="nameband left"><span class="nm">逻各斯</span></div>
+      <div class="hp left"><i class="p" style="transform:scaleX(.8)"></i><span class="ticks"></span></div>
+      <div class="numrow left"><span class="n">12 / 15</span><span class="l">目标生命</span></div>
+
+      <div class="plate right"><div class="corner-gl"></div><div class="art"></div></div>
+      <div class="nameband right"><span class="nm">殉道者 · 安多恩</span></div>
+      <div class="hp right"><i class="e" style="transform:scaleX(1)"></i><span class="ticks"></span></div>
+      <div class="numrow right"><span class="n">12 / 12</span><span class="l">ENEMY HP</span></div>
+
+      <div class="mech">
+        <span class="chip">圣环 2/3</span>
+        <span class="pips"><i class="pip on"></i><i class="pip on"></i><i class="pip"></i></span>
+      </div>
+
+      <div class="card">
+        <div class="glowtop"></div>
+        <div class="note">语法点：<br>态度 / 看法</div>
+        <div class="word">attitude</div>
+        <div class="redact"></div>
+        <div class="rule"></div>
+        <div class="hint">连续答对题目以击碎圣环</div>
+        <div class="sec">11</div>
+        <div class="timer"><i></i></div>
+      </div>
+
+      <div class="opt a">重要的；重大的</div>
+      <div class="opt b">日落；傍晚</div>
+      <div class="opt c">栖息地；产地</div>
+      <div class="opt d">态度；看法</div>
+
+      <div class="foot"></div>
+      <div class="footrow">
+        <span class="lab">藏品</span>
+        <span class="c">破环之诫</span><span class="c">迅捷之羽</span><span class="c">凝视之瞳</span>
+      </div>
+    </div>
+  </div></div>
+
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+const NOTES = {
+ 's-h':'<b>H · 密档涂黑</b>——「这个游戏是一份被审查的档案」。深黑底 + 红涂黑条：词卡上的单词被<b>黑条盖住一部分</b>（玩家"解禁"词汇）；HUD 下压一条红色警示线；打字机式等宽标签；立绘强制灰度当"档案照"。<code>#d21f2b</code>',
+ 's-i':'<b>I · 蓝晒蓝图</b>——「语言是一张工程图」。普鲁士蓝底 + 白色 1px 制图网格、半透明面板、青蓝描边；所有元素像技术图纸；立绘做青蓝滤镜（如同晒印）。<code>#9fd8ff</code>',
+ 's-j':'<b>J · 大理石博物馆</b>——「词条是展品」。米白大理石 + 金线描边、柔和投影、宽体拉丁标题（Novecento）+ 金色分隔线；血条极细（3px）如展签下划线。 <code>#a8842c</code>',
+ 's-k':'<b>K · 霓虹夜雨</b>——「夜雨中的赛博词典」。近黑紫底 + 品红/青双霓虹光斑、玻璃面板、文字带<b>色差</b>、反射光顶渐变；血条与计时条发光。 <code>#ff2d95</code>',
+ 's-l':'<b>L · 复古米色电脑</b>——「1984 年的学习机」。米黄塑料底 + <b>3D 立体倒角</b>（外凸/内凹双向 inset）、铆钉点阵、等宽字与描边；计时条做成<b>斜纹警示带</b>。 <code>#8a2b1f</code>',
+ 's-m':'<b>M · 等高线沙丘</b>——「词句像沙丘上的等高线」。沙色渐变 + <b>等高线纹理</b>；卡片是"刻在沙岩上的凹槽"（inset 阴影 + 顶部高光）；分隔线做成虚线凿痕。 <code>#9c5b2a</code>',
+ 's-n':'<b>N · 教堂彩窗</b>——「巴别塔的彩绘玻璃」。深石底 + <b>拱顶形卡片</b>（上圆角 110px）+ 宝石蓝紫渐变面板 + <b>3px 黑色铅条</b>；文字暖金并发光；立绘牌也是拱形。 <code>#ffcc4d</code>',
+ 's-o':'<b>O · 瑞士极简白</b>——「只有排版，没有装饰」。纯白 + 唯一红色 + 无圆角无阴影无纹理；卡片只有一条 3px 顶线；词条左对齐全大写极紧字距；选项悬停出<b>红色左条</b>与红色强调；立绘高对比黑白。 <code>#e2231a</code>',
+ 's-p':'<b>P · 手绘笔记本</b>——「学生自己的错题本」。纸白 + <b>横线格与红色页边线</b>；卡片略微倾斜、手绘感粗边框、虚线；单词是<b>荧光笔划重点</b>；右上角贴<b>便利贴</b>；选项是圆角便利贴块。 <code>#ffd83d / #2b6cb0</code>',
+ 's-q':'<b>Q · 全息线框</b>——「投影中的词典」。近黑底 + <b>青色线框网格</b>、四角为线框面板、发光边框与内发光；词条拉宽字距全大写；立绘做青蓝反转；计时条是一条发光细线。 <code>#4fd8ff</code>'
+};
+const tabs=document.getElementById('tabs'), notes=document.getElementById('notes');
+function setScheme(s){
+  document.body.className=s;
+  tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
+  notes.innerHTML=NOTES[s]||'';
+}
+tabs.addEventListener('click',e=>{if(e.target.dataset.s)setScheme(e.target.dataset.s)});
+setScheme('s-h');
+
+const stage=document.getElementById('stage'), vp=document.querySelector('.viewport');
+function fit(){const k=Math.min(vp.clientWidth/1280,Math.max(.42,(window.innerHeight-320)/720));
+  stage.style.transform='scale('+k+')';vp.style.height=(720*k)+'px';}
+window.addEventListener('resize',fit);
+document.fonts&&document.fonts.ready.then(fit);
+fit();
+</script>
+</body>
+</html>

@@ -1,0 +1,571 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒 · 三阶段「反向连线」预览（完全复刻游戏 · 1:1 · 可交互）</title>
+<style>
+/* ============================================================================
+   圣徒 三阶段 · 「反向连线」—— 用户设计 ✓ 规格全照用户 ✓（2026-09-21）
+   ── 玩法 ──
+     ① 你点左栏一个**熟词**（起点）—— 伸手就是承诺 ✓ 这一下就开始赛跑 ✓
+     ② 同一瞬间：★ **它的红线**从右栏**离你最近的错误释义**上冲出来 ✗
+        两条线朝同一个词**相向而行** ✓
+     ③ 点错释义 ＝ 照游戏规则：**连错扣血 ＋ 直接下一题** ✓\n     ④ 你必须**抢在它之前**点到那个词**正确的生义** ✓ ✓
+          · 你先到 → ★ 它的线**当场粒子化碎裂** ✗✓（小方块 ＋ 玻璃碎片）
+          · 它先到 → 那个词**炸红** → **你掉血（−1.5）＋ 直接下一题** ✓
+     ④ 你不点也有压力 ✓：★ **每 4 秒**它主动派一根 ✓；**同时在飞最多 2 根** ✓
+   ── 画面：逐项照 CombatScene.js ＋ skins/saint.js 的真实坐标（s = 1 ✓ 1280×720）──
+     · 背景 ＝ assets/skin-saint/bg.png（cover）＋ 白纱 0.52 ＋ 4px 冰蓝细横纹 0.10
+       ＋ 40px 蓝图网格 #54686a 0.13            ← saint.js build()
+     · 图版 272×264 @ (14,160) / (994,160) ＋ 左上 16px 黄折角 ＋ 硬阴影
+       立绘 逻各斯 150×196 @ (150,292)｜圣徒 220×220 @ (1130,310)（offsetY 18 ✓ 镜像 ✓）
+       名字 17px @ y=446 ／ 血条 272×16 @ y=472（8 道刻度）／ 数值行 20px @ y=494
+     · 页眉：黄 pill B1 / 01 ＋ // 回声层 · 待定 ＋ 目标生命 / 残页 ＋ 退出
+       底栏：680 宽细线 @ y=656 ＋ 藏品
+     · 倒计时：标签 (320,99) ／ 条 (320,117,640×12) ／ 数字右对齐 958（y=93）22px
+     · 连线阶段隐藏：四选一按钮 ✗ 大字英文词 ✗ 提示 ✗ 卡片细线 ✗（照 _linkBuild ✓）
+     · 节点 220×86：左 lx=400 行距 130（y=230/360/490）｜右 rx=880 行距 104（y=204/308/412/516）
+       漂浮 ±12px（2100＋phase×320 ms yoyo）／ 白底 0.5 ＋ 1px #54686a 框
+     · 连成 ＝ 深青灰 3px 实线 ✓ ｜ 它的线 ＝ **红 3px 实线**（每 0.7s 故障 0.18s 色散 ✓）
+     · 答对鸽群：12 只 / R=480 / 48px / 900ms 向外 ｜ 答错：染红 0xe2231a 700ms 向内收拢
+       ＋ 中心 flash.png 200px ｜ 碎玻璃：7 片 64px，角度 [200,250,300,20,70,120,160]
+   ── 数据 ──
+     ★ 直接加载**真词库** src/data/senseWords.js ✓（422 词池 ✓ 一局内不重复 ✓ 照游戏 ✓）
+     ★ 立绘/鸽群/玻璃/闪光/背景**全部是真素材** ✓ 只有"它的线"是新机制
+   ============================================================================ */
+:root{--ink:#12232e;--fg:#141414;--muted:#6b6f76;--slate:#54686a;--red:#e2231a;--cy:#3ce0e0;
+      --ice:#8fa8bd;--gold:#d8c9a3;--line:#e6e6e6;--card:#fffdf9;--crim:#ff625d}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;color:#fff;font-family:'HarmonyOS Sans SC','Microsoft YaHei',sans-serif;padding:14px 0 32px}
+.lab,.note{width:1280px;margin:0 auto;font-size:13px;line-height:20px}
+.lab b{font-size:16px}.lab i{font-style:normal;color:#a9c6d6}.lab u{text-decoration:none;color:#ffd9a0}
+.note{margin-top:10px;background:#2c3439;border-left:3px solid var(--slate);padding:8px 12px;
+      display:flex;gap:26px;flex-wrap:wrap;color:#dfe9ee}
+.note em{font-style:normal;color:#9fb3bd}
+#st{position:relative;width:1280px;height:720px;margin:8px auto 0;overflow:hidden;background:#eaf2f7;
+    cursor:crosshair;user-select:none}
+#st>div,#st>canvas{position:absolute}
+.bg{inset:0;background:url('../assets/skin-saint/bg.png') center/cover no-repeat;z-index:0}
+.veil{inset:0;background:#fff;opacity:.52;z-index:1}
+.hair{inset:0;z-index:2;opacity:.10;
+  background-image:repeating-linear-gradient(#8fa8bd 0 1px,transparent 1px 4px)}
+.grid{inset:0;z-index:3;opacity:.13;
+  background-image:linear-gradient(#54686a 1px,transparent 1px),linear-gradient(90deg,#54686a 1px,transparent 1px);
+  background-size:40px 40px}
+/* 图版 ＋ 立绘（照 _makeBattlePortrait ✓） */
+.plate{top:160px;width:272px;height:264px;background:#141519;border:2px solid #2a2b30;border-radius:4px;
+       box-shadow:3px 3px 0 rgba(31,32,36,.13);z-index:4}
+.plateL{left:14px}.plateR{left:994px}
+.flag{position:absolute;left:-2px;top:-2px;width:0;height:0;
+      border-top:18px solid #fff44f;border-right:18px solid transparent}
+#spL{left:75px;top:194px;width:150px;height:196px;z-index:5}
+#spR{left:1020px;top:200px;width:220px;height:220px;z-index:5}
+.nm{top:436px;font-family:'Novecento Wide','HarmonyOS Sans SC';font-size:17px;font-weight:600;
+    line-height:20px;z-index:6;white-space:nowrap}
+.nmL{left:14px;color:var(--fg)}.nmR{left:994px;color:var(--crim)}
+.bar{top:464px;width:272px;height:16px;background:var(--card);border:1px solid var(--line);z-index:6}
+.barL{left:14px}.barR{left:994px}
+.bar>i{position:absolute;left:0;top:0;bottom:0;display:block}
+.tk{position:absolute;top:2px;bottom:2px;width:1px;background:rgba(31,32,36,.22)}
+.hpn{top:484px;font-family:'Space Grotesk',monospace;font-size:20px;line-height:20px;color:var(--fg);z-index:6;white-space:nowrap}
+.hpl{top:489px;font-family:'Novecento Wide';font-size:10px;line-height:10px;color:var(--muted);z-index:6;
+     letter-spacing:.06em;white-space:nowrap}
+/* 页眉（saint.js 把底色 0 化 ＋ 线换冰蓝 0.65 ✓） */
+.hudl{top:16px;line-height:20px;z-index:6;white-space:nowrap}
+.pill{left:20px;width:84px;height:26px;top:13px;background:#fff44f;border:1px solid #1f2024;
+      display:flex;align-items:center;justify-content:center;font-family:'Novecento Wide';font-size:12px;
+      color:#1f2024;z-index:6;position:absolute}
+#hst{left:116px;top:26px;font-family:'Novecento Wide';font-size:11px;color:var(--muted)}
+#hcur{right:244px;top:26px;font-family:'Space Grotesk',monospace;font-size:15px;color:var(--fg)}
+#hhp{right:386px;top:26px;font-family:'Space Grotesk',monospace;font-size:15px;color:var(--fg)}
+#quit{right:14px;top:9px;width:104px;height:34px;background:var(--card);border:1px solid var(--line);
+      display:flex;align-items:center;justify-content:center;font-size:14px;color:#24252a;z-index:6}
+.hudrule{left:0;right:0;top:52px;height:1px;background:var(--ice);opacity:.65;z-index:6}
+/* 底栏 */
+.footrule{left:300px;top:656px;width:680px;height:1px;background:var(--ice);opacity:.55;z-index:6}
+#ftl{left:300px;top:673px;font-family:'Novecento Wide';font-size:10.5px;line-height:10.5px;color:var(--muted);z-index:6}
+#ftc{left:344px;top:666px;display:flex;gap:8px;z-index:6}
+.chip{height:24px;padding:0 10px;display:flex;align-items:center;background:#fff;border:1px solid var(--line);
+      font-size:12px;color:#24252a}
+/* 倒计时（saint.js：标签 (cardL+20, cardTop−46) ／ 条 y=cardTop−22 ／ 数字 (cardR−22, cardTop−52)） */
+#cdlab{left:320px;top:90px;font-size:13px;line-height:18px;color:var(--ink);z-index:6}
+#cd{left:320px;top:117px;width:640px;height:12px;background:#ececec;border:1px solid var(--line);z-index:6}
+#cdfill{position:absolute;left:0;top:0;bottom:0;background:var(--slate)}
+#cdnum{right:322px;top:82px;font-family:'Space Grotesk',monospace;font-size:22px;color:var(--slate);
+       line-height:22px;z-index:6}
+/* 图层：它的线/鸽群/闪光 在**节点之下**（游戏 depth 6 & 19 < 20 ✓）；碎玻璃/粒子在**节点之上**（24 ✓） */
+#cvBack{inset:0;z-index:10}
+#cvFront{inset:0;z-index:40;pointer-events:none}
+/* 节点 220×86（照 _linkBuild 的 mk ✓） */
+.node{position:absolute;width:220px;height:86px;background:rgba(255,255,255,.5);
+      border:1px solid var(--slate);display:flex;align-items:center;justify-content:center;
+      padding:6px;text-align:center;color:var(--ink);line-height:24px;z-index:30}
+.node.en{font-family:'Space Grotesk',monospace;font-weight:700;font-size:34px}
+.node:not(.en){font-family:'HarmonyOS Sans SC';font-size:17px}
+.node.sel{border-width:3px;background:rgba(255,255,255,.72)}
+.node.locked{border-width:3px;background:rgba(255,255,255,.92)}
+.node.dead{border-color:var(--red);background:rgba(226,35,26,.16);color:#8d1a14;border-width:3px}
+#flash{inset:0;background:var(--red);opacity:0;pointer-events:none;z-index:60;transition:opacity .18s}
+#toast{left:0;top:296px;width:1280px;text-align:center;font-size:48px;font-weight:700;color:var(--slate);
+       opacity:0;transition:opacity .25s;z-index:50;line-height:56px;text-shadow:0 2px 0 rgba(255,255,255,.75)}
+#toast.bad{color:var(--red)}
+</style></head><body>
+
+<div class="lab"><b>圣徒 三阶段 · 「反向连线」</b>　<i>点左栏一个词 → 它的红线立刻从最近的错释义冲过来</i> ✓
+　<u>抢在它之前点对的生义</u> ✓　你先到 → 它的线<b>粒子化碎裂</b> ✓　它先到 → 你掉血 ＋ 直接下一题 ✓</div>
+
+<div id="st">
+  <div class="bg"></div><div class="veil"></div><div class="hair"></div><div class="grid"></div>
+  <canvas id="cvBack" width="1280" height="720"></canvas>
+  <div class="plate plateL"><div class="flag"></div></div>
+  <div class="plate plateR"><div class="flag"></div></div>
+  <canvas id="spL" width="300" height="392"></canvas>
+  <canvas id="spR" width="440" height="440"></canvas>
+  <div class="nm nmL">逻各斯</div><div class="nm nmR">圣徒</div>
+  <div class="bar barL"><i id="pfill" style="background:#5cc5e8"></i></div>
+  <div class="bar barR"><i id="efill" style="background:#d8c9a3"></i></div>
+  <div class="hpn" style="left:14px" id="php">10 / 10</div>
+  <div class="hpl" style="left:286px;transform:translateX(-100%)">目标生命</div>
+  <div class="hpn" style="left:994px" id="ehp">45</div>
+  <div class="hpl" style="left:1266px;transform:translateX(-100%)">ENEMY HP</div>
+  <div class="pill">B1 / 01</div>
+  <div class="hudl" id="hst">// 回声层 · 待定</div>
+  <div class="hudl" id="hhp">目标生命 10 / 10</div>
+  <div class="hudl" id="hcur">残页 15</div>
+  <div id="quit">退出</div>
+  <div class="hudrule"></div>
+  <div class="footrule"></div>
+  <div id="ftl">藏品</div>
+  <div id="ftc"><div class="chip">回响残片</div><div class="chip">定音锤</div></div>
+  <div id="cdlab">剩余时间</div>
+  <div id="cd"><i id="cdfill"></i></div>
+  <div id="cdnum">15</div>
+  <canvas id="cvFront" width="1280" height="720"></canvas>
+  <div id="toast"></div>
+  <div id="flash"></div>
+</div>
+
+<div class="note">
+  <span>已连 <b id="nLock">0 / 3</b></span>
+  <span>它在飞的线 <b id="nAir">0 / 2</b></span>
+  <span>目标生命 <b id="nHp">10 / 10</b></span>
+  <span><em>点左栏词＝开始赛跑　·　点右栏正确释义＝抢到（先到者赢）</em></span>
+  <span><em>提示：它的线每 4 秒自己派一根（最多 2 根同时飞）</em></span>
+</div>
+
+<script src="../src/data/senseWords.js"></script>
+<script>
+/* 规格全照用户 ✓：最近的错误 ✗ 每 4 秒主动派一根 ✓ 最多 2 根 ✓ 你先到 → 粒子化碎裂 ✓ */
+(function () {
+  var stage = document.getElementById('st');
+  var cb = document.getElementById('cvBack'), ctx = cb.getContext('2d');
+  var cf = document.getElementById('cvFront'), ctx2 = cf.getContext('2d');
+  var toastEl = document.getElementById('toast'), flashEl = document.getElementById('flash');
+  var cdfill = document.getElementById('cdfill'), cdnum = document.getElementById('cdnum');
+  var nLock = document.getElementById('nLock'), nAir = document.getElementById('nAir'), nHp = document.getElementById('nHp');
+  var phpEl = document.getElementById('php'), hhpEl = document.getElementById('hhp'), pfill = document.getElementById('pfill');
+  var ehpEl = document.getElementById('ehp'), efill = document.getElementById('efill');
+
+  /* ---------- 真素材 ---------- */
+  var IMG = {};
+  ['../assets/skin-saint/bg.png', '../assets/skin-saint/dove-l.png', '../assets/skin-saint/dove-r.png',
+   '../assets/skin-saint/flash.png', '../assets/skin-saint/glass-1.png', '../assets/skin-saint/glass-2.png',
+   '../assets/skin-saint/glass-3.png', '../assets/skin-saint/glass-4.png',
+   '../assets/img/logos-idle.png', '../assets/img/saint-idle.png'].forEach(function (u) {
+    var im = new Image(); im.src = u; IMG[u] = im;
+  });
+  var D_L = '../assets/skin-saint/dove-l.png', D_R = '../assets/skin-saint/dove-r.png';
+  var FLASH = '../assets/skin-saint/flash.png';
+  var GLASS = ['../assets/skin-saint/glass-1.png', '../assets/skin-saint/glass-2.png',
+               '../assets/skin-saint/glass-3.png', '../assets/skin-saint/glass-4.png'];
+
+  /* ---------- 立绘（真 spritesheet ✓ 逐帧播 ✓ 与游戏同参数）---------- */
+  var SPR = [
+    { cv: document.getElementById('spL'), url: '../assets/img/logos-idle.png', fw: 260, fh: 340, last: 149, flip: false, fps: 30 },
+    { cv: document.getElementById('spR'), url: '../assets/img/saint-idle.png', fw: 180, fh: 180, last: 174, flip: true, fps: 30 }
+  ];
+  SPR.forEach(function (p) {
+    var c = p.cv.getContext('2d'), dpr = 2;
+    c.scale(dpr, dpr);
+    p.ctx = c; p.w = p.cv.width / dpr; p.h = p.cv.height / dpr; p.cols = 1;
+  });
+  function drawSpr(p, now) {
+    var im = IMG[p.url];
+    if (!im || !im.complete || !im.naturalWidth) return;
+    if (!p.ready) { p.cols = Math.max(1, Math.round(im.naturalWidth / p.fw)); p.ready = true; }
+    var i = Math.floor(now / 1000 * p.fps) % (p.last + 1);
+    var sx = (i % p.cols) * p.fw, sy = Math.floor(i / p.cols) * p.fh;
+    p.ctx.clearRect(0, 0, p.w, p.h);
+    p.ctx.save();
+    if (p.flip) { p.ctx.translate(p.w, 0); p.ctx.scale(-1, 1); }
+    p.ctx.drawImage(im, sx, sy, p.fw, p.fh, 0, 0, p.w, p.h);
+    p.ctx.restore();
+  }
+
+  /* ---------- 版面常量（全部来自 CombatScene.js / saint.js ✓ s = 1）---------- */
+  var CX = 640, CY = 360, PAIRS = 3, TOTAL_T = 15, MAXHP = 10, DMG = 1.5;
+  var LX = CX - 240, RX = CX + 240;          // 左 400 / 右 880 ✓
+  var dyL = 130, dyR = 104;                  // 二阶段右栏 4 行 ✓
+  var y0L = CY - dyL, y0R = CY - 1.5 * dyR;  // 左 230 / 右 204 ✓
+  var SPAWN_EVERY = 4, MAX_AIR = 2, FLY_T = 4.5, GLITCH_T = .7, GLITCH_ON = .18;
+
+  var hp = 10, timeLeft = TOTAL_T, lockedCount = 0, over = false, dead = false;
+  var nodes = [], sel = null, air = [], fx = [], parts = [], used = {}, pool = null;
+  var sinceSpawn = 0, tweens = [];
+
+  /* ---------- 真词库 ✓ 422 词池 ✓（照 saint.js 的过滤口径 ✓）---------- */
+  function buildPool() {
+    var L = (window.Babel && Babel.SENSE_WORDS) || [], by = {};
+    L.forEach(function (e) {
+      var en = String(e.en || '').trim(), zr = String(e.zhRare || '').trim();
+      if (!en || !zr) return;
+      if (zr.replace(/[；;…\s]/g, '').length > 10) return;
+      if (en.replace(/[^A-Za-z]/g, '').length > 12) return;
+      (by[en] = by[en] || []).push(zr);
+    });
+    pool = { by: by, keys: Object.keys(by) };
+  }
+  function pick(n) {
+    var ks = pool.keys.filter(function (k) { return !used[k]; });
+    if (ks.length < n) { used = {}; ks = pool.keys.slice(); }
+    for (var i = ks.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = ks[i]; ks[i] = ks[j]; ks[j] = t; }
+    return ks.slice(0, n);
+  }
+
+  function rect(el) {
+    var r = el.getBoundingClientRect(), s2 = stage.getBoundingClientRect();
+    return { x: r.left - s2.left, y: r.top - s2.top, w: r.width, h: r.height,
+             cx: r.left - s2.left + r.width / 2, cy: r.top - s2.top + r.height / 2 };
+  }
+  function pos(e) { var s2 = stage.getBoundingClientRect(); return { x: e.clientX - s2.left, y: e.clientY - s2.top }; }
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+
+  /* ---------- 出题：左 3 熟词 ／ 右 4 释义（3 对 ＋ 1 干扰 ✓ 照二阶段 ✓）---------- */
+  function newQuestion() {
+    nodes.forEach(function (n) { n.el.remove(); });
+    nodes = []; air = []; fx = []; parts = []; tweens = []; sel = null; lockedCount = 0;
+    over = false; timeLeft = TOTAL_T; sinceSpawn = 0;
+    var words = pick(3);
+    words.forEach(function (w) { used[w] = 1; });
+    var pairs = words.map(function (w) {
+      var arr = pool.by[w];
+      return { en: w, zh: arr[Math.floor(Math.random() * arr.length)] };
+    });
+    /* 干扰项：**别的词**的一个生义 ✓（不放熟义 ✗ 不放陷阱 ✗ 照 saint.js ✓）*/
+    var extra = null;
+    for (var k = 0; k < 24 && !extra; k++) {
+      var w2 = pool.keys[Math.floor(Math.random() * pool.keys.length)];
+      if (words.indexOf(w2) >= 0) continue;
+      var arr2 = pool.by[w2], z2 = arr2[Math.floor(Math.random() * arr2.length)];
+      if (pairs.some(function (p) { return p.zh === z2; })) continue;
+      extra = z2;
+    }
+    pairs.forEach(function (p, i) { mk('L', p.en, p.en, LX, y0L + i * dyL, true, i); });
+    /* 右栏打乱 ✓ 但避开「答案正好在对门」✗（照游戏 30 次尝试 ✓）*/
+    var sh = null;
+    for (var t = 0; t < 30; t++) {
+      var cand = pairs.slice().sort(function () { return Math.random() - .5; });
+      var face = 0;
+      for (var i2 = 0; i2 < 3; i2++) { if (cand[i2] && cand[i2].en === pairs[i2].en) face++; }
+      sh = cand; if (face === 0) break;
+    }
+    sh.forEach(function (p, i) { mk('R', p.zh, p.en, RX, y0R + i * dyR, false, i); });
+    if (extra) mk('R', extra, '__extra__', RX, y0R + PAIRS * dyR, false, PAIRS);
+    upd();
+  }
+  function mk(side, text, pair, x, y, isEn, phase) {
+    var d = document.createElement('div');
+    d.className = 'node' + (isEn ? ' en' : '');
+    d.textContent = text;
+    d.style.left = (x - 110) + 'px';
+    d.style.top = (y - 43) + 'px';
+    stage.appendChild(d);
+    nodes.push({ el: d, side: side, pair: pair, zh: text, x: x, y: y, ph: phase, dur: 2 * (2100 + phase * 320) / 1000 });
+    return d;
+  }
+  function upd() {
+    nLock.textContent = lockedCount + ' / 3';
+    nAir.textContent = air.length + ' / ' + MAX_AIR;
+    var v = fmt1(hp);
+    nHp.textContent = v + ' / ' + MAXHP;
+    phpEl.textContent = v + ' / ' + MAXHP;
+    hhpEl.textContent = '目标生命 ' + v + ' / ' + MAXHP;
+    pfill.style.width = Math.max(0, hp / MAXHP * 100) + '%';
+    efill.style.width = '100%';
+    ehpEl.textContent = '45';
+  }
+  function fmt1(n) { return (Math.round(n * 10) / 10).toString(); }
+
+  /* ---------- 它的线：从「你点的那个节点」的**对侧最近的错误**冲出来 ✓✓
+   *   ★ 2026-09-21 修（与 saint.js 同步 ✓）：不再写死"只从左栏起手" ✗
+   *     点左栏的词 → 它从最近的错误**释义**来 ✓ ／ 点右栏的释义 → 它从最近的错误**词**来 ✓（用户原话 ✓）*/
+  function nearestWrong(fromNode) {
+    var r = rect(fromNode.el), best = null, bd = 1e9;
+    nodes.forEach(function (n) {
+      if (n.side === fromNode.side || n.pair === fromNode.pair || n.el.classList.contains('dead')) return;
+      var rr = rect(n.el), d = Math.hypot(rr.cx - r.cx, rr.cy - r.cy);
+      if (d < bd) { bd = d; best = n; }
+    });
+    return best;
+  }
+  function spawnItsLine(fromNode) {
+    if (over || dead || air.length >= MAX_AIR) return;
+    if (air.some(function (L) { return L.pair === fromNode.pair; })) return;
+    var wrong = nearestWrong(fromNode);
+    if (!wrong) return;
+    air.push({ src: wrong, word: fromNode, pair: fromNode.pair, p: 0, seed: Math.random() * 9 });
+    upd();
+  }
+
+  /* ---------- 演出（照 saint.js 的真实参数 ✓）---------- */
+  function tw(o) { o.t0 = performance.now(); tweens.push(o); return o; }
+  function doves(cx, cy, out) {
+    for (var i = 0; i < 12; i++) {
+      var a = (i / 12) * Math.PI * 2, dx = Math.cos(a), dy = Math.sin(a);
+      tw({ img: dx >= 0 ? D_R : D_L, x0: out ? cx : cx + dx * 480, y0: out ? cy : cy + dy * 480,
+           x1: out ? cx + dx * 480 : cx, y1: out ? cy + dy * 480 : cy,
+           a0: 0, a1: out ? 1 : .8, s0: .75, s1: 1, dur: out ? 900 : 700, delay: out ? 120 : 90,
+           size: 48, tint: out ? null : 'red', fadeAt: out ? 780 : 620, ease: 'cubic' });
+    }
+    tw({ img: FLASH, x0: cx, y0: cy, x1: cx, y1: cy, a0: 0, a1: .95, s0: .3, s1: 1.1,
+         dur: 240, delay: 0, size: 200, tint: out ? null : 'red', fadeAt: 240, ease: 'quad' });
+  }
+  function glass(cx, cy) {
+    var ANG = [200, 250, 300, 20, 70, 120, 160];
+    for (var i = 0; i < 7; i++) {
+      var a = ANG[i] / 180 * Math.PI, d = 150 + (i % 3) * 55;
+      tw({ img: GLASS[i % 4], x0: cx, y0: cy, x1: cx + Math.cos(a) * d, y1: cy + Math.sin(a) * d,
+           a0: 0, a1: 1, s0: .5, s1: 1.15, dur: 220, delay: 0, size: 64, rot: (i % 2 ? 90 : -90),
+           fadeAt: 240, ease: 'quad' });
+    }
+  }
+  function burst(x, y, col, n, sp) {
+    for (var i = 0; i < n; i++) {
+      var a = Math.random() * Math.PI * 2, v = rnd(sp * .25, sp);
+      parts.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 60,
+                   life: rnd(.45, 1.05), size: rnd(3, 9), col: col, rot: Math.random() * 6 });
+    }
+  }
+  function redFlash() {
+    flashEl.style.opacity = .18;
+    setTimeout(function () { flashEl.style.opacity = 0; }, 220);
+  }
+  function toast(txt, bad) {
+    toastEl.textContent = txt;
+    toastEl.className = bad ? 'bad' : '';
+    toastEl.style.opacity = 1;
+    setTimeout(function () { toastEl.style.opacity = 0; }, 1300);
+  }
+
+  /* ---------- 交互 ---------- */
+  stage.addEventListener('mousedown', function (e) {
+    if (over || dead) return;
+    var p = pos(e);
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i], r = rect(n.el);
+      if (p.x < r.x || p.x > r.x + r.w || p.y < r.y || p.y > r.y + r.h) continue;
+      if (n.el.classList.contains('dead') || n.el.classList.contains('locked')) return;
+      if (n.side === 'L') {
+        /* ★ 点左栏的词 ＝ 起点 ✓ 这一下就开始赛跑 ✓ 它的线立刻从最近的错释义冲出来 ✓ */
+        sel = n;
+        nodes.forEach(function (m) { m.el.classList.remove('sel'); });
+        n.el.classList.add('sel');
+        spawnItsLine(n);
+      } else if (n.side === 'R' && sel) {
+        if (n.pair === sel.pair) {
+          /* ★ 你先到 ✓ → 它的线**粒子化碎裂** ✓✓ */
+          var w = sel, g = n;
+          w.el.classList.add('locked'); w.el.classList.remove('sel');
+          g.el.classList.add('locked');
+          lockedCount++;
+          var a = rect(w.el), b = rect(g.el);
+          tw({ seg: { x0: a.cx, y0: a.cy, x1: b.cx, y1: b.cy } });
+          var mx = (a.cx + b.cx) / 2, my = (a.cy + b.cy) / 2;
+          air.forEach(function (L) { if (L.pair === w.pair) { L.killAt = [mx, my]; } });
+          air = air.filter(function (L) {
+            if (L.pair !== w.pair) return true;
+            burst(mx, my, '#e2231a', 30, 470);
+            burst(mx, my, '#f2f7fa', 16, 330);
+            glass(mx, my);
+            redFlash();
+            return false;
+          });
+          sel = null;
+          if (lockedCount >= PAIRS) {
+            over = true;
+            doves(CX, CY, true);
+            toast('三对全连 ✓', false);
+          }
+          upd();
+        } else {
+          /* ★ 点错释义 ＝ 照游戏既有规则：连错扣血 ＋ 直接下一题 ✓（用户 2026-09-21 定 ✓）*/
+          var wsel = sel, aa = rect(sel.el), bb = rect(n.el);
+          wsel.el.classList.remove('sel');
+          sel = null;
+          burst((aa.cx + bb.cx) / 2, (aa.cy + bb.cy) / 2, '#e2231a', 20, 360);
+          fail('连错了 ✗  −1.5　　直接下一题');
+        }
+      }
+      return;
+    }
+  });
+
+  /* ---------- 它到了 / 你点错了 → 掉血 ＋ 下一题（照游戏规则 ✓）---------- */
+  function fail(msg) {
+    hp = Math.max(0, hp - DMG); upd();
+    doves(CX, CY, false);
+    glass(CX, CY);
+    redFlash();
+    toast(msg, true);
+    if (hp <= 0) { dead = true; toast('目标生命归零 —— 本局结束 ✗', true); return; }
+    over = true;
+    setTimeout(function () { newQuestion(); }, 1400);
+  }
+  function itsArrive(L) {
+    var r = rect(L.word.el);
+    L.word.el.classList.add('dead');
+    air = air.filter(function (x) { return x !== L; });
+    burst(r.cx, r.cy, '#e2231a', 34, 430);
+    fail('被它连上了 ✗  −1.5　　直接下一题');
+  }
+
+  /* ---------- 主循环 ---------- */
+  var lastT = performance.now();
+  function loop(now) {
+    var dt = Math.min((now - lastT) / 1000, .05); lastT = now;
+    var tsec = now / 1000;
+    SPR.forEach(function (p) { drawSpr(p, now); });
+
+    if (!over && !dead) {
+      timeLeft -= dt;
+      if (timeLeft <= 0) { timeLeft = 0; itsTimeout(); }
+      cdfill.style.width = Math.max(0, timeLeft / TOTAL_T * 640) + 'px';
+      cdnum.textContent = Math.ceil(timeLeft);
+      /* ★ 每 4 秒它主动派一根 ✓（最多 2 根 ✓）*/
+      sinceSpawn += dt;
+      if (sinceSpawn >= SPAWN_EVERY) {
+        sinceSpawn = 0;
+        var free = nodes.filter(function (n) {
+          return n.side === 'L' && !n.el.classList.contains('locked') && !n.el.classList.contains('dead');
+        });
+        if (free.length) spawnItsLine(free[Math.floor(Math.random() * free.length)]);
+      }
+      for (var i = air.length - 1; i >= 0; i--) {
+        air[i].p += dt / FLY_T;
+        if (air[i].p >= 1) { itsArrive(air[i]); break; }
+      }
+    }
+    /* 漂浮（±12px ✓ 与游戏同周期 ✓）*/
+    nodes.forEach(function (n) {
+      var off = 12 * Math.sin(2 * Math.PI * tsec / n.dur + n.ph * 1.1);
+      n.el.style.transform = 'translateY(' + off.toFixed(2) + 'px)';
+    });
+
+    /* —— 下层画布：它的线（红 3px 实线 ＋ 每 0.7s 故障 0.18s 色散 ✓）／玩家已连的线（深青灰 3px）—— */
+    ctx.clearRect(0, 0, 1280, 720);
+    var gphase = (tsec % GLITCH_T) < GLITCH_ON;
+    tweens.forEach(function (o) { if (o.seg) seg(ctx, o.seg.x0, o.seg.y0, o.seg.x1, o.seg.y1, '#54686a', 3, 0); });
+    air.forEach(function (L) {
+      var a = rect(L.src.el), b = rect(L.word.el);
+      var x2 = a.cx + (b.cx - a.cx) * L.p, y2 = a.cy + (b.cy - a.cy) * L.p;
+      if (gphase) {
+        ctx.globalCompositeOperation = 'lighter';
+        seg(ctx, a.cx, a.cy, x2, y2, 'rgba(60,224,224,.55)', 3, 3);
+        seg(ctx, a.cx, a.cy, x2, y2, 'rgba(226,35,26,.55)', 3, -3);
+        ctx.globalCompositeOperation = 'source-over';
+      }
+      seg(ctx, a.cx, a.cy, x2, y2, '#e2231a', 3, 0);
+      var ang = Math.atan2(y2 - a.cy, x2 - a.cx);
+      ctx.fillStyle = '#e2231a';
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - Math.cos(ang - .34) * 15, y2 - Math.sin(ang - .34) * 15);
+      ctx.lineTo(x2 - Math.cos(ang + .34) * 15, y2 - Math.sin(ang + .34) * 15);
+      ctx.closePath(); ctx.fill();
+      if (L.p > .62) {
+        L.word.el.style.boxShadow = '0 0 0 ' + (2 + (L.p - .62) * 9).toFixed(1) + 'px rgba(226,35,26,' + ((L.p - .62) * 1.6).toFixed(2) + ')';
+      }
+    });
+    /* 鸽群 / 闪光 */
+    for (var k = tweens.length - 1; k >= 0; k--) {
+      var o = tweens[k];
+      if (o.seg || o.dead) continue;
+      var el2 = (now - o.t0 - o.delay) / o.dur;
+      if (el2 < 0) continue;
+      var im = IMG[o.img];
+      if (!im || !im.complete) continue;
+      var tt = Math.min(1, el2), e2 = o.ease === 'quad' ? 1 - Math.pow(1 - tt, 2) : 1 - Math.pow(1 - tt, 3);
+      var x = o.x0 + (o.x1 - o.x0) * e2, y = o.y0 + (o.y1 - o.y0) * e2;
+      var al = o.a0 + (o.a1 - o.a0) * tt, sz = (o.s0 + (o.s1 - o.s0) * tt) * o.size;
+      if (o.fadeAt && (now - o.t0 - o.delay) > o.fadeAt + o.dur) {
+        al = (1 - ((now - o.t0 - o.delay) - (o.fadeAt + o.dur)) / 320) * o.a1;
+      }
+      if (al <= 0) { o.dead = true; continue; }
+      ctx.save(); ctx.globalAlpha = Math.max(0, al); ctx.translate(x, y);
+      if (o.rot) ctx.rotate((o.rot * Math.PI / 180) * tt);
+      if (o.tint === 'red') {
+        ctx.drawImage(im, -sz / 2, -sz / 2, sz, sz);
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.globalAlpha = Math.max(0, al) * .85;
+        ctx.fillStyle = '#e2231a'; ctx.fillRect(-sz / 2, -sz / 2, sz, sz);
+      } else {
+        ctx.drawImage(im, -sz / 2, -sz / 2, sz, sz);
+      }
+      ctx.restore();
+    }
+    tweens = tweens.filter(function (o) { return !o.dead; });
+
+    /* —— 上层画布：粒子（它的线碎裂 ✓）＋ 玻璃碎片 ✓ —— */
+    ctx2.clearRect(0, 0, 1280, 720);
+    parts.forEach(function (p2) {
+      p2.life -= dt; p2.x += p2.vx * dt; p2.y += p2.vy * dt; p2.vy += 520 * dt; p2.rot += dt * 6;
+      if (p2.life <= 0) return;
+      ctx2.save(); ctx2.globalAlpha = Math.min(1, p2.life * 1.7); ctx2.translate(p2.x, p2.y); ctx2.rotate(p2.rot);
+      ctx2.fillStyle = p2.col; ctx2.fillRect(-p2.size / 2, -p2.size / 2, p2.size, p2.size); ctx2.restore();
+    });
+    parts = parts.filter(function (p2) { return p2.life > 0; });
+    for (var k2 = tweens.length - 1; k2 >= 0; k2--) {
+      var g2 = tweens[k2];
+      if (!g2.img || GLASS.indexOf(g2.img) < 0) continue;
+      var im2 = IMG[g2.img];
+      if (!im2 || !im2.complete) continue;
+      var e3 = Math.min(1, Math.max(0, (now - g2.t0 - g2.delay) / g2.dur)), q = 1 - Math.pow(1 - e3, 2);
+      var gx = g2.x0 + (g2.x1 - g2.x0) * q, gy = g2.y0 + (g2.y1 - g2.y0) * q;
+      var ga = g2.a0 + (g2.a1 - g2.a0) * e3;
+      if ((now - g2.t0 - g2.delay) > g2.fadeAt + g2.dur) {
+        ga = (1 - ((now - g2.t0 - g2.delay) - (g2.fadeAt + g2.dur)) / 320) * g2.a1;
+        if (ga <= 0) { g2.dead = true; continue; }
+      }
+      var gs = (g2.s0 + (g2.s1 - g2.s0) * e3) * g2.size;
+      ctx2.save(); ctx2.globalAlpha = Math.max(0, ga); ctx2.translate(gx, gy);
+      ctx2.rotate((g2.rot * Math.PI / 180) * q);
+      ctx2.drawImage(im2, -gs / 2, -gs / 2, gs, gs); ctx2.restore();
+    }
+    requestAnimationFrame(loop);
+  }
+  /* 一条 3px 实线（带法向偏移 → 故障色散用 ✓）*/
+  function seg(c, x0, y0, x1, y1, col, w, off) {
+    var dx = x1 - x0, dy = y1 - y0, d = Math.hypot(dx, dy) || 1;
+    var nx = -dy / d * off, ny = dx / d * off;
+    c.strokeStyle = col; c.lineWidth = w; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(x0 + nx, y0 + ny); c.lineTo(x1 + nx, y1 + ny); c.stroke();
+  }
+  function itsTimeout() { fail('超时 ✗  −1.5'); }
+
+  /* 血条刻度（照 _makeBattlePortrait：i/9 八道 ✓）*/
+  ['barL', 'barR'].forEach(function (cls) {
+    var b = document.querySelector('.' + cls);
+    for (var i = 1; i < 9; i++) {
+      var t = document.createElement('div');
+      t.className = 'tk'; t.style.left = (272 * i / 9) + 'px';
+      b.appendChild(t);
+    }
+  });
+
+  if (window.Babel && Babel.SENSE_WORDS && Babel.SENSE_WORDS.length) { buildPool(); newQuestion(); }
+  else {
+    document.getElementById('hst').textContent = '✗ 词库没加载到（../src/data/senseWords.js）';
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body></html>

@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>巴别残响 · 后续更新路线图</title>
+<style>
+  /* ===== 字体：与游戏同源（assets/fonts）===== */
+  @font-face{font-family:"Gilroy";src:url("../assets/fonts/Gilroy-Light.9981d6.woff2") format("woff2");font-weight:300;font-display:swap}
+  @font-face{font-family:"Gilroy";src:url("../assets/fonts/Gilroy-Medium.376b06.woff2") format("woff2");font-weight:500;font-display:swap}
+  @font-face{font-family:"Novecento Wide";src:url("../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2") format("woff2");font-weight:600;font-display:swap}
+  @font-face{font-family:"Novecento Wide";src:url("../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2") format("woff2");font-weight:700;font-display:swap}
+  @font-face{font-family:"Space Grotesk";src:url("../assets/fonts/SpaceGrotesk.edd157.woff2") format("woff2");font-weight:400 700;font-display:swap}
+  @font-face{font-family:"HarmonyOS Sans SC";src:url("../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2") format("woff2");font-weight:400;font-display:swap}
+  @font-face{font-family:"HarmonyOS Sans SC";src:url("../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2") format("woff2");font-weight:500;font-display:swap}
+  @font-face{font-family:"HarmonyOS Sans SC";src:url("../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2") format("woff2");font-weight:700;font-display:swap}
+  @font-face{font-family:"HarmonyOS Sans SC";src:url("../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2") format("woff2");font-weight:900;font-display:swap}
+
+  :root{
+    --ink:#0a0b0d; --text:#141414; --muted:#6f6f6f; --line:#e6e6e6;
+    --red:#e2231a; --green:#2f7d3a; --gold:#c8a24a;
+    --paper:#ffffff; --page:#f2f2f0; --soft:#3f4145;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--page);color:var(--text);
+    font:13.5px/1.55 "HarmonyOS Sans SC","Microsoft YaHei",system-ui,sans-serif;
+    padding:24px 26px 20px;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto}
+
+  /* ===== 页眉 ===== */
+  .top{display:flex;align-items:flex-end;gap:26px;
+    padding-bottom:13px;border-bottom:1px solid var(--line)}
+  .top .l{flex:1;min-width:0}
+  .eyebrow{font-family:"Novecento Wide","Space Grotesk",sans-serif;font-weight:600;
+    font-size:10px;letter-spacing:.24em;color:var(--muted);text-transform:uppercase}
+  h1{font-family:"Gilroy","HarmonyOS Sans SC",sans-serif;font-weight:300;
+    font-size:38px;line-height:1.04;letter-spacing:-.01em;color:var(--ink);margin-top:7px}
+  h1 .th{font-weight:500}
+  .lede{font-size:12.5px;color:var(--soft);margin-top:7px;max-width:540px}
+  .lede b{color:var(--ink);font-weight:700}
+  .kpis{display:flex;gap:0;flex:none;border:1px solid var(--line);border-radius:8px;
+    overflow:hidden;background:var(--paper)}
+  .kpi{padding:8px 14px;border-right:1px solid var(--line);text-align:center}
+  .kpi:last-child{border-right:0}
+  .kpi .k{font-family:"Novecento Wide",sans-serif;font-size:9px;letter-spacing:.16em;
+    color:var(--muted);text-transform:uppercase;white-space:nowrap}
+  .kpi .v{font-family:"Space Grotesk","HarmonyOS Sans SC",sans-serif;font-size:19px;
+    font-weight:700;color:var(--ink);line-height:1.2;margin-top:2px;white-space:nowrap}
+  .kpi .v small{font-size:11px;font-weight:400;color:var(--muted);margin-left:2px}
+
+  /* ===== 进度（横排一行）===== */
+  .prog{display:flex;gap:18px;margin-top:13px;padding:11px 16px;
+    background:var(--paper);border:1px solid var(--line);border-radius:8px}
+  .pg{flex:1;min-width:0}
+  .pg .h{display:flex;align-items:baseline;gap:7px;margin-bottom:5px}
+  .pg .h .n{font-size:12.5px;font-weight:700;color:var(--ink);flex:1;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pg .h .p{font-family:"Space Grotesk",sans-serif;font-size:11.5px;color:var(--muted)}
+  .pg .t{height:5px;background:#eeece8;border-radius:3px;overflow:hidden}
+  .pg .f{height:100%;border-radius:3px}
+
+  /* ===== 双栏主体 ===== */
+  /* ★★ 卡片不得被拉伸 ✗✗（第一版渲染出来 Debug / 优化 UI 底下留了一大片空白 ✓）
+   *   病因：Grid 的 align-items 默认是 stretch ✓
+   *     display:flex;flex-direction:column ＋ 卡片 flex:1 → 卡片被撑到和同行一样高 ✓
+   *   修：三处一起改 ✗ —— 容器 align-items:start ✓ 卡片 align-self:start ✓ 去掉 flex:1 ✓
+   *   ★ 口径：等高是 Grid/Flex 的默认行为 ✗ 排版里看到莫名留白先怀疑它 ✓ */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:13px;align-items:start}
+  .col{display:flex;flex-direction:column;gap:13px}
+
+  .phase{background:var(--paper);border:1px solid var(--line);border-radius:8px;
+    padding:12px 16px 11px;align-self:start}
+  .ph{display:flex;align-items:baseline;gap:10px;padding-bottom:8px;
+    border-bottom:1px solid var(--line)}
+  .pn{font-family:"Space Grotesk",sans-serif;font-size:20px;font-weight:700;
+    color:var(--ink);opacity:.15;line-height:1;flex:none}
+  .pt{flex:1;min-width:0}
+  .pt h2{font-size:15px;font-weight:700;color:var(--ink);line-height:1.35}
+  .pt .en{font-family:"Novecento Wide",sans-serif;font-size:8.5px;letter-spacing:.18em;
+    color:var(--muted);text-transform:uppercase;margin-top:2px}
+  .pt p{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+  .pb{flex:none}
+
+  .it{padding:7px 0;border-bottom:1px solid #f2f0ec}
+  .it:last-child{border-bottom:0;padding-bottom:0}
+  .ih{display:flex;align-items:baseline;gap:7px}
+  .ic{font-family:"Space Grotesk",sans-serif;font-size:11px;flex:none;line-height:1.5}
+  .c-done{color:var(--green)} .c-doing{color:var(--gold)}
+  .c-next{color:var(--red)} .c-plan{color:#c9c6bf}
+  .ih h3{flex:1;font-size:13px;font-weight:700;color:var(--ink);line-height:1.45}
+  .it ul{margin:2px 0 0 18px;list-style:none}
+  .it li{position:relative;padding-left:11px;font-size:12px;color:var(--soft);
+    margin-top:2px;line-height:1.5}
+  .it li::before{content:"–";position:absolute;left:0;color:#c9c6bf}
+  .it li b{color:var(--ink);font-weight:700}
+
+  .badge{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;
+    border-radius:3px;border:1px solid;white-space:nowrap}
+  .b-done{color:var(--green);border-color:var(--green);background:#f2f8f3}
+  .b-doing{color:#8a6a17;border-color:var(--gold);background:#fdf8ec}
+  .b-next{color:var(--red);border-color:var(--red);background:#fdf3f2}
+  .b-plan{color:var(--muted);border-color:#d8d5cf;background:#fbfbf9}
+
+  code{font-family:"Space Grotesk",ui-monospace,Consolas,monospace;font-size:11.5px;
+    background:#eeece8;padding:1px 4px;border-radius:3px;color:var(--soft)}
+
+  /* ===== 尾注 ===== */
+  .foot{margin-top:13px;padding:11px 16px;background:var(--paper);
+    border:1px solid var(--line);border-radius:8px;
+    display:flex;align-items:center;gap:22px}
+  .foot .txt{flex:1;font-size:11.5px;color:var(--muted);line-height:1.65}
+  .foot .txt b{color:var(--ink)}
+  .lg{display:flex;gap:14px;flex:none;font-size:11px;color:var(--muted);align-items:center}
+  .lg span{display:flex;align-items:center;gap:5px;white-space:nowrap}
+  .sign{margin-top:9px;display:flex;align-items:center;gap:12px;
+    font-family:"Novecento Wide",sans-serif;font-size:9px;letter-spacing:.2em;
+    color:var(--muted);text-transform:uppercase}
+  .sign .ln{flex:1;height:1px;background:var(--line)}
+
+  @media (max-width:900px){
+    .cols{grid-template-columns:1fr}
+    .top{flex-direction:column;align-items:stretch}
+    .kpis{flex-wrap:wrap}
+    .prog{flex-wrap:wrap}
+    .foot{flex-direction:column;align-items:flex-start}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== 页眉 ===== -->
+  <div class="top">
+    <div class="l">
+      <div class="eyebrow">Babel Resonance · Update Roadmap</div>
+      <h1>巴别残响<span class="th"> · 后续更新路线图</span></h1>
+      <p class="lede">这是一份<b>边做边公开</b>的计划表：顺序是<b>优先级</b>，不是时间表。做完就划掉，做完的不会从表上消失。</p>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="k">版本</div><div class="v">0.9<small>先行</small></div></div>
+      <div class="kpi"><div class="k">语域</div><div class="v">3<small>层</small></div></div>
+      <div class="kpi"><div class="k">主词库</div><div class="v">3687<small>条</small></div></div>
+      <div class="kpi"><div class="k">专属题库</div><div class="v">6<small>套／2831 条</small></div></div>
+    </div>
+  </div>
+
+  <!-- ===== 进度 ===== -->
+  <div class="prog">
+    <div class="pg">
+      <div class="h"><span class="n">① Debug</span><span class="p">62%</span></div>
+      <div class="t"><div class="f" style="width:62%;background:var(--gold)"></div></div>
+    </div>
+    <div class="pg">
+      <div class="h"><span class="n">② 优化 UI</span><span class="p">35%</span></div>
+      <div class="t"><div class="f" style="width:35%;background:var(--gold)"></div></div>
+    </div>
+    <div class="pg">
+      <div class="h"><span class="n">③ 平衡调整</span><span class="p">20%</span></div>
+      <div class="t"><div class="f" style="width:20%;background:var(--gold)"></div></div>
+    </div>
+    <div class="pg">
+      <div class="h"><span class="n">④ 词库与难度</span><span class="p">12%</span></div>
+      <div class="t"><div class="f" style="width:12%;background:var(--red)"></div></div>
+    </div>
+    <div class="pg">
+      <div class="h"><span class="n">⑤ 后两层语域</span><span class="p">0%</span></div>
+      <div class="t"><div class="f" style="width:0%;background:#d8d5cf"></div></div>
+    </div>
+  </div>
+
+  <!-- ===== 主体：左 01+03 ／ 右 02+04+05（按实测卡高配平 ✓）===== -->
+  <div class="cols">
+    <div class="col">
+
+      <section class="phase">
+        <div class="ph">
+          <div class="pn">01</div>
+          <div class="pt">
+            <h2>Debug</h2>
+            <div class="en">Stability &amp; Correctness</div>
+            <p>先把「玩得下去」做扎实。</p>
+          </div>
+          <div class="pb"><span class="badge b-doing">进行中</span></div>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-doing">◆</span><h3>战斗结算的稳定性</h3>
+            <span class="badge b-doing">修复中</span></div>
+          <ul>
+            <li>部分 BOSS 战结束瞬间<b>卡住 / 闪退</b>，逐场排查</li>
+            <li>结算面板偶尔<b>残留上一场画面</b></li>
+          </ul>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-done">✓</span><h3>题库正确性 · 只有一个答案是对的</h3>
+            <span class="badge b-done">已修 41 条</span></div>
+          <ul>
+            <li>干扰项<b>其实也对</b>（近义词被当成错项）</li>
+            <li>正确项<b>填成了反义词</b>（<code>result in</code> 配 <code>result from</code> 这类）</li>
+            <li>每类缺陷都加了<b>自动检查</b>，不会再漏进来</li>
+          </ul>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-done">✓</span><h3>答题记录错位</h3>
+            <span class="badge b-done">已修复</span></div>
+          <ul>
+            <li>结算「对题」里<b>记的词和实际考的词对不上</b></li>
+            <li>划句子成分时，<b>红线把先行词也划了进去</b>（已复查 300 条）</li>
+          </ul>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-plan">○</span><h3>长局稳定性</h3>
+            <span class="badge b-plan">待排期</span></div>
+          <ul>
+            <li>连打很多场后的<b>内存与帧率</b></li>
+            <li>极端情况：词库抽干、藏品堆满、连击极高</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="phase">
+        <div class="ph">
+          <div class="pn">03</div>
+          <div class="pt">
+            <h2>平衡调整</h2>
+            <div class="en">Balance &amp; Pacing</div>
+            <p>让难度曲线是<b>爬升</b>的，让藏品真的能改变打法。</p>
+          </div>
+          <div class="pb"><span class="badge b-doing">进行中</span></div>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-done">✓</span><h3>被点名太难的敌人</h3>
+            <span class="badge b-done">已调整</span></div>
+          <ul>
+            <li><b>亚当重锤</b>三阶段节奏放缓（可读窗口 1.07 → 1.5 秒）</li>
+            <li><b>塔露拉</b>攻击力下调</li>
+          </ul>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-done">✓</span><h3>层间回复</h3>
+            <span class="badge b-done">已实装</span></div>
+          <ul>
+            <li>进新一层：<b>回 5 点生命 ＋ 上限 +2</b>（10 → 12 → 14）</li>
+          </ul>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-doing">◆</span><h3>全敌人数值复核</h3>
+            <span class="badge b-doing">逐层过</span></div>
+          <ul>
+            <li>逐个核对<b>血量 / 攻击 / 限时</b>是否配得上它的节点类型</li>
+            <li>紧急节点要<b>明显比普通难</b>，精英对得起它的奖励</li>
+          </ul>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-plan">○</span><h3>藏品强度分档 ＋ 残页经济</h3>
+            <span class="badge b-plan">待排期</span></div>
+          <ul>
+            <li>把<b>过强 / 过弱</b>的藏品拉回同一档，稀有度要名副其实</li>
+            <li>避免「攒着不敢花」或「随便花都够」两种极端</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+
+    <div class="col">
+
+      <section class="phase">
+        <div class="ph">
+          <div class="pn">02</div>
+          <div class="pt">
+            <h2>优化 UI</h2>
+            <div class="en">Interface &amp; Readability</div>
+            <p>该看清的地方一眼看清，不用凑到屏幕上找。</p>
+          </div>
+          <div class="pb"><span class="badge b-doing">进行中</span></div>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-done">✓</span><h3>结算页的排版</h3>
+            <span class="badge b-done">已实装</span></div>
+          <ul>
+            <li>字号<b>跟着内容量自动调整</b>：内容少就放大，放不下就滚动</li>
+            <li>行高按实际文字高度算，<b>分隔线不再压到字上</b></li>
+            <li>滚动支持<b>滚轮与拖动</b></li>
+          </ul>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-doing">◆</span><h3>战斗界面的信息层级</h3>
+            <span class="badge b-doing">设计中</span></div>
+          <ul>
+            <li>同一屏里<b>哪些是题面、哪些是提示</b>要更分明</li>
+            <li>进度提示、阶段提示的<b>位置与字号统一</b></li>
+          </ul>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-plan">○</span><h3>地图与藏品栏</h3>
+            <span class="badge b-plan">待排期</span></div>
+          <ul>
+            <li>节点类型<b>一眼可辨</b>（现在颜色偏近）</li>
+            <li>藏品效果在<b>拾取时就说清楚</b>，不用去查</li>
+          </ul>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-plan">○</span><h3>不同分辨率下的排布</h3>
+            <span class="badge b-plan">待排期</span></div>
+          <ul>
+            <li>小窗口与超宽屏下都不挤、不裁切</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="phase">
+        <div class="ph">
+          <div class="pn">04</div>
+          <div class="pt">
+            <h2>加入更多词库 · 难度系统</h2>
+            <div class="en">Vocabulary &amp; Difficulty</div>
+            <p>最影响<b>长期可玩性</b>的一档：词够多、够准、难度可控。</p>
+          </div>
+          <div class="pb"><span class="badge b-next">下一步</span></div>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-next">◆</span><h3>扩充主词库</h3>
+            <span class="badge b-next">下一步</span></div>
+          <ul>
+            <li>现有 <b>3687</b> 条高考核心词，继续往上加</li>
+            <li>补<b>熟词生义</b>与<b>高频短语</b>两个薄弱面</li>
+          </ul>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-next">◆</span><h3>难度系统 · 分级</h3>
+            <span class="badge b-next">设计中</span></div>
+          <ul>
+            <li>词库按<b>难度档</b>切分，每层抽到的词真的对应该层水平</li>
+            <li>提供<b>难度选择</b>：休闲 / 标准 / 挑战</li>
+            <li>难不再只是「词更长」，而是<b>义项更近、更易混</b></li>
+          </ul>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-plan">○</span><h3>专属题库继续做</h3>
+            <span class="badge b-plan">持续</span></div>
+          <ul>
+            <li>现有 <b>6 套</b>：审问 683 · 近义词 751 · 介词 483 · 语境拼词 308 · 辨析 306 · 句子成分 300</li>
+            <li>每个新机制都配一套<b>自己的题库</b></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="phase">
+        <div class="ph">
+          <div class="pn">05</div>
+          <div class="pt">
+            <h2>后两层语域</h2>
+            <div class="en">Fourth &amp; Fifth Floors</div>
+            <p>现为三层：<b>回声层 → 回响层 → 残响层</b>。</p>
+          </div>
+          <div class="pb"><span class="badge b-plan">规划中</span></div>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-plan">○</span><h3>第四层 · 语域设计</h3>
+            <span class="badge b-plan">规划中</span></div>
+          <ul>
+            <li>主题、敌人阵容、关底 BOSS 与它的专属机制</li>
+            <li>一层一个新机制，且这个机制要<b>真的在考英语</b></li>
+          </ul>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-plan">○</span><h3>第五层 · 终局</h3>
+            <span class="badge b-plan">规划中</span></div>
+          <ul>
+            <li>难度与词库同步抬到最高档</li>
+            <li>需要一套能<b>收束整局</b>的结局处理</li>
+          </ul>
+        </div>
+
+        <div class="it">
+          <div class="ih"><span class="ic c-plan">○</span><h3>前提条件 · 为什么先不做</h3>
+            <span class="badge b-plan">未开始</span></div>
+          <ul>
+            <li>先把 ①~④ 做扎实：<b>稳定性、可读性、平衡、词库厚度</b></li>
+            <li>新两层<b>美术与题库成本最高</b>，排在最后</li>
+            <li><b>规模与是否收录以实际质量为准</b> —— 做不好就不放</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ===== 尾注 ===== -->
+  <div class="foot">
+    <div class="txt">
+      <b>你们的反馈是排期依据</b> —— 哪个敌人太强、哪道题读不懂、哪里看不清，都可以直接说。
+      稳定性问题会随时插队到最前面。
+    </div>
+    <div class="lg">
+      <span><span class="badge b-done">已实装</span>已在本版本</span>
+      <span><span class="badge b-doing">进行中</span>下一版见</span>
+      <span><span class="badge b-next">下一步</span>排在队首</span>
+      <span><span class="badge b-plan">待排期</span>尚未动工</span>
+    </div>
+  </div>
+
+  <div class="sign">
+    <span>Babel Resonance · Roadmap</span><span class="ln"></span><span>持续更新</span>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>亚当重锤 · 词头特效候选（8 种，动画）</title>
+<style>
+/* ============================================================================
+   词头（拖影最前面那个词）特效候选 —— 每一行都是"词头 + 后面 3 层拖影"的完整上下文
+   全部用 canvas 现画，动画实时跑；每一条都标注了在 Phaser 里的落地方式（都只用到 Text）
+   ========================================================================== */
+@font-face{font-family:'Smiley Sans';src:url('../assets/fonts/SmileySans-Oblique.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'Orbitron';src:url('../assets/fonts/Orbitron-700-900.woff2')format('woff2');font-weight:700 900}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111}
+.desk{min-height:100vh;padding:14px 14px 60px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.head{width:100%;max-width:1200px}
+.head h1{font-size:17px;font-weight:900;margin-bottom:3px}
+.head p{font-size:12.5px;color:#6f6f6f;line-height:1.7}
+canvas#stage{width:1200px;height:880px;display:block;background:#04070c;border:1px solid #1b3b46}
+.row{width:100%;max-width:1200px;background:#fff;border:1px solid #e2e0dc;border-radius:6px;padding:10px 14px;font-size:12.5px;line-height:1.8}
+.row b{font-weight:700}
+button{font-family:'HOS';font-weight:700;font-size:13px;padding:7px 14px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff}
+</style>
+</head>
+<body>
+<div class="desk">
+  <div class="head">
+    <h1>词头特效候选（8 种 · 实时动画）</h1>
+    <p>每一行 = <b>词头 + 后面 3 层拖影</b>（拖影固定为浅天蓝→青绿、间距 22px，与游戏里一致），所以能直接判断"词头在其中好不好看"。挑编号即可（也可以说"H4 但要更亮"）。</p>
+  </div>
+  <canvas id="stage" width="1200" height="880"></canvas>
+  <div class="row" id="notes"></div>
+</div>
+<script>
+(function () {
+  'use strict';
+  const cvs = document.getElementById('stage'), ctx = cvs.getContext('2d');
+  const W = cvs.width, H = cvs.height;
+  const WORD = 'WINDOW';
+  const SIZE = 52, GAP = 22, LAYERS = 3;
+  const COL_A = [127, 200, 240], COL_B = [127, 242, 224];   // 浅天蓝 → 青绿（游戏当前值）
+  const ramp = t => 'rgb(' + Math.round(COL_A[0] + (COL_B[0] - COL_A[0]) * t) + ',' +
+    Math.round(COL_A[1] + (COL_B[1] - COL_A[1]) * t) + ',' + Math.round(COL_A[2] + (COL_B[2] - COL_A[2]) * t) + ')';
+
+  const VARIANTS = [
+    { id: 'H1', name: '现状：近白核心 + 3 层 ADD 辉光', note: 'Phaser：1 个核心 Text + 3 个放大 1.00/1.05/1.12 的 ADD 副本' },
+    { id: 'H2', name: '白字 + 青描边 + 红偏移投影（一阶段曾用过）', note: 'Phaser：核心 Text setStroke(青,2) + setShadow(4,0,红)' },
+    { id: 'H3', name: '白热过曝（更大更密的 ADD 辉光）', note: 'Phaser：核心 + 5 个 ADD 副本（1.0~1.22 倍，alpha 递减）' },
+    { id: 'H4', name: 'CRT 扫描：字内横向暗线 + 辉光', note: 'Phaser：核心 + 其上叠一条窄条扫描贴图（或 3 条 1px 暗线矩形）' },
+    { id: 'H5', name: '电流不稳：逐帧微抖 + 亮度闪烁', note: 'Phaser：核心每帧 x/y ±1~2px + alpha 在 0.86~1 之间跳' },
+    { id: 'H6', name: '空心发光环（只描边不填充）', note: 'Phaser：Text 设成描边色 + 填充透明（或 fillAlpha 0.12）+ 辉光' },
+    { id: 'H7', name: '轻色差：青/红双影小偏移 + 辉光', note: 'Phaser：核心 + 2 个 ±3px 的红/青 ADD 副本（比 H2 柔和）' },
+    { id: 'H8', name: '双写重影：上下微错位叠加', note: 'Phaser：核心 + 1 个 y−2px 的同色副本（alpha 0.5）+ 辉光' },
+  ];
+
+  const ROW_H = (H - 60) / VARIANTS.length;
+
+  function drawHead(id, x, y, t) {
+    ctx.save();
+    ctx.font = '900 ' + SIZE + 'px "Smiley Sans", "HarmonyOS Sans SC", Impact, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const jitter = (id === 'H5') ? (Math.random() * 2 - 1) * 1.6 : 0;
+    const flick = (id === 'H5') ? (0.86 + Math.random() * 0.14) : 1;
+    const cx = x + jitter, cy = y + ((id === 'H5') ? (Math.random() * 2 - 1) * 1.2 : 0);
+    // 后面 3 层拖影（所有变体共用，用于上下文判断）
+    for (let i = LAYERS; i >= 1; i--) {
+      ctx.globalAlpha = 0.92 * Math.pow(0.90, i);
+      ctx.fillStyle = ramp(i / (LAYERS + 6));
+      ctx.fillText(WORD, x + i * GAP, y - i * 0.4);
+    }
+    ctx.globalAlpha = 1;
+    const white = '#f4fbff';
+    if (id === 'H1' || id === 'H3') {
+      const n = id === 'H1' ? 3 : 5;
+      ctx.globalCompositeOperation = 'lighter';
+      for (let k = n; k >= 1; k--) {
+        const sc = 1 + k * (id === 'H1' ? 0.04 : 0.045);
+        ctx.globalAlpha = 0.30 / k * (id === 'H1' ? 1 : 1.35);
+        ctx.fillStyle = '#9fe8ff';
+        ctx.save(); ctx.translate(cx, cy); ctx.scale(sc, sc); ctx.fillText(WORD, 0, 0); ctx.restore();
+      }
+      ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+      ctx.fillStyle = white; ctx.fillText(WORD, cx, cy);
+    } else if (id === 'H2') {
+      ctx.globalAlpha = 0.9; ctx.fillStyle = '#ff2b4e'; ctx.fillText(WORD, cx + 4, cy);
+      ctx.globalAlpha = 1; ctx.lineWidth = 3; ctx.strokeStyle = '#5ef6ff';
+      ctx.strokeText(WORD, cx, cy); ctx.fillStyle = white; ctx.fillText(WORD, cx, cy);
+    } else if (id === 'H4') {
+      ctx.globalCompositeOperation = 'lighter';
+      for (let k = 3; k >= 1; k--) { ctx.globalAlpha = 0.3 / k; ctx.fillStyle = '#9fe8ff';
+        ctx.save(); ctx.translate(cx, cy); ctx.scale(1 + k * 0.04, 1 + k * 0.04); ctx.fillText(WORD, 0, 0); ctx.restore(); }
+      ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+      ctx.fillStyle = white; ctx.fillText(WORD, cx, cy);
+      // 字内横向暗线（滚动）
+      ctx.globalCompositeOperation = 'source-atop';
+      ctx.fillStyle = 'rgba(0,10,20,0.55)';
+      const off = (t * 40) % 6;
+      for (let yy = -SIZE / 2; yy < SIZE / 2; yy += 6) ctx.fillRect(cx - 220, cy + yy + off, 440, 2);
+      ctx.globalCompositeOperation = 'source-over';
+    } else if (id === 'H5') {
+      ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.32 * flick; ctx.fillStyle = '#9fe8ff';
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(1.08, 1.08); ctx.fillText(WORD, 0, 0); ctx.restore();
+      ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = flick;
+      ctx.fillStyle = white; ctx.fillText(WORD, cx, cy);
+    } else if (id === 'H6') {
+      ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.25; ctx.fillStyle = '#7df9ff';
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(1.12, 1.12); ctx.fillText(WORD, 0, 0); ctx.restore();
+      ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+      ctx.lineWidth = 3; ctx.strokeStyle = '#7df9ff'; ctx.strokeText(WORD, cx, cy);
+      ctx.globalAlpha = 0.13; ctx.fillStyle = '#eafcff'; ctx.fillText(WORD, cx, cy);
+    } else if (id === 'H7') {
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = 0.45; ctx.fillStyle = '#ff2d5f'; ctx.fillText(WORD, cx + 3, cy);
+      ctx.fillStyle = '#00ffcd'; ctx.fillText(WORD, cx - 3, cy);
+      ctx.globalAlpha = 0.3; ctx.fillStyle = '#9fe8ff';
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(1.07, 1.07); ctx.fillText(WORD, 0, 0); ctx.restore();
+      ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+      ctx.fillStyle = white; ctx.fillText(WORD, cx, cy);
+    } else if (id === 'H8') {
+      ctx.globalCompositeOperation = 'lighter';
+      for (let k = 3; k >= 1; k--) { ctx.globalAlpha = 0.26 / k; ctx.fillStyle = '#9fe8ff';
+        ctx.save(); ctx.translate(cx, cy); ctx.scale(1 + k * 0.035, 1 + k * 0.035); ctx.fillText(WORD, 0, 0); ctx.restore(); }
+      ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 0.5; ctx.fillStyle = '#bfe9ff';
+      ctx.fillText(WORD, cx, cy - 2.5);
+      ctx.globalAlpha = 1; ctx.fillStyle = white; ctx.fillText(WORD, cx, cy + 0.5);
+    }
+    ctx.restore();
+  }
+
+  function frame(now) {
+    const t = now / 1000;
+    // 背景
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#04060e'); bg.addColorStop(0.5, '#080e1c'); bg.addColorStop(1, '#03050c');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    ctx.save(); ctx.globalAlpha = 0.5; ctx.strokeStyle = 'rgba(90,200,255,0.05)';
+    for (let y = 0; y < H; y += 46) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+    ctx.restore();
+    VARIANTS.forEach(function (v, i) {
+      const y = 60 + i * ROW_H + ROW_H / 2;
+      ctx.save();
+      ctx.globalAlpha = 0.5; ctx.fillStyle = '#4a6178';
+      ctx.font = '600 15px Orbitron, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText(v.id, 26, y - 20);
+      ctx.globalAlpha = 0.42; ctx.font = '400 12px "HarmonyOS Sans SC", sans-serif';
+      ctx.fillText(v.name, 26, y + 6);
+      ctx.restore();
+      drawHead(v.id, 780, y, t);          // 词头画在右侧（拖影往左铺，和游戏里"向右飞来"一致）
+    });
+    requestAnimationFrame(frame);
+  }
+  document.getElementById('notes').innerHTML =
+    '<b>怎么选</b>：H1 是现在游戏里的效果；<b>H3 / H5 / H6 / H7</b> 是我推荐的四个方向（分别在"更亮 / 更不稳 / 空心 / 轻色差"上走）。<br>' +
+    '<b>落地成本</b>：全部只用到 Phaser 的 Text —— H1/H3/H8 是"多几个 ADD 副本"（最稳，已经这么在用）；' +
+    'H2/H7 用描边与红青副本；H4 需要在核心上叠一条扫描贴图；H5/H6 只是属性变化（抖动/闪烁/空心）。<br>' +
+    '<b>挑法</b>：说编号即可，例如"要 H3，但辉光再收一点"、"H5 的抖动幅度减半"。';
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

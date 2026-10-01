@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>巴别残响 · 展签墙迭代六版</title>
+<style>
+/* ============================================================================
+   标题页「展签墙」迭代六版（无立绘）
+     V1 精修原版 / V2 三列 / V3 单列长签 / V4 目录栅格 / V5 中文大字 / V6 深色
+   共用：小字中文题头 → 巨号拉丁标题 → 红色 3px 短横线 → 展签卡（顶线+红号+名称+英文小标）
+   纸 #fff · 墨 #111 · 灰 #6f6f6f · 线 #e6e6e6 · 唯一红 #e2231a
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2')format('woff2');font-weight:900}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Light.9981d6.woff2')format('woff2');font-weight:300}
+
+:root{--ink:#111;--muted:#6f6f6f;--rule:#e6e6e6;--red:#e2231a}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 16px 80px}
+.head{width:100%;max-width:1340px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.head h1{font-size:18px;margin:0;font-weight:900}
+.head p{margin:0;font-size:12.5px;color:var(--muted)}
+.tabs{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;max-width:900px}
+.tabs button{font-weight:700;font-size:12px;padding:6px 11px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#111;color:#fff;border-color:#111}
+.viewport{position:relative;width:100%;max-width:1340px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 18px 50px rgba(0,0,0,.18);overflow:hidden}
+.screen{position:absolute;inset:0;width:1280px;height:720px;background:#fff;display:none}
+.screen.on{display:block}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.8}
+.notes b{font-weight:900}
+
+/* 共用元件 */
+.zh{font-size:14px;font-weight:700;letter-spacing:.04em}
+.title{font-family:'Gilroy';font-weight:300;letter-spacing:-.025em;line-height:.98}
+.rl{height:3px;background:var(--red)}
+.card{border-top:1px solid var(--rule);cursor:pointer;transition:border-color .15s,background .15s}
+.card:hover{border-top-color:var(--red);background:#fcfcfc}
+.no{font-family:'Grotesk';font-weight:600;color:var(--red)}
+.nm{font-weight:500}
+.en{font-family:'Novecento';font-weight:600;text-transform:uppercase;color:var(--muted)}
+.hint{position:absolute;left:80px;bottom:52px;font-size:11.5px;color:var(--muted);letter-spacing:.06em}
+.vr{position:absolute;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted)}
+
+/* ============ V1 精修原版（2×2 展签） ============ */
+#v1 .zh{position:absolute;left:80px;top:64px}
+#v1 .title{position:absolute;left:80px;top:104px;font-size:104px}
+#v1 .rl{position:absolute;left:80px;top:236px;width:200px}
+#v1 .wall{position:absolute;left:80px;right:80px;top:300px;display:grid;grid-template-columns:1fr 1fr;gap:30px 48px}
+#v1 .card{padding-top:18px}
+#v1 .no{font-size:14px}
+#v1 .nm{font-size:34px;margin:8px 0 6px}
+#v1 .en{font-size:10.5px;letter-spacing:.22em}
+
+/* ============ V2 三列（可容纳更多项） ============ */
+#v2 .zh{position:absolute;left:80px;top:66px}
+#v2 .title{position:absolute;left:80px;top:104px;font-size:96px}
+#v2 .rl{position:absolute;left:80px;top:224px;width:180px}
+#v2 .wall{position:absolute;left:80px;right:80px;top:280px;display:grid;grid-template-columns:repeat(3,1fr);gap:26px 40px}
+#v2 .card{padding-top:16px}
+#v2 .no{font-size:13px}
+#v2 .nm{font-size:28px;margin:7px 0 5px}
+#v2 .en{font-size:10px;letter-spacing:.2em}
+#v2 .vr{position:absolute;right:80px;top:66px}
+
+/* ============ V3 单列长签（4 条通栏） ============ */
+#v3 .zh{position:absolute;left:80px;top:58px}
+#v3 .title{position:absolute;left:80px;top:92px;font-size:88px}
+#v3 .rl{position:absolute;left:80px;top:196px;width:160px}
+#v3 .list{position:absolute;left:80px;right:80px;top:248px}
+#v3 .row{display:flex;align-items:center;gap:26px;height:86px;border-top:1px solid var(--rule);cursor:pointer;transition:border-color .15s,background .15s;padding:0 16px}
+#v3 .row:hover{border-top-color:var(--red);background:#fcfcfc}
+#v3 .row .no{font-size:15px;width:44px}
+#v3 .row .nm{font-size:34px;flex:1}
+#v3 .row .en{font-size:10.5px;letter-spacing:.22em}
+#v3 .row .ar{font-family:'Grotesk';font-size:18px;color:var(--muted)}
+
+/* ============ V4 目录栅格（左侧编号栏 + 竖细线） ============ */
+#v4 .zh{position:absolute;left:96px;top:64px}
+#v4 .title{position:absolute;left:96px;top:100px;font-size:88px}
+#v4 .rl{position:absolute;left:96px;top:210px;width:170px}
+#v4 .grid{position:absolute;left:96px;right:96px;top:270px}
+#v4 .rr{display:grid;grid-template-columns:120px 1fr 220px;align-items:center;height:92px;border-top:1px solid var(--rule);cursor:pointer;transition:border-color .15s}
+#v4 .rr:hover{border-top-color:var(--red)}
+#v4 .rr .no{font-size:20px;padding-left:6px}
+#v4 .rr .nm{font-size:32px}
+#v4 .rr .en{font-size:10.5px;letter-spacing:.22em;text-align:right;padding-right:14px}
+#v4 .vline{position:absolute;top:270px;bottom:150px;width:1px;background:var(--rule);left:216px}
+#v4 .vline2{position:absolute;top:270px;bottom:150px;width:1px;background:var(--rule);right:316px}
+
+/* ============ V5 中文大字（层级反转） ============ */
+#v5 .en-top{position:absolute;left:80px;top:62px;font-family:'Novecento';font-weight:600;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:var(--muted)}
+#v5 .title{position:absolute;left:80px;top:96px;font-family:'HOS';font-weight:900;font-size:118px;letter-spacing:.02em;line-height:1}
+#v5 .rl{position:absolute;left:80px;top:240px;width:200px}
+#v5 .wall{position:absolute;left:80px;right:80px;top:300px;display:grid;grid-template-columns:1fr 1fr;gap:30px 48px}
+#v5 .card{padding-top:18px}
+#v5 .no{font-size:14px}
+#v5 .nm{font-size:32px;margin:8px 0 6px}
+#v5 .en{font-size:10.5px;letter-spacing:.22em}
+
+/* ============ V6 深色展签墙 ============ */
+#v6{background:#0f0f11;color:#f2f0ec}
+#v6 .zh{position:absolute;left:80px;top:64px;color:#f2f0ec}
+#v6 .title{position:absolute;left:80px;top:104px;font-size:104px;color:#f6f4f0}
+#v6 .rl{position:absolute;left:80px;top:236px;width:200px}
+#v6 .wall{position:absolute;left:80px;right:80px;top:300px;display:grid;grid-template-columns:1fr 1fr;gap:30px 48px}
+#v6 .card{border-top:1px solid #2a2a2e;padding-top:18px}
+#v6 .card:hover{border-top-color:var(--red);background:#151518}
+#v6 .no{font-size:14px}
+#v6 .nm{font-size:34px;margin:8px 0 6px;color:#f2f0ec}
+#v6 .en{font-size:10.5px;letter-spacing:.22em;color:#8b8b8b}
+#v6 .hint{color:#6a6a6a}
+#v6 .vr{color:#8b8b8b}
+</style>
+</head>
+<body>
+
+<div class="desk">
+  <div class="head">
+    <h1>展签墙迭代六版</h1>
+    <p>以你选中的 T4 为底 · 全部无立绘 · 同一套展签语言</p>
+    <div class="tabs" id="tabs">
+      <button data-s="v1" class="on">V1 精修原版</button>
+      <button data-s="v2">V2 三列</button>
+      <button data-s="v3">V3 单列长签</button>
+      <button data-s="v4">V4 目录栅格</button>
+      <button data-s="v5">V5 中文大字</button>
+      <button data-s="v6">V6 深色</button>
+    </div>
+  </div>
+
+  <div class="viewport"><div class="stage" id="stage">
+
+    <!-- V1 -->
+    <div class="screen on" id="v1">
+      <div class="zh">巴别残响</div>
+      <div class="title">Babel Resonance</div>
+      <div class="rl"></div>
+      <div class="wall">
+        <div class="card"><div class="no">01</div><div class="nm">开始探索</div><div class="en">New Run</div></div>
+        <div class="card"><div class="no">02</div><div class="nm">继续上次</div><div class="en">Continue</div></div>
+        <div class="card"><div class="no">03</div><div class="nm">战斗测试</div><div class="en">Sandbox</div></div>
+        <div class="card"><div class="no">04</div><div class="nm">设置</div><div class="en">Options</div></div>
+      </div>
+      <div class="hint">每一格都是一件展品：选择你要进入的那一件。</div>
+    </div>
+
+    <!-- V2 -->
+    <div class="screen" id="v2">
+      <div class="zh">巴别残响</div>
+      <div class="title">Babel Resonance</div>
+      <div class="rl"></div>
+      <div class="vr">Vol.01 · 回声层</div>
+      <div class="wall">
+        <div class="card"><div class="no">01</div><div class="nm">开始探索</div><div class="en">New Run</div></div>
+        <div class="card"><div class="no">02</div><div class="nm">继续上次</div><div class="en">Continue</div></div>
+        <div class="card"><div class="no">03</div><div class="nm">战斗测试</div><div class="en">Sandbox</div></div>
+        <div class="card"><div class="no">04</div><div class="nm">设置</div><div class="en">Options</div></div>
+        <div class="card"><div class="no">05</div><div class="nm">图鉴</div><div class="en">Codex</div></div>
+        <div class="card"><div class="no">06</div><div class="nm">鸣谢</div><div class="en">Credits</div></div>
+      </div>
+      <div class="hint">三列版：将来加「图鉴 / 鸣谢 / 存档管理」时不用重排。</div>
+    </div>
+
+    <!-- V3 -->
+    <div class="screen" id="v3">
+      <div class="zh">巴别残响</div>
+      <div class="title">Babel Resonance</div>
+      <div class="rl"></div>
+      <div class="list">
+        <div class="row"><span class="no">01</span><span class="nm">开始探索</span><span class="en">New Run</span><span class="ar">→</span></div>
+        <div class="row"><span class="no">02</span><span class="nm">继续上次</span><span class="en">Continue</span><span class="ar">→</span></div>
+        <div class="row"><span class="no">03</span><span class="nm">战斗测试</span><span class="en">Sandbox</span><span class="ar">→</span></div>
+        <div class="row" style="border-bottom:1px solid var(--rule)"><span class="no">04</span><span class="nm">设置</span><span class="en">Options</span><span class="ar">→</span></div>
+      </div>
+      <div class="hint">单列长签：四条通栏，左编号 / 中名称 / 右英文，气势最足。</div>
+    </div>
+
+    <!-- V4 -->
+    <div class="screen" id="v4">
+      <div class="zh">巴别残响</div>
+      <div class="title">Babel Resonance</div>
+      <div class="rl"></div>
+      <div class="grid">
+        <div class="rr"><span class="no">01</span><span class="nm">开始探索</span><span class="en">New Run</span></div>
+        <div class="rr"><span class="no">02</span><span class="nm">继续上次</span><span class="en">Continue</span></div>
+        <div class="rr"><span class="no">03</span><span class="nm">战斗测试</span><span class="en">Sandbox</span></div>
+        <div class="rr"><span class="no">04</span><span class="nm">设置</span><span class="en">Options</span></div>
+      </div>
+      <div class="vline"></div>
+      <div class="vline2"></div>
+      <div class="hint">目录栅格：编号 / 名称 / 英文 三栏严格对齐，中间用细竖线分栏 —— 最"档案"。</div>
+    </div>
+
+    <!-- V5 -->
+    <div class="screen" id="v5">
+      <div class="en-top">Babel Resonance · Integrated Strategies</div>
+      <div class="title">巴别残响</div>
+      <div class="rl"></div>
+      <div class="wall">
+        <div class="card"><div class="no">01</div><div class="nm">开始探索</div><div class="en">New Run</div></div>
+        <div class="card"><div class="no">02</div><div class="nm">继续上次</div><div class="en">Continue</div></div>
+        <div class="card"><div class="no">03</div><div class="nm">战斗测试</div><div class="en">Sandbox</div></div>
+        <div class="card"><div class="no">04</div><div class="nm">设置</div><div class="en">Options</div></div>
+      </div>
+      <div class="hint">中文大字版：标题换成 118px 黑体中文，拉丁退为顶部小标（中文优先）。</div>
+    </div>
+
+    <!-- V6 -->
+    <div class="screen" id="v6">
+      <div class="zh">巴别残响</div>
+      <div class="title">Babel Resonance</div>
+      <div class="rl"></div>
+      <div class="vr" style="right:80px;top:66px">Night Edition</div>
+      <div class="wall">
+        <div class="card"><div class="no">01</div><div class="nm">开始探索</div><div class="en">New Run</div></div>
+        <div class="card"><div class="no">02</div><div class="nm">继续上次</div><div class="en">Continue</div></div>
+        <div class="card"><div class="no">03</div><div class="nm">战斗测试</div><div class="en">Sandbox</div></div>
+        <div class="card"><div class="no">04</div><div class="nm">设置</div><div class="en">Options</div></div>
+      </div>
+      <div class="hint">深色版：与黑底立绘的战斗页最协调，夜间护眼。</div>
+    </div>
+
+  </div></div>
+
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+const NOTES={
+ v1:'<b>V1 精修原版</b>：与你选中的 T4 同构，只做微调——标题 104px、红线 200px、卡片间距 30/48、名称 34px、英文 10.5px 字距 .22em。四格重心更稳。',
+ v2:'<b>V2 三列</b>：改成 3 列，可容纳 <b>6 项</b>（示例加了「图鉴 / 鸣谢」）。右上角加卷号小标。将来加功能不用重排——最实用的一版。',
+ v3:'<b>V3 单列长签</b>：四条<b>通栏</b>展签，左编号（44px 宽）/ 中名称 34px / 右英文 / 末端箭头，悬停整行变红顶线。气势最足，也最适合"只有 4 项"的当前状态。',
+ v4:'<b>V4 目录栅格</b>：编号 / 名称 / 英文 三栏<b>严格对齐</b>，中间两条细竖线分栏，行高 92。像博物馆的<b>藏品目录表</b>，信息秩序感最强。',
+ v5:'<b>V5 中文大字</b>：层级反转——中文标题 <b>118px 黑体</b>做主角，拉丁语退到顶部小标（0.42em 字距）。更"中文优先"，也更有书名感。',
+ v6:'<b>V6 深色</b>：V1 的深色版（近黑底 + 暖白字 + 同一红）。和战斗页的黑底立绘最协调，右上角标 "NIGHT EDITION"。'
+};
+const tabs=document.getElementById('tabs'), notes=document.getElementById('notes');
+function setScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id));
+  tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.s===id));
+  notes.innerHTML=NOTES[id]||'';
+}
+tabs.addEventListener('click',e=>{ if(e.target.dataset.s) setScreen(e.target.dataset.s); });
+setScreen('v1');
+const stage=document.getElementById('stage'), vp=document.querySelector('.viewport');
+function fit(){const k=Math.min(vp.clientWidth/1280,Math.max(.42,(window.innerHeight-320)/720));
+  stage.style.transform='scale('+k+')';vp.style.height=(720*k)+'px';}
+window.addEventListener('resize',fit);document.fonts&&document.fonts.ready.then(fit);fit();
+</script>
+</body>
+</html>

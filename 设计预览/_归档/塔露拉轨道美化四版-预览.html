@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>塔露拉 · 轨道机制美化四版（火雨）</title>
+<style>
+/* ============================================================================
+   塔露拉（rail）美化方案 —— 一阶段 4 竖轨 / 二阶段 5 横轨（几何照 CombatScene）
+   二阶段火雨四方向：T1 火流星 / T2 熔岩通道 / T3 火箭雨 / T4 余烬雨
+   几何（照代码）：
+     二阶段：5 轨，y = cy-115 + i*52（±22 为上下线）· 轨道 x 从 cx-340 到 cx+340
+             单词框 boxY = cy+206（52*s）· 中文 cy+148（fs30）
+     一阶段：4 竖轨 railY = cy+190、高 240、轨宽 80、间距 46
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2')format('woff2');font-weight:900}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111;-webkit-font-smoothing:antialiased}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 16px 80px}
+.head{width:100%;max-width:1340px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.head h1{font-size:18px;margin:0;font-weight:900}
+.head p{margin:0;font-size:12.5px;color:#6f6f6f}
+.tabs{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
+.tabs button{font-weight:700;font-size:12px;padding:6px 11px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#111;color:#fff;border-color:#111}
+.viewport{position:relative;width:100%;max-width:1340px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 18px 50px rgba(0,0,0,.18);overflow:hidden}
+.screen{position:absolute;inset:0;width:1280px;height:720px;display:none;background:var(--bg);color:var(--ink)}
+.screen.on{display:block}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.8}
+
+/* 页面骨架（简化：只画与轨道相关的部分 + 页眉与底栏） */
+.hudTop{position:absolute;left:0;top:0;width:1280px;height:52px;display:flex;align-items:center;gap:16px;padding:0 30px;border-bottom:1px solid #e6e6e6}
+.pill{font-family:'Novecento';font-weight:600;font-size:11.5px;letter-spacing:.08em;color:#e2231a;border:1px solid #e2231a;padding:3px 8px}
+.hlab{font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:#6f6f6f}
+.spacer{flex:1}
+.bag{position:absolute;left:0;bottom:0;width:1280px;height:64px;border-top:1px solid #e6e6e6;display:flex;align-items:center;gap:20px;padding:0 30px;font-size:13px;color:#111}
+.bag .t{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#6f6f6f}
+
+/* 中文提示（二阶段，cy+148） */
+.word{position:absolute;left:50%;transform:translateX(-50%);top:508px;font-weight:700;font-size:30px}
+/* 单词框（boxY = cy+206） */
+.boxes{position:absolute;left:50%;transform:translateX(-50%);top:566px;display:flex;gap:6px}
+.boxes i{width:46px;height:46px;background:#f4f4f4;border:1px solid #cfcfcf;display:block}
+
+/* 二阶段：5 条横轨（y = 245,297,349,401,453；上下线 ±22） */
+.rail{position:absolute;left:300px;width:680px;height:44px}
+.rail .line{position:absolute;left:0;right:0;height:1px;background:var(--railC)}
+.rail .line.t{top:0} .rail .line.b{bottom:0}
+/* 飞来的字母 */
+.letter{position:absolute;top:50%;transform:translateY(-50%);font-family:'HOS';font-weight:900;font-size:44px;color:var(--letC)}
+/* 拖尾（火流星感） */
+.trail{position:absolute;top:50%;transform:translateY(-50%);height:var(--trailH,6px);border-radius:99px;
+  background:linear-gradient(90deg,transparent,var(--trailC));filter:blur(1px)}
+/* 命中火花 */
+.spark{position:absolute;top:50%;transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(circle,var(--sparkC) 0%,transparent 70%)}
+/* 一阶段：4 竖轨 */
+.vrails{position:absolute;left:50%;transform:translateX(-50%);top:380px;display:flex;gap:46px}
+.vrail{width:80px;height:200px;position:relative}
+.vrail .l{position:absolute;top:0;bottom:0;width:1px;background:var(--railC)}
+.vrail .l.a{left:0} .vrail .l.b{right:0}
+.vrail .c{position:absolute;left:1px;right:1px;bottom:0;height:1px;background:var(--railC)}
+.vrail .ch{position:absolute;left:50%;transform:translateX(-50%);font-weight:900;font-size:34px;color:var(--letC)}
+
+/* ================= T1 火流星 ================= */
+body.t1{--bg:#fff;--ink:#111;--railC:#dcdcdc;--letC:#e2231a;--trailC:rgba(226,35,26,.65);--sparkC:rgba(255,150,40,.85)}
+#t1 .letter{font-size:46px}
+#t1 .spark{width:34px;height:34px}
+/* ================= T2 熔岩通道 ================= */
+body.t2{--bg:#fff;--ink:#111;--railC:#e8b9a3;--letC:#c0392b;--trailC:rgba(200,60,20,.55);--sparkC:rgba(255,110,20,.6)}
+#t2 .rail .line{height:3px;background:linear-gradient(90deg,rgba(226,35,26,.05),rgba(226,35,26,.45));border-radius:2px}
+#t2 .letter{font-size:44px}
+#t2 .spark{width:52px;height:52px}
+#t2 .rail .glow{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:26px;
+  background:linear-gradient(90deg,transparent,rgba(255,120,40,.10));filter:blur(3px)}
+/* ================= T3 火箭雨 ================= */
+body.t3{--bg:#fff;--ink:#111;--railC:#cfcfcf;--letC:#111;--trailC:rgba(226,35,26,.8);--sparkC:rgba(226,35,26,.5)}
+#t3 .letter{font-size:46px}
+#t3 .trail{height:2px;background:linear-gradient(90deg,transparent,var(--trailC))}
+#t3 .rail .line{background:repeating-linear-gradient(90deg,#cfcfcf 0 6px,transparent 6px 12px)}
+#t3 .spark{width:26px;height:26px;border:1px solid #e2231a;background:transparent}
+#t3 .tip{position:absolute;top:50%;transform:translateY(-50%);width:0;height:0;border-left:14px solid #e2231a;border-top:7px solid transparent;border-bottom:7px solid transparent}
+/* ================= T4 余烬雨 ================= */
+body.t4{--bg:#fff;--ink:#111;--railC:#e6e6e6;--letC:#8a2b1f;--trailC:rgba(226,35,26,.28);--sparkC:rgba(255,170,90,.35)}
+#t4 .letter{font-size:42px;opacity:.92}
+#t4 .spark{width:18px;height:18px}
+#t4 .ember{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(226,35,26,.5)}
+
+/* 通用：让"火"的颜色随版本 */
+</style>
+</head>
+<body class="t1">
+
+<div class="desk">
+  <div class="head">
+    <h1>塔露拉 · 轨道机制美化四版（二阶段＝火雨）</h1>
+    <p>几何照 CombatScene（5 横轨 / 4 竖轨）· 仅视觉与动效表现不同</p>
+    <div class="tabs" id="tabs">
+      <button data-s="t1" class="on">T1 火流星</button>
+      <button data-s="t2">T2 熔岩通道</button>
+      <button data-s="t3">T3 火箭雨</button>
+      <button data-s="t4">T4 余烬雨</button>
+    </div>
+  </div>
+  <div class="viewport"><div class="stage" id="stage"></div></div>
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+/* ===== 二阶段 5 轨的 y（照代码：cy-115 + i*52，cy=360） ===== */
+const RAIL_Y = [245, 297, 349, 401, 453];
+const CX = 640;
+const LETTERS = ['w', 'u', 'l', 'c', 'k'];          // 每轨一个飞行中的字母（示例）
+const XS = [520, 700, 860, 470, 610];               // 飞行中的横坐标（示例快照）
+const BOXES = 6;
+
+function rail(i, x, ch, kind) {
+  const y = RAIL_Y[i];
+  let deco = '';
+  if (kind === 't1') deco = `<span class="trail" style="left:${x + 46}px;width:${170}px;--trailH:7px"></span>
+                             <span class="spark" style="left:300px"></span>`;
+  if (kind === 't2') deco = `<span class="glow"></span>
+                             <span class="trail" style="left:${x + 44}px;width:${220}px;--trailH:12px"></span>
+                             <span class="spark" style="left:300px"></span>`;
+  if (kind === 't3') deco = `<span class="trail" style="left:${x + 44}px;width:${250}px;--trailH:2px"></span>
+                             <span class="tip" style="left:${x - 14}px"></span>
+                             <span class="spark" style="left:300px"></span>`;
+  if (kind === 't4') deco = `<span class="trail" style="left:${x + 40}px;width:${110}px;--trailH:3px"></span>
+                             <span class="ember" style="left:${x + 210}px;top:40%"></span>
+                             <span class="ember" style="left:${x + 300}px;top:62%"></span>
+                             <span class="spark" style="left:300px"></span>`;
+  return `<div class="rail" style="top:${y - 22}px">
+      <span class="line t"></span><span class="line b"></span>
+      ${deco}
+      <span class="letter" style="left:${x - 300}px">${ch}</span>
+    </div>`;
+}
+
+/* 一阶段 4 竖轨（简略示意，字母在轨中下落） */
+function vrails(kind) {
+  const chs = ['s', 'd', 'w', 'v'];
+  const tops = [40, 90, 150, 210];
+  return `<div class="vrails">${chs.map((c, i) => `
+    <div class="vrail"><span class="l a"></span><span class="l b"></span><span class="c"></span>
+      ${kind === 't1' || kind === 't3' ? `<span class="trail" style="left:20px;top:${tops[i]}px;width:60px;height:6px;transform:none;background:linear-gradient(180deg,transparent,var(--trailC))"></span>` : ''}
+      ${kind === 't2' ? `<span style="position:absolute;left:1px;right:1px;top:20px;bottom:20px;background:linear-gradient(180deg,rgba(255,120,40,.10),transparent);filter:blur(3px)"></span>` : ''}
+      <span class="ch" style="top:${tops[i]}px">${c}</span></div>`).join('')}</div>`;
+}
+
+function build(kind) {
+  const rails = RAIL_Y.map((_, i) => rail(i, XS[i], LETTERS[i], kind)).join('');
+  const boxes = Array.from({ length: BOXES }).map((_, i) => `<i${i < 2 ? ' style="background:#fff;border-color:#111"' : ''}></i>`).join('');
+  return `
+    <div class="hudTop"><span class="pill">B2 / 01</span>
+      <span class="hlab">// FLOOR · 回响层</span>
+      <span class="hlab" style="color:#e2231a">BOSS · 塔露拉</span>
+      <span class="spacer"></span>
+      <button style="border:1px solid #e6e6e6;background:transparent;font-weight:700;font-size:12.5px;padding:6px 16px">返回</button></div>
+    ${vrails(kind)}
+    ${rails}
+    <div class="word">抒情的；吟唱的</div>
+    <div class="boxes">${boxes}</div>
+    <div class="bag"><span class="t">藏品背包</span><span>破环之诫　迅捷之羽</span></div>`;
+}
+
+['t1','t2','t3','t4'].forEach(id => {
+  const d = document.createElement('div');
+  d.className = 'screen' + (id === 't1' ? ' on' : '');
+  d.id = id; d.innerHTML = build(id);
+  document.querySelector('.stage').appendChild(d);
+});
+
+const NOTES = {
+ t1:'<b>T1 火流星</b>：字母＝火头，右侧拖一条 <b>渐隐火焰长尾</b>（170px、带模糊），轨的左端有<b>命中火花</b>（径向光晕）。最直观的"射过来"感——像流星划过。轨线本身保持极细灰，交给火尾做视觉重量。',
+ t2:'<b>T2 熔岩通道</b>：轨道本身变成<b>熔岩槽</b>（3px 渐变橙红线 + 一层模糊辉光带），字母拖着<b>更粗的熔岩尾</b>，命中处是大范围橙光。整个机制变成"烧红的通道"，压迫感最强。',
+ t3:'<b>T3 火箭雨</b>：字母前端加<b>红色三角箭头</b>，尾迹是<b>2px 锐利速度线</b>，轨道改成<b>虚线刻度</b>，命中是<b>空心红圆环</b>。最"军武/箭雨"，线条干净、不糊。',
+ t4:'<b>T4 余烬雨</b>：最克制的一版——暗红字母 + <b>淡红细尾 + 漂浮余烬颗粒</b>，命中光很弱。像烧完的灰烬飘落，安静但仍有"火"的余韵（适合不想让机制太吵的方案）。',
+};
+const tabs = document.getElementById('tabs'), notes = document.getElementById('notes');
+function setV(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.s === id));
+  notes.innerHTML = NOTES[id] || '';
+}
+tabs.addEventListener('click', e => { if (e.target.dataset.s) setV(e.target.dataset.s); });
+setV('t1');
+const stage = document.getElementById('stage'), vp = document.querySelector('.viewport');
+function fit(){const k=Math.min(vp.clientWidth/1280,Math.max(.42,(window.innerHeight-320)/720));
+  stage.style.transform='scale('+k+')';vp.style.height=(720*k)+'px';}
+window.addEventListener('resize',fit);document.fonts&&document.fonts.ready.then(fit);fit();
+</script>
+</body>
+</html>

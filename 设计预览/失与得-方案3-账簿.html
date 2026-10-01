@@ -1,0 +1,118 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>方案 3 · 账簿 · 失与得</title>
+<style>
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-Medium.748604.woff2') format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Light.9981d6.woff2') format('woff2');font-weight:300}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2')}*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f2f2f0;color:#111;font-family:'HarmonyOS Sans SC',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1340px;margin:0 auto;padding:40px 30px 80px}
+.kicker{font-family:'Novecento Wide',sans-serif;font-size:12px;letter-spacing:.22em;color:#9b9fa5;text-transform:uppercase}
+h1{font-family:'Gilroy','HarmonyOS Sans SC',sans-serif;font-weight:300;font-size:40px;margin:8px 0 6px}
+.lead{font-size:14px;color:#6f6f6f;line-height:1.75;max-width:900px}
+.how{margin-top:14px;font-size:12.5px;color:#6f6f6f;line-height:1.8;border-left:2px solid #e6e6e6;padding-left:12px}
+.how b{color:#111}
+.step{margin-top:34px}
+.stepcap{font-family:'Novecento Wide',sans-serif;font-size:11px;letter-spacing:.18em;color:#9b9fa5;margin-bottom:8px}
+.stepnote{font-size:12px;color:#8a8a86;margin-top:7px}
+/* 舞台＝1280×720，纯白纸底，与游戏一致 */
+.stage{position:relative;width:1280px;height:720px;background:#fff;border:1px solid #e6e6e6;overflow:hidden;
+  font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.stage *{position:absolute}
+.h1t{left:0;right:0;top:34px;text-align:center;font-size:30px;font-weight:500}
+.stat{left:0;right:0;top:88px;text-align:center;font-size:16px;color:#5a5e66}
+.msg{left:0;right:0;top:158px;text-align:center;font-size:19px;color:#6f6f6f}
+.rule{height:1px;background:#e6e6e6}
+.kick{font-family:'Novecento Wide',sans-serif;font-size:11px;letter-spacing:.18em;color:#9b9fa5}
+.btn{display:flex;align-items:center;justify-content:center;border:1px solid #e6cf2a;background:#fff;font-size:18px;color:#111}
+.btn.gray{border-color:#e6e6e6;color:#6f6f6f}
+.btn.dim{border-color:#e6e6e6;color:#b9b9b5}
+.big{font-family:'Space Grotesk',monospace;font-weight:400}
+.dimtxt{color:#b9b9b5}
+.red{color:#e2231a}
+.foot{left:0;right:0;bottom:10px;text-align:center;font-size:11px;color:#b9b9b5}.no{font-family:'Space Grotesk',monospace;font-size:13px;color:#9b9fa5}
+.nm{font-size:21px;font-weight:500}
+.ds{font-size:12px;color:#6f6f6f}</style></head><body><div class="wrap">
+<div class="kicker">Babel Resonance · Node Event · 失与得</div>
+<h1>方案 3 · 账簿</h1>
+<div class="lead">最克制的一种：全部用"编号条目 + 发丝线"排成一本清单（E3 展签的极致）。件数再多也不会乱，翻页也最自然。</div>
+<div class="how"><b>可行性</b>：编号 + 下沿发丝线 + 右对齐小标签 ✓ 全是现有 Babel.UI.row 的能力 ✓ 实现最省 ✓<br>实现方式（全部可在 Phaser 里原样做出来）：纸白底＝<b>矩形</b>；所有细线＝<b>1×s 矩形（发丝线）</b>；卡片/图版＝<b>矩形 fill/stroke</b>；撕纸边＝<b>Graphics.fillPoints（残响之隙已在用同一份 24 点集）</b>；文字＝<b>项目自带字体</b>（中文 HarmonyOS / 英文 Space Grotesk / 小标签 Novecento）；选中红＝<b>唯一红 #e2231a</b>；需要柔和过渡时用<b>运行期 canvas 贴图</b>（本项目已有先例：残响之隙那条软边红缝）。<b>没有用任何我实现不了的效果</b>（无 CSS 阴影模糊、无渐变边框、无图标字体、无 SVG 装饰、无 backdrop-filter）。</div>
+<div class="step"><div class="stepcap">STEP 1 / 5 · 首屏</div><div class="stage"><div class="h1t">失与得（藏品交换）</div><div class="stat">目标生命 10　残页 15</div>
+    <div class="msg">用你不需要的藏品，换一件赖以生存的宝物。</div>
+    undefined
+    <div class="btn" style="left:520px;top:372px;width:240px;height:54px;">交换一件藏品</div>
+    () => ''</div></div>
+<div class="step"><div class="stepcap">STEP 2 / 5 · 背包屏（挑一件交出去）</div><div class="stage"><div class="h1t">失与得（藏品交换）</div><div class="stat">目标生命 10　残页 15</div>
+    <div class="msg">翻开你的收藏 —— 挑一件交给它。</div>
+    <div class="kick" style="left:0;right:0;top:206px;text-align:center;">YOUR COLLECTION</div>
+    <div class="kick" style="right:90px;top:206px;">第 1 / 1 页　·　共 4 件</div>
+    
+      <div class="no" style="left:90px;top:262px;">○</div>
+      <div class="nm" style="left:124px;top:252px;color:#111;">亚麻书脊</div>
+      <div class="kick" style="left:600px;top:258px;transform:translateX(-100%);">普通</div>
+      <div class="ds" style="left:124px;top:278px;">每次购买藏品返还 1 残页</div>
+      <div class="rule" style="left:90px;width:520px;top:300px;"></div>
+      <div class="no" style="left:650px;top:262px;">●</div>
+      <div class="nm" style="left:684px;top:252px;color:#e2231a;">连胜之焰</div>
+      <div class="kick" style="left:1160px;top:258px;transform:translateX(-100%);">稀有</div>
+      <div class="ds" style="left:684px;top:278px;">连续答对第 3 次起，每次伤害 +0.5</div>
+      <div class="rule" style="left:650px;width:520px;top:300px;"></div>
+      <div class="no" style="left:90px;top:324px;">○</div>
+      <div class="nm" style="left:124px;top:314px;color:#111;">轻拾残页</div>
+      <div class="kick" style="left:600px;top:320px;transform:translateX(-100%);">普通</div>
+      <div class="ds" style="left:124px;top:340px;">每场战斗胜利额外 +1 残页</div>
+      <div class="rule" style="left:90px;width:520px;top:362px;"></div>
+      <div class="no" style="left:650px;top:324px;">○</div>
+      <div class="nm" style="left:684px;top:314px;color:#111;">温汤匙</div>
+      <div class="kick" style="left:1160px;top:320px;transform:translateX(-100%);">普通</div>
+      <div class="ds" style="left:684px;top:340px;">点「完成」离开节点时 +1 残页</div>
+      <div class="rule" style="left:650px;width:520px;top:362px;"></div>
+    () => `<div class="btn" style="left:40px;bottom:34px;width:160px;height:46px;">返回</div>
+      <div class="btn" style="left:510px;bottom:34px;width:260px;height:50px;">就交这件：连胜之焰</div>
+      <div class="kick" style="right:60px;bottom:48px;">1 / 2</div>`</div><div class="stepnote">点卡片＝选中（名称变红）；底部按钮显示「就交这件：××」；未选中时置灰。</div></div>
+<div class="step"><div class="stepcap">STEP 3 / 5 · 出题屏（英文词四选一，选近义词）</div><div class="stage"><div class="h1t">失与得（藏品交换）</div><div class="stat">目标生命 10　残页 15</div>
+    <div class="msg">它把你的东西放上天平，又推来一个词 —— 意思相同的那件，才够重。</div>
+    () => ''
+    <div class="kick" style="left:0;right:0;top:236px;text-align:center;">WORD FOR WORD</div>
+    <div class="big" style="left:0;right:0;top:266px;text-align:center;font-size:72px;line-height:1;">happy</div>
+    <div style="left:0;right:0;top:358px;text-align:center;font-size:15px;color:#6f6f6f;">从下面四个词里，挑出和它意思最接近的一个。</div>
+    <div class="rule" style="left:310px;width:660px;top:440px;"></div>
+      <div class="kick" style="left:320px;top:432px;">01</div>
+      <div style="left:372px;top:412px;font-size:24px;">proud</div><div class="rule" style="left:310px;width:660px;top:508px;"></div>
+      <div class="kick" style="left:320px;top:500px;">02</div>
+      <div style="left:372px;top:480px;font-size:24px;">lucky</div><div class="rule" style="left:310px;width:660px;top:576px;"></div>
+      <div class="kick" style="left:320px;top:568px;">03</div>
+      <div style="left:372px;top:548px;font-size:24px;">glad</div><div class="rule" style="left:310px;width:660px;top:644px;"></div>
+      <div class="kick" style="left:320px;top:636px;">04</div>
+      <div style="left:372px;top:616px;font-size:24px;">lazy</div></div></div>
+<div class="step"><div class="stepcap">STEP 4 / 5 · 三选一（答对后）</div><div class="stage"><div class="h1t">失与得（藏品交换）</div><div class="stat">目标生命 10　残页 15</div>
+    <div class="msg">它点了点头 —— 你挑对了。这三件里，你拿一件走。</div>
+    () => ''
+    <div class="kick" style="left:0;right:0;top:236px;text-align:center;">TAKE ONE</div>
+    <div class="big" style="left:0;right:0;top:300px;text-align:center;font-size:18px;color:#6f6f6f;">compensate ＝ offset　·　同级别交换</div>
+    
+      <div class="no" style="left:90px;top:448px;">01</div>
+      <div class="nm" style="left:124px;top:440px;">坚韧之脊</div>
+      <div class="kick" style="left:430px;top:446px;transform:translateX(-100%);">稀有</div>
+      <div class="ds" style="left:124px;top:470px;">本局目标生命上限 +5，并回复 5 点</div>
+      <div class="rule" style="left:90px;width:350px;top:562px;"></div>
+      <div class="no" style="left:466px;top:448px;">02</div>
+      <div class="nm" style="left:500px;top:440px;">静默之盾</div>
+      <div class="kick" style="left:806px;top:446px;transform:translateX(-100%);">普通</div>
+      <div class="ds" style="left:500px;top:470px;">获得 2 点临时生命</div>
+      <div class="rule" style="left:466px;width:350px;top:562px;"></div>
+      <div class="no" style="left:842px;top:448px;">03</div>
+      <div class="nm" style="left:876px;top:440px;">生命之泉</div>
+      <div class="kick" style="left:1182px;top:446px;transform:translateX(-100%);">普通</div>
+      <div class="ds" style="left:876px;top:470px;">每层开始时回复 1 点目标生命</div>
+      <div class="rule" style="left:842px;width:350px;top:562px;"></div></div><div class="stepnote">同级优先；不足 3 件只用更低档补（不给更高的 ✗）。答错则随机换一件。</div></div>
+<div class="step"><div class="stepcap">STEP 5 / 5 · 结算</div><div class="stage"><div class="h1t">失与得（藏品交换）</div><div class="stat">目标生命 10　残页 15</div>
+    <div class="msg">它点了点头 —— 你挑对了。　以『亚麻书脊』换得『坚韧之脊』</div>
+    () => `<div class="rule" style="left:200px;width:880px;top:320px;"></div>
+      <div class="no" style="left:210px;top:292px;">交出</div><div class="nm" style="left:290px;top:280px;">亚麻书脊</div>
+      <div class="ds" style="left:520px;top:288px;">每次购买藏品返还 1 残页</div>
+      <div class="no" style="left:210px;top:352px;">换得</div><div class="nm" style="left:290px;top:340px;color:#e2231a;">坚韧之脊</div>
+      <div class="ds" style="left:520px;top:348px;">本局目标生命上限 +5，并回复 5 点</div>
+      <div class="rule" style="left:200px;width:880px;top:380px;"></div>`
+    <div class="btn" style="right:60px;bottom:34px;width:168px;height:46px;font-size:18px;border-color:#e6cf2a;">完成</div></div></div>
+</div></body></html>

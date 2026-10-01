@@ -1,0 +1,94 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>失与得 · 天平更显眼的 4 个方案</title><style>
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-Medium.748604.woff2') format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Light.9981d6.woff2') format('woff2');font-weight:300}*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f4f4f2;color:#111;font-family:'HarmonyOS Sans SC',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1360px;margin:0 auto;padding:40px 30px 80px}
+.kicker{font-family:'Novecento Wide',sans-serif;font-size:12px;letter-spacing:.22em;color:#9b9fa5;text-transform:uppercase}
+h1{font-family:'Gilroy','HarmonyOS Sans SC',sans-serif;font-weight:300;font-size:38px;margin:8px 0 6px}
+.lead{font-size:14px;color:#6f6f6f;line-height:1.75;max-width:1000px}
+.how{margin-top:12px;font-size:12.5px;color:#6f6f6f;line-height:1.85;border-left:2px solid #e6e6e6;padding-left:12px}
+.card{margin-top:26px;border:1px solid #e6e6e6;background:#fff}
+.cap{font-family:'Novecento Wide',sans-serif;font-size:11px;letter-spacing:.18em;color:#9b9fa5;padding:14px 18px 0}
+.name{font-size:17px;font-weight:500;padding:2px 18px 0}
+.why{font-size:13px;color:#3f4145;padding:6px 18px 0;line-height:1.7}
+.impl{font-size:12px;color:#8a8a86;padding:4px 18px 14px;line-height:1.7}
+.stage{position:relative;width:1280px;height:230px;background:#fff;overflow:hidden;margin:0 18px 18px;border:1px solid #f0f0ee}
+.stage *{position:absolute}
+.band{left:0;right:0;height:1px;background:#f0f0ee}
+.bandtxt{font-family:'Novecento Wide',sans-serif;font-size:9px;letter-spacing:.16em;color:#cfcfcb}
+.title{left:0;right:0;top:34px;text-align:center;font-size:30px;font-weight:500;color:#111}
+.head{left:340px;top:154px;font-size:11px;color:#9b9fa5}
+.headr{left:940px;top:154px;font-size:11px;color:#9b9fa5}
+.content{left:340px;top:200px;font-size:19px;color:#111}
+.spine{left:640px;top:0;width:1px;height:230px;background:#cfcfcb}
+.fs{font-weight:500;color:#111}
+.hair{background:#e6e6e6}
+.dk{background:#111}
+.mid{background:#9b9fa5}</style></head><body><div class="wrap"><div class="kicker">Babel Resonance · Layout Study · 失与得</div><h1>天平 · 让它更显眼的 4 个方案</h1><div class="lead">现状：横梁与吊线是 <b>1×s 的浅灰 #cfcfcb</b>（太淡 ✗）、托盘只有 48×s、字 30×s。下面 4 个方案都在**不越带**的前提下加重它。</div><div class="how"><b>不挡东西的证据（竖向分带）</b>：标题带 <b>34~66</b> ／ 天平带 <b>70~152</b> ／ 抬头带 <b>154~166</b>（「你的收藏…」「选出一个…」）／ 内容带 <b>≥190</b>。每个 stage 都画了这三条分带线，方案里的元素**一律没越过天平带** ✓（C 方案把秤杆抬到标题那一行，但**在标题处断开** → 依旧不压标题 ✓）<br><b>可行性（全部可 100% 复刻）</b>：矩形（含 2×s 粗线）✓ Graphics 线段／实心三角 ✓ 文字 ✓ 改色 ✓ —— <b>没有用任何我实现不了的效果</b> ✗（无阴影模糊、无渐变边框、无 SVG）</div><div class="card"><div class="cap">VARIANT A</div><div class="name">加重版 —— 同样的骨架，墨更重</div><div class="why">不动任何位置，只把"墨水"加重：横梁/吊线由浅灰 #cfcfcb 变深灰 #9b9fa5、托盘由 48×s 加到 72×s 并加粗到 2×s、支点换成一个实心小三角、字 30→32×s。观感立刻从"几乎看不见"变成"一眼是台秤"。</div><div class="impl"><b>实现方式</b>：横梁/吊线＝1×s 矩形（改色 ✓）／托盘＝2×s × 72×s 矩形 ✓／支点＝Graphics 实心三角（3 个点 ✓）／字＝32×s ✓ → 全部零风险；**竖向完全不越过天平带** ✓</div><div class="stage"><div class="band" style="top:66px;"></div><div class="band" style="top:152px;"></div><div class="band" style="top:190px;"></div>
+  <div class="bandtxt" style="left:8px;top:74px;">BALANCE BAND 70~152</div>
+  <div class="bandtxt" style="left:8px;top:158px;">HEAD 154~166</div>
+  <div class="bandtxt" style="left:8px;top:196px;">CONTENT ≥190</div><div class="title">失与得</div><div class="spine"></div>
+  <div class="head">你的收藏 · 10 件 · 第 1 / 2 页</div><div class="headr">选出意思最接近的一个</div>
+  <div class="content">（内容区：列表 / 选项 / 卡片）</div><div class="mid" style="left:180px;top:90px;width:460px;height:1px;"></div>
+    <div class="mid" style="left:640px;top:90px;width:460px;height:1px;"></div>
+    <div class="dk" style="left:637px;top:82px;width:6px;height:6px;clip-path:polygon(50% 0,100% 100%,0 100%);"></div>
+    <div class="mid" style="left:340px;top:90px;width:1px;height:38px;"></div>
+    <div class="mid" style="left:940px;top:90px;width:1px;height:38px;"></div>
+    <div class="fs" style="left:340px;top:114px;transform:translate(-50%,-50%);font-size:32px;">失</div>
+    <div class="fs" style="left:940px;top:114px;transform:translate(-50%,-50%);font-size:32px;">得</div>
+    <div class="dk" style="left:304px;top:132px;width:72px;height:2px;"></div>
+    <div class="dk" style="left:904px;top:132px;width:72px;height:2px;"></div></div></div><div class="card"><div class="cap">VARIANT B</div><div class="name">宽梁版 —— 秤杆更长、双吊线</div><div class="why">横梁从 cx∓460 拉到 cx∓560（几乎顶到屏幕两侧），每侧改成**两条吊线**（形成三角吊挂），托盘加到 88×s。秤"更大"，但仍全部落在天平带里。</div><div class="impl"><b>实现方式</b>：横梁＝1×s × 560×s 两段 ✓ 双吊线＝每侧两条 1×s 斜线（Graphics 画线 ✓）／托盘 2×s × 88×s ✓ 字 32×s ✓ → 零风险，越带 0 ✓</div><div class="stage"><div class="band" style="top:66px;"></div><div class="band" style="top:152px;"></div><div class="band" style="top:190px;"></div>
+  <div class="bandtxt" style="left:8px;top:74px;">BALANCE BAND 70~152</div>
+  <div class="bandtxt" style="left:8px;top:158px;">HEAD 154~166</div>
+  <div class="bandtxt" style="left:8px;top:196px;">CONTENT ≥190</div><div class="title">失与得</div><div class="spine"></div>
+  <div class="head">你的收藏 · 10 件 · 第 1 / 2 页</div><div class="headr">选出意思最接近的一个</div>
+  <div class="content">（内容区：列表 / 选项 / 卡片）</div><div class="mid" style="left:80px;top:88px;width:560px;height:1px;"></div>
+    <div class="mid" style="left:640px;top:88px;width:560px;height:1px;"></div>
+    <div class="dk" style="left:636px;top:78px;width:8px;height:8px;clip-path:polygon(50% 0,100% 100%,0 100%);"></div>
+    <div class="mid" style="left:300px;top:88px;width:1px;height:40px;"></div>
+    <div class="mid" style="left:380px;top:88px;width:1px;height:40px;"></div>
+    <div class="mid" style="left:900px;top:88px;width:1px;height:40px;"></div>
+    <div class="mid" style="left:980px;top:88px;width:1px;height:40px;"></div>
+    <div class="fs" style="left:340px;top:112px;transform:translate(-50%,-50%);font-size:32px;">失</div>
+    <div class="fs" style="left:940px;top:112px;transform:translate(-50%,-50%);font-size:32px;">得</div>
+    <div class="dk" style="left:296px;top:132px;width:88px;height:2px;"></div>
+    <div class="dk" style="left:896px;top:132px;width:88px;height:2px;"></div></div></div><div class="card"><div class="cap">VARIANT C</div><div class="name">穿标题版 —— 秤杆从标题两侧穿过（不挡标题）</div><div class="why">让横梁抬到**标题那一行**、并在标题处**断开**：这样秤横向拉满整屏、又完全不压标题。腾出的纵向空间让字与托盘各上移 16×s，整台秤显得更大。</div><div class="impl"><b>实现方式</b>：横梁两段（在标题左右留出 ~340×s 的断口 ✓ 标题居中不受影响 ✓）＋ 其余同 A → 零风险；**竖向仍在 70~152 带内**（甚至更宽松 ✓）</div><div class="stage"><div class="band" style="top:66px;"></div><div class="band" style="top:152px;"></div><div class="band" style="top:190px;"></div>
+  <div class="bandtxt" style="left:8px;top:74px;">BALANCE BAND 70~152</div>
+  <div class="bandtxt" style="left:8px;top:158px;">HEAD 154~166</div>
+  <div class="bandtxt" style="left:8px;top:196px;">CONTENT ≥190</div><div class="title">失与得</div><div class="spine"></div>
+  <div class="head">你的收藏 · 10 件 · 第 1 / 2 页</div><div class="headr">选出意思最接近的一个</div>
+  <div class="content">（内容区：列表 / 选项 / 卡片）</div><div class="mid" style="left:120px;top:56px;width:360px;height:1px;"></div>
+    <div class="mid" style="left:800px;top:56px;width:360px;height:1px;"></div>
+    <div class="dk" style="left:636px;top:46px;width:8px;height:8px;clip-path:polygon(50% 0,100% 100%,0 100%);"></div>
+    <div class="mid" style="left:340px;top:56px;width:1px;height:56px;"></div>
+    <div class="mid" style="left:940px;top:56px;width:1px;height:56px;"></div>
+    <div class="fs" style="left:340px;top:100px;transform:translate(-50%,-50%);font-size:34px;">失</div>
+    <div class="fs" style="left:940px;top:100px;transform:translate(-50%,-50%);font-size:34px;">得</div>
+    <div class="dk" style="left:300px;top:124px;width:80px;height:2px;"></div>
+    <div class="dk" style="left:900px;top:124px;width:80px;height:2px;"></div></div></div><div class="card"><div class="cap">VARIANT D</div><div class="name">刻度梁版 —— 秤杆上有刻度</div><div class="why">横梁上每隔 40×s 画一个小刻度（长 6×s），像一杆有刻度的秤／一把尺。技术感与"称量"感最强，也最像"有什么在替你量东西"。</div><div class="impl"><b>实现方式</b>：刻度＝若干 1×s 短矩形（Graphics 循环画 ✓ 或直接 12 个矩形 ✓）＋ 其余同 A → 零风险，越带 0 ✓</div><div class="stage"><div class="band" style="top:66px;"></div><div class="band" style="top:152px;"></div><div class="band" style="top:190px;"></div>
+  <div class="bandtxt" style="left:8px;top:74px;">BALANCE BAND 70~152</div>
+  <div class="bandtxt" style="left:8px;top:158px;">HEAD 154~166</div>
+  <div class="bandtxt" style="left:8px;top:196px;">CONTENT ≥190</div><div class="title">失与得</div><div class="spine"></div>
+  <div class="head">你的收藏 · 10 件 · 第 1 / 2 页</div><div class="headr">选出意思最接近的一个</div>
+  <div class="content">（内容区：列表 / 选项 / 卡片）</div><div class="mid" style="left:180px;top:90px;width:460px;height:1px;"></div>
+    <div class="mid" style="left:640px;top:90px;width:460px;height:1px;"></div>
+    <div class="mid" style="left:220px;top:84px;width:1px;height:6px;"></div>
+    <div class="mid" style="left:260px;top:84px;width:1px;height:6px;"></div>
+    <div class="mid" style="left:300px;top:84px;width:1px;height:6px;"></div>
+    <div class="mid" style="left:420px;top:84px;width:1px;height:6px;"></div>
+    <div class="mid" style="left:460px;top:84px;width:1px;height:6px;"></div>
+    <div class="mid" style="left:500px;top:84px;width:1px;height:6px;"></div>
+    <div class="mid" style="left:820px;top:84px;width:1px;height:6px;"></div>
+    <div class="mid" style="left:860px;top:84px;width:1px;height:6px;"></div>
+    <div class="mid" style="left:900px;top:84px;width:1px;height:6px;"></div>
+    <div class="mid" style="left:1020px;top:84px;width:1px;height:6px;"></div>
+    <div class="mid" style="left:1060px;top:84px;width:1px;height:6px;"></div>
+    <div class="dk" style="left:637px;top:82px;width:6px;height:6px;clip-path:polygon(50% 0,100% 100%,0 100%);"></div>
+    <div class="mid" style="left:340px;top:90px;width:1px;height:38px;"></div>
+    <div class="mid" style="left:940px;top:90px;width:1px;height:38px;"></div>
+    <div class="fs" style="left:340px;top:114px;transform:translate(-50%,-50%);font-size:32px;">失</div>
+    <div class="fs" style="left:940px;top:114px;transform:translate(-50%,-50%);font-size:32px;">得</div>
+    <div class="dk" style="left:304px;top:132px;width:72px;height:2px;"></div>
+    <div class="dk" style="left:904px;top:132px;width:72px;height:2px;"></div></div></div></div></body></html>

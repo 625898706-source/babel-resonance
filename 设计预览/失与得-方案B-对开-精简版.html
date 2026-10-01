@@ -1,0 +1,105 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>方案 B · 对开（精简版）· 失与得</title>
+<style>
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-Medium.748604.woff2') format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Light.9981d6.woff2') format('woff2');font-weight:300}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2')}*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f4f4f2;color:#111;font-family:'HarmonyOS Sans SC',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1340px;margin:0 auto;padding:40px 30px 80px}
+.kicker{font-family:'Novecento Wide',sans-serif;font-size:12px;letter-spacing:.22em;color:#9b9fa5;text-transform:uppercase}
+h1{font-family:'Gilroy','HarmonyOS Sans SC',sans-serif;font-weight:300;font-size:40px;margin:8px 0 6px}
+.lead{font-size:14px;color:#6f6f6f;line-height:1.75;max-width:940px}
+.how{margin-top:14px;font-size:12.5px;color:#6f6f6f;line-height:1.85;border-left:2px solid #e6e6e6;padding-left:12px}
+.how b{color:#111}
+.step{margin-top:32px}
+.stepcap{font-family:'Novecento Wide',sans-serif;font-size:11px;letter-spacing:.18em;color:#9b9fa5;margin-bottom:8px}
+.stepnote{font-size:12px;color:#8a8a86;margin-top:7px}
+.stage{position:relative;width:1280px;height:720px;background:#fff;border:1px solid #e6e6e6;overflow:hidden;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.stage *{position:absolute}
+.spine{background:#cfcfcb}
+.hair{background:#e6e6e6}
+.hair.r{background:#e2231a}
+.hair.d{background:#111}
+.lbl{font-family:'Novecento Wide',sans-serif;font-size:11px;letter-spacing:.2em;color:#9b9fa5;text-transform:uppercase}
+.num{font-family:'Space Grotesk',monospace;font-size:13px;color:#b9b9b5}
+.nm{font-size:26px;font-weight:500;letter-spacing:-.01em}
+.ds{font-size:13px;color:#6f6f6f;line-height:1.5}
+.tiny{font-size:11.5px;color:#9b9fa5}
+.btn{display:flex;align-items:center;justify-content:center;border:1px solid #e6cf2a;background:#fff;font-size:18px}
+.btn.q{border-color:#e6e6e6;color:#6f6f6f}
+.word{font-family:'Space Grotesk',monospace;font-weight:400;letter-spacing:-.02em}</style></head><body><div class="wrap">
+<div class="kicker">Babel Resonance · Layout Study · 失与得</div>
+<h1>方案 B · 对开（精简版）</h1>
+<div class="lead">保持"正中一条中缝、左页写「失」右页写「得」"的对开结构，但把**所有解释机制的文字全部删掉**：每屏最多一句气氛话，其余只留标签、名称与数据（藏品效果）。</div>
+<div class="how"><b>这一版砍掉了什么</b>：首屏的两条说明（"你要交出去的那件/你将要换回的那件"）✓ 背包屏的"点左边任意一件→标红"与整段提示 ✓ 出题屏的台词 ✓ 三选一的整句 ✓ 结算的那句话 ✓ —— <b>现在全屏只剩标签与数据</b>。<br><b>实现方式</b>：中缝/分隔＝1×s 矩形；卡片＝矩形 fill/stroke；文字＝项目自带字体（HarmonyOS / Space Grotesk / Novecento Wide）；强调＝唯一红 #e2231a。<b>未使用任何我实现不了的效果</b>（无阴影模糊、无渐变边框、无图标字体、无 SVG、无 backdrop-filter）。每个 stage＝1280×720＝游戏逻辑分辨率，坐标可直接搬进代码。</div>
+<div class="step"><div class="stepcap">STEP 1 / 5 · 首屏</div><div class="stage"><div class="spine" style="left:640px;top:70px;width:1px;height:580px;"></div><div class="lbl" style="left:60px;top:96px;">失</div><div class="lbl" style="right:60px;top:96px;">得</div>
+  <div class="hair" style="left:120px;top:330px;width:440px;height:1px;"></div>
+  <div class="hair" style="left:720px;top:330px;width:440px;height:1px;"></div>
+  <div style="left:120px;top:356px;font-size:26px;color:#b9b9b5;">——</div>
+  <div style="left:720px;top:356px;font-size:26px;color:#b9b9b5;">——</div>
+  <div style="left:0;right:0;top:440px;text-align:center;font-size:30px;font-weight:500;">你放下一件，换回一件。</div>
+  <div class="btn" style="left:520px;top:520px;width:240px;height:54px;">交换一件藏品</div>
+  <div class="tiny" style="right:60px;bottom:36px;">目标生命 10　残页 15</div></div><div class="stepnote">全屏只有一句气氛话 + 一个按钮；左右两页各留一条空位线（1×s）。</div></div><div class="step"><div class="stepcap">STEP 2 / 5 · 背包屏</div><div class="stage"><div class="spine" style="left:640px;top:70px;width:1px;height:580px;"></div><div class="lbl" style="left:60px;top:96px;">失</div><div class="lbl" style="right:60px;top:96px;">得</div>
+  <div class="lbl" style="left:120px;top:118px;">你的收藏　·　4 件　·　第 1 / 1 页</div>
+  <div class="num" style="left:120px;top:168px;">01</div>
+    <div class="nm" style="left:154px;top:160px;font-size:23px;">亚麻书脊</div>
+    <div class="tiny" style="left:420px;top:168px;">普通</div>
+    
+    <div class="hair" style="left:120px;top:218px;width:440px;height:1px;"></div><div class="num" style="left:120px;top:252px;">02</div>
+    <div class="nm" style="left:154px;top:244px;font-size:23px;color:#e2231a;">连胜之焰</div>
+    <div class="tiny" style="left:420px;top:252px;">稀有</div>
+    <div class="hair r" style="left:120px;top:160px;width:3px;height:44px;"></div>
+    <div class="hair" style="left:120px;top:302px;width:440px;height:1px;"></div><div class="num" style="left:120px;top:336px;">03</div>
+    <div class="nm" style="left:154px;top:328px;font-size:23px;">轻拾残页</div>
+    <div class="tiny" style="left:420px;top:336px;">普通</div>
+    
+    <div class="hair" style="left:120px;top:386px;width:440px;height:1px;"></div><div class="num" style="left:120px;top:420px;">04</div>
+    <div class="nm" style="left:154px;top:412px;font-size:23px;">温汤匙</div>
+    <div class="tiny" style="left:420px;top:420px;">普通</div>
+    
+    <div class="hair" style="left:120px;top:470px;width:440px;height:1px;"></div>
+  <div class="nm" style="left:720px;top:200px;font-size:30px;color:#e2231a;">连胜之焰</div>
+  <div class="ds" style="left:720px;top:248px;width:440px;">连续答对第 3 次起，每次伤害 +0.5</div>
+  <div class="btn q" style="left:60px;bottom:36px;width:160px;height:46px;">返回</div>
+  <div class="btn" style="left:720px;bottom:36px;width:300px;height:50px;">就交这件：连胜之焰</div></div><div class="stepnote">左页＝你的收藏（编号 + 名称 + 稀有度 + 效果，全是数据）；右页＝你挑中的那件。选中＝名称变红 + 左侧 3×s 红条。</div></div><div class="step"><div class="stepcap">STEP 3 / 5 · 出题屏</div><div class="stage"><div class="spine" style="left:640px;top:70px;width:1px;height:580px;"></div><div class="lbl" style="left:60px;top:96px;">失</div><div class="lbl" style="right:60px;top:96px;">得</div>
+  <div class="lbl" style="left:120px;top:118px;">交出的</div>
+  <div class="nm" style="left:120px;top:152px;font-size:28px;color:#b9b9b5;">连胜之焰</div>
+  <div class="hair r" style="left:120px;top:206px;width:100px;height:1px;"></div>
+  <div class="word" style="left:120px;top:262px;font-size:104px;line-height:1;">happy</div>
+  <div class="lbl" style="left:720px;top:118px;">选出意思最接近的一个</div>
+  <div class="num" style="left:720px;top:182px;">01</div>
+    <div style="left:768px;top:164px;font-size:30px;">proud</div>
+    <div class="hair" style="left:720px;top:238px;width:440px;height:1px;"></div><div class="num" style="left:720px;top:258px;">02</div>
+    <div style="left:768px;top:240px;font-size:30px;">lucky</div>
+    <div class="hair" style="left:720px;top:314px;width:440px;height:1px;"></div><div class="num" style="left:720px;top:334px;">03</div>
+    <div style="left:768px;top:316px;font-size:30px;">glad</div>
+    <div class="hair" style="left:720px;top:390px;width:440px;height:1px;"></div><div class="num" style="left:720px;top:410px;">04</div>
+    <div style="left:768px;top:392px;font-size:30px;">lazy</div>
+    <div class="hair" style="left:720px;top:466px;width:440px;height:1px;"></div>
+  <div class="tiny" style="right:60px;bottom:36px;">目标生命 10　残页 15</div></div><div class="stepnote">左页＝交出的那件（只写名称，红短线收口）；右页＝题面大词 + 四个英文选项 + 一行最短指令。</div></div><div class="step"><div class="stepcap">STEP 4 / 5 · 三选一</div><div class="stage"><div class="spine" style="left:640px;top:70px;width:1px;height:580px;"></div><div class="lbl" style="left:60px;top:96px;">失</div><div class="lbl" style="right:60px;top:96px;">得</div>
+  <div class="lbl" style="left:120px;top:118px;">交出的</div>
+  <div class="nm" style="left:120px;top:152px;font-size:28px;color:#b9b9b5;">连胜之焰</div>
+  <div class="lbl" style="left:120px;top:240px;">compensate ＝ offset</div>
+  <div class="lbl" style="left:720px;top:118px;">TAKE ONE</div>
+  <div class="num" style="left:720px;top:176px;font-size:34px;color:#e6e6e6;">01</div>
+    <div class="nm" style="left:792px;top:176px;font-size:26px;">坚韧之脊</div>
+    <div class="tiny" style="left:792px;top:212px;">稀有</div>
+    <div class="ds" style="left:792px;top:234px;width:360px;">本局目标生命上限 +5，并回复 5 点</div>
+    <div class="hair" style="left:720px;top:290px;width:440px;height:1px;"></div><div class="num" style="left:720px;top:314px;font-size:34px;color:#e6e6e6;">02</div>
+    <div class="nm" style="left:792px;top:314px;font-size:26px;">静默之盾</div>
+    <div class="tiny" style="left:792px;top:350px;">普通</div>
+    <div class="ds" style="left:792px;top:372px;width:360px;">获得 2 点临时生命</div>
+    <div class="hair" style="left:720px;top:428px;width:440px;height:1px;"></div><div class="num" style="left:720px;top:452px;font-size:34px;color:#e6e6e6;">03</div>
+    <div class="nm" style="left:792px;top:452px;font-size:26px;">生命之泉</div>
+    <div class="tiny" style="left:792px;top:488px;">普通</div>
+    <div class="ds" style="left:792px;top:510px;width:360px;">每层开始时回复 1 点目标生命</div>
+    <div class="hair" style="left:720px;top:566px;width:440px;height:1px;"></div></div><div class="stepnote">左页＝交出的那件 + 答案对照；右页＝三件候选（标签 TAKE ONE + 编号 + 名称 + 稀有度 + 效果）。</div></div><div class="step"><div class="stepcap">STEP 5 / 5 · 结算</div><div class="stage"><div class="spine" style="left:640px;top:70px;width:1px;height:580px;"></div><div class="lbl" style="left:60px;top:96px;">失</div><div class="lbl" style="right:60px;top:96px;">得</div>
+  <div class="nm" style="left:120px;top:230px;font-size:32px;color:#b9b9b5;">亚麻书脊</div>
+  <div class="ds" style="left:120px;top:280px;width:440px;">每次购买藏品返还 1 残页</div>
+  <div class="hair" style="left:120px;top:348px;width:440px;height:1px;"></div>
+  <div class="nm" style="left:720px;top:230px;font-size:32px;color:#e2231a;">坚韧之脊</div>
+  <div class="ds" style="left:720px;top:280px;width:440px;">本局目标生命上限 +5，并回复 5 点</div>
+  <div class="hair r" style="left:720px;top:348px;width:440px;height:1px;"></div>
+  <div class="btn" style="right:60px;bottom:36px;width:168px;height:46px;">完成</div></div><div class="stepnote">只有左右两页与「完成」：交出＝灰、换得＝红。**一个字的文案都不加**。</div></div>
+</div></body></html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>巴别残响 · 标题页六版（无立绘）</title>
+<style>
+/* ============================================================================
+   标题页六版（全部不放立绘）—— 沿用 E3 展签语言，纯排版撑画面
+     T1 大字排版 / T2 期刊封面 / T3 目录页 / T4 展签墙 / T5 深色排版 / T6 竖排题签
+   纸 #fff · 墨 #111 · 灰 #6f6f6f · 线 #e6e6e6 · 唯一红 #e2231a
+   大字与拉丁 Gilroy（细体）· 小标签 Novecento 大写宽字距 · 数字 Space Grotesk 等宽
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2')format('woff2');font-weight:900}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Light.9981d6.woff2')format('woff2');font-weight:300}
+
+:root{--ink:#111;--muted:#6f6f6f;--rule:#e6e6e6;--red:#e2231a}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 16px 80px}
+.head{width:100%;max-width:1340px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.head h1{font-size:18px;margin:0;font-weight:900}
+.head p{margin:0;font-size:12.5px;color:var(--muted)}
+.tabs{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;max-width:860px}
+.tabs button{font-weight:700;font-size:12px;padding:6px 11px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#111;color:#fff;border-color:#111}
+.viewport{position:relative;width:100%;max-width:1340px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 18px 50px rgba(0,0,0,.18);overflow:hidden}
+.screen{position:absolute;inset:0;width:1280px;height:720px;background:#fff;display:none}
+.screen.on{display:block}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.8}
+.notes b{font-weight:900}
+
+/* 通用 */
+.lab{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted)}
+.mrow{display:flex;align-items:center;height:60px;border-bottom:1px solid var(--rule);cursor:pointer;transition:border-color .15s,background .15s}
+.mrow:hover{border-bottom-color:var(--red);background:#fcfcfc}
+.mrow .t{font-size:22px;flex:1}
+.mrow .e{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.mnum{font-family:'Grotesk';font-weight:600}
+.redline{background:var(--red)}
+.foot{position:absolute;font-size:11.5px;color:var(--muted);letter-spacing:.06em}
+
+/* ============ T1 大字排版 ============ */
+#t1 .t{position:absolute;left:110px;top:150px;font-family:'Gilroy';font-weight:300;font-size:156px;letter-spacing:-.03em;line-height:.96}
+#t1 .en{position:absolute;left:118px;top:322px;font-family:'Novecento';font-weight:600;font-size:11.5px;letter-spacing:.46em;text-transform:uppercase;color:var(--muted)}
+#t1 .rl{position:absolute;left:118px;top:360px;width:220px;height:3px}
+#t1 .menu{position:absolute;left:110px;top:404px;width:520px}
+#t1 .side{position:absolute;right:110px;top:150px;width:360px;text-align:right}
+#t1 .side .q{font-size:13px;line-height:2.1;color:var(--muted)}
+
+/* ============ T2 期刊封面 ============ */
+#t2 .top{position:absolute;left:80px;right:80px;top:56px;display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px}
+#t2 .top .n{font-family:'Novecento';font-weight:700;font-size:13px;letter-spacing:.24em;text-transform:uppercase}
+#t2 .top .m{margin-left:auto;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+#t2 .t{position:absolute;left:80px;top:150px;font-family:'Gilroy';font-weight:300;font-size:118px;letter-spacing:-.02em;line-height:1}
+#t2 .sub{position:absolute;left:84px;top:300px;font-size:17px;color:var(--muted);letter-spacing:.06em}
+#t2 .rl{position:absolute;left:84px;top:344px;width:100%;height:1px;background:var(--rule)}
+#t2 .menu{position:absolute;left:80px;top:392px;width:560px}
+#t2 .col{position:absolute;right:80px;top:392px;width:420px}
+#t2 .col .lab{margin-bottom:10px;display:block}
+#t2 .col .p{font-size:13px;line-height:2.2;color:#444}
+
+/* ============ T3 目录页 ============ */
+#t3 .h{position:absolute;left:100px;top:70px;font-size:15px;font-weight:700;letter-spacing:.06em}
+#t3 .sub{position:absolute;left:100px;top:98px}
+#t3 .toc{position:absolute;left:100px;top:170px;width:1080px}
+#t3 .item{display:flex;align-items:baseline;gap:14px;height:78px;border-bottom:1px solid var(--rule);cursor:pointer}
+#t3 .item:hover{border-bottom-color:var(--red)}
+#t3 .item .no{font-family:'Grotesk';font-weight:600;font-size:15px;color:var(--red);width:40px}
+#t3 .item .nm{font-size:30px;font-weight:500}
+#t3 .item .en{font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+#t3 .item .dots{flex:1;height:1px;background-image:repeating-linear-gradient(90deg,var(--rule) 0 4px,transparent 4px 10px);margin:0 16px 6px}
+#t3 .item .pg{font-family:'Grotesk';font-weight:600;font-size:14px;color:var(--muted)}
+#t3 .foot{left:100px;bottom:56px}
+#t3 .fr{position:absolute;right:100px;bottom:56px}
+
+/* ============ T4 展签墙 ============ */
+#t4 .h{position:absolute;left:80px;top:64px;font-size:14px;font-weight:700}
+#t4 .t{position:absolute;left:80px;top:106px;font-family:'Gilroy';font-weight:300;font-size:92px;letter-spacing:-.02em}
+#t4 .rl{position:absolute;left:80px;top:222px;width:160px;height:3px}
+#t4 .wall{position:absolute;left:80px;right:80px;top:280px;display:grid;grid-template-columns:1fr 1fr;gap:26px 40px}
+#t4 .card{border-top:1px solid var(--rule);padding-top:16px;cursor:pointer;transition:border-color .15s}
+#t4 .card:hover{border-top-color:var(--red)}
+#t4 .card .no{font-family:'Grotesk';font-weight:600;font-size:14px;color:var(--red)}
+#t4 .card .nm{font-size:32px;font-weight:500;margin:6px 0 4px}
+#t4 .card .en{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+#t4 .foot{left:80px;bottom:52px}
+
+/* ============ T5 深色排版 ============ */
+#t5{background:#0f0f11}
+#t5 .t{position:absolute;left:110px;top:170px;font-family:'Gilroy';font-weight:300;font-size:150px;letter-spacing:-.03em;color:#f4f2ee}
+#t5 .en{position:absolute;left:118px;top:338px;font-family:'Novecento';font-weight:600;font-size:11.5px;letter-spacing:.46em;text-transform:uppercase;color:#8b8b8b}
+#t5 .rl{position:absolute;left:118px;top:376px;width:200px;height:3px}
+#t5 .menu{position:absolute;left:110px;top:420px;width:500px}
+#t5 .mrow{border-bottom-color:#2a2a2e}
+#t5 .mrow .t{color:#f2f0ec}
+#t5 .mrow .e{color:#8b8b8b}
+#t5 .mrow:hover{background:#151518;border-bottom-color:var(--red)}
+#t5 .side{position:absolute;right:110px;top:180px;width:340px;text-align:right;color:#7d7d7d;font-size:12.5px;line-height:2.1}
+#t5 .foot{color:#6a6a6a}
+
+/* ============ T6 竖排题签 ============ */
+#t6 .vert{position:absolute;right:104px;top:96px;writing-mode:vertical-rl;text-orientation:upright;
+  font-family:'HOS';font-weight:900;font-size:84px;letter-spacing:.16em;line-height:1}
+#t6 .vlabel{position:absolute;right:206px;top:104px;writing-mode:vertical-rl;text-orientation:upright;
+  font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:var(--muted)}
+#t6 .vrule{position:absolute;right:340px;top:104px;width:1px;height:520px;background:var(--rule)}
+#t6 .rl{position:absolute;left:104px;top:150px;width:140px;height:3px}
+#t6 .lab{position:absolute;left:104px;top:112px}
+#t6 .menu{position:absolute;left:104px;top:216px;width:620px}
+#t6 .foot{left:104px;bottom:56px}
+#t6 .fr{position:absolute;right:104px;bottom:56px;font-size:11.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="desk">
+  <div class="head">
+    <h1>标题页六版（无立绘）</h1>
+    <p>纯排版撑画面 · 与战斗页同一套 E3 展签语言</p>
+    <div class="tabs" id="tabs">
+      <button data-s="t1" class="on">T1 大字排版</button>
+      <button data-s="t2">T2 期刊封面</button>
+      <button data-s="t3">T3 目录页</button>
+      <button data-s="t4">T4 展签墙</button>
+      <button data-s="t5">T5 深色排版</button>
+      <button data-s="t6">T6 竖排题签</button>
+    </div>
+  </div>
+
+  <div class="viewport"><div class="stage" id="stage">
+
+    <!-- T1 -->
+    <div class="screen on" id="t1">
+      <div class="t">巴别残响</div>
+      <div class="en">Babel Resonance · Integrated Strategies</div>
+      <div class="rl redline"></div>
+      <div class="menu">
+        <div class="mrow"><span class="t">开始探索</span><span class="e">New Run</span></div>
+        <div class="mrow"><span class="t">继续上次</span><span class="e">Continue</span></div>
+        <div class="mrow"><span class="t">战斗测试</span><span class="e">Sandbox</span></div>
+        <div class="mrow" style="border-bottom:0"><span class="t">设置</span><span class="e">Options</span></div>
+      </div>
+      <div class="side">
+        <span class="lab">Logos · 逻各斯</span>
+        <div class="q" style="margin-top:14px">
+          词不是符号，是武器。<br />
+          把正确的义钉进对手的名字里，<br />
+          它才会消散。
+        </div>
+      </div>
+      <div class="foot" style="left:118px;bottom:52px">按「开始探索」开启新的一局 · 进度会自动保存</div>
+    </div>
+
+    <!-- T2 -->
+    <div class="screen" id="t2">
+      <div class="top">
+        <span class="n">Babel Resonance</span>
+        <span class="m">Vol. 01 · 回声层</span>
+        <span class="m">2026</span>
+      </div>
+      <div class="t">巴别残响</div>
+      <div class="sub">英语集成战略 · 用词义击碎名字的 Roguelike</div>
+      <div class="rl"></div>
+      <div class="menu">
+        <div class="mrow"><span class="t">开始探索</span><span class="e">New Run</span></div>
+        <div class="mrow"><span class="t">继续上次</span><span class="e">Continue</span></div>
+        <div class="mrow"><span class="t">战斗测试</span><span class="e">Sandbox</span></div>
+        <div class="mrow" style="border-bottom:0"><span class="t">设置</span><span class="e">Options</span></div>
+      </div>
+      <div class="col">
+        <span class="lab">本期提要</span>
+        <div class="p">
+          第一层「回声层」共 5 处节点：普通与紧急作战、残响之隙、奖励与商店，层尾为险路恶敌。<br />
+          答对造成伤害；答错，逻各斯替你承受。<br />
+          藏品会永久改变规则——谨慎挑选。
+        </div>
+      </div>
+      <div class="foot" style="left:80px;bottom:48px">© Babel Resonance · 内部测试版</div>
+    </div>
+
+    <!-- T3 -->
+    <div class="screen" id="t3">
+      <div class="h">巴别残响</div>
+      <div class="sub lab">Babel Resonance · Contents</div>
+      <div class="toc">
+        <div class="item"><span class="no">01</span><span class="nm">开始探索</span><span class="dots"></span><span class="en">New Run</span><span class="pg">→</span></div>
+        <div class="item"><span class="no">02</span><span class="nm">继续上次</span><span class="dots"></span><span class="en">Continue</span><span class="pg">→</span></div>
+        <div class="item"><span class="no">03</span><span class="nm">战斗测试</span><span class="dots"></span><span class="en">Sandbox</span><span class="pg">→</span></div>
+        <div class="item" style="border-bottom:0"><span class="no">04</span><span class="nm">设置</span><span class="dots"></span><span class="en">Options</span><span class="pg">→</span></div>
+      </div>
+      <div class="foot">词义即伤害：把正确的意思钉进对手的名字里。</div>
+      <div class="fr lab">v0.1 · 内部测试</div>
+    </div>
+
+    <!-- T4 -->
+    <div class="screen" id="t4">
+      <div class="h">巴别残响</div>
+      <div class="t">Babel Resonance</div>
+      <div class="rl redline"></div>
+      <div class="wall">
+        <div class="card"><div class="no">01</div><div class="nm">开始探索</div><div class="en">New Run</div></div>
+        <div class="card"><div class="no">02</div><div class="nm">继续上次</div><div class="en">Continue</div></div>
+        <div class="card"><div class="no">03</div><div class="nm">战斗测试</div><div class="en">Sandbox</div></div>
+        <div class="card"><div class="no">04</div><div class="nm">设置</div><div class="en">Options</div></div>
+      </div>
+      <div class="foot">每一格都是一件展品：选择你要进入的那一件。</div>
+    </div>
+
+    <!-- T5 -->
+    <div class="screen" id="t5">
+      <div class="t">巴别残响</div>
+      <div class="en">Babel Resonance · Integrated Strategies</div>
+      <div class="rl redline"></div>
+      <div class="menu">
+        <div class="mrow"><span class="t">开始探索</span><span class="e">New Run</span></div>
+        <div class="mrow"><span class="t">继续上次</span><span class="e">Continue</span></div>
+        <div class="mrow"><span class="t">战斗测试</span><span class="e">Sandbox</span></div>
+        <div class="mrow" style="border-bottom:0"><span class="t">设置</span><span class="e">Options</span></div>
+      </div>
+      <div class="side">
+        <span class="lab" style="color:#8b8b8b">Fragment · 残页 27</span>
+        <div style="margin-top:14px">
+          塔曾触到天顶，<br />于是语言被拆成碎片。<br />
+          你捡起的每一个词，<br />都是它坠落时的一小块。
+        </div>
+      </div>
+      <div class="foot" style="left:118px;bottom:52px">深色版：夜间游玩更护眼；与战斗页同一套线条纪律</div>
+    </div>
+
+    <!-- T6 -->
+    <div class="screen" id="t6">
+      <div class="vlabel">Babel Resonance</div>
+      <div class="vert">巴别残响</div>
+      <div class="vrule"></div>
+      <div class="lab" style="left:104px;top:112px">Integrated Strategies · 英语集成战略</div>
+      <div class="rl redline"></div>
+      <div class="menu">
+        <div class="mrow"><span class="t">开始探索</span><span class="e">New Run</span></div>
+        <div class="mrow"><span class="t">继续上次</span><span class="e">Continue</span></div>
+        <div class="mrow"><span class="t">战斗测试</span><span class="e">Sandbox</span></div>
+        <div class="mrow" style="border-bottom:0"><span class="t">设置</span><span class="e">Options</span></div>
+      </div>
+      <div class="foot">竖排题签：像古籍书封上的题名，右侧留白给"名字"本身。</div>
+      <div class="fr lab">卷之壹 · 回声层</div>
+    </div>
+
+  </div></div>
+
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+const NOTES={
+ t1:'<b>T1 大字排版</b>：标题 <b>Gilroy Light 156px</b> 占左上，红色短横线做唯一装饰；动作是四行无框条目（右侧英文小标）；右侧放一段世界观短句（小字、行距 2.1）。最"干净"的一版，白留最多。',
+ t2:'<b>T2 期刊封面</b>：顶部一条 <b>2px 黑线</b>做成刊头（刊名 / 卷号 / 年份），标题 118px；左列动作，右列「本期提要」小字正文。像一本杂志的封面与版权页合体。',
+ t3:'<b>T3 目录页</b>：把主菜单直接做成<b>目录</b>——编号 01~04 + 大号条目名 + <b>点线引导</b> + 英文小标 + 右端箭头；行高 78px，极强排版感，也天然容纳后续新增项（设置/鸣谢/图鉴）。',
+ t4:'<b>T4 展签墙</b>：标题用拉丁文（Gilroy 92px）+ 中文小字在上；四个动作变成 <b>2×2 展签卡</b>（编号红字 / 大号名称 / 英文小标），每张卡只有一条顶线，悬停顶线变红。与"美术馆"主题最呼应的一版。',
+ t5:'<b>T5 深色排版</b>：T1 的反相（近黑底 + 暖白字 + 同一套线条纪律）。夜间护眼，也和"黑底立绘"的战斗页最协调。',
+ t6:'<b>T6 竖排题签</b>：中文标题<b>竖排</b>在右侧（巨号黑体、宽字距），左侧留白与细竖线分区，动作横排在左。像古籍书封题签，最有个性，也最贴"名字/语言"的主题。'
+};
+const tabs=document.getElementById('tabs'), notes=document.getElementById('notes');
+function setScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id));
+  tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.s===id));
+  notes.innerHTML=NOTES[id]||'';
+}
+tabs.addEventListener('click',e=>{ if(e.target.dataset.s) setScreen(e.target.dataset.s); });
+setScreen('t1');
+const stage=document.getElementById('stage'), vp=document.querySelector('.viewport');
+function fit(){const k=Math.min(vp.clientWidth/1280,Math.max(.42,(window.innerHeight-320)/720));
+  stage.style.transform='scale('+k+')';vp.style.height=(720*k)+'px';}
+window.addEventListener('resize',fit);document.fonts&&document.fonts.ready.then(fit);fit();
+</script>
+</body>
+</html>

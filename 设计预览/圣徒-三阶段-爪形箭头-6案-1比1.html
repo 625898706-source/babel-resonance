@@ -1,0 +1,494 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒 · 三阶段「爪形箭头」6 案对照（1:1 · 可交互）</title>
+<style>
+/* ============================================================================
+   圣徒 三阶段 · 它的线「箭头 → 爪子」6 案对照（2026-09-23 用户要求 ✓ 出预览 ✓）
+   ── 用户要求 ──
+     "这个箭头的头能不能变成爪子的形状？出几个预览" ✓
+   ── 本页怎么用 ──
+     · 上方一条**对照带**：6 个爪形并排画在同一水平线上 ✓ 同一尺寸同一角度 ✓ 直接比形状 ✓
+     · 下方是**游戏画面 1:1 复刻**：选中的那个爪形装在它的红线上飞向词 ✓
+       飞到 ~80% 自动触发「答对了」✓ → **从爪子开始被粒子吃掉** ✓（与游戏同一套消散 ✓）
+     · 按钮 A~F 换爪形 ✓ ／ 慢放 ✓ ／ 重播 ✓ ／ 自动循环 ✓
+   ── 画法（重要：全是可以直接搬进 Phaser Graphics 的原语 ✓）──
+     只用 moveTo / lineTo / arc / closePath ＋ fill / stroke ✓ 零素材 ✓ 零渐变 ✓ 零贴图 ✓
+     → 实装时 Graphics 里一行行照样写 ✓ 尺寸单位＝设计像素（会自动乘 s ✓）
+   ============================================================================ */
+:root{--ink:#12232e;--fg:#141414;--muted:#6b6f76;--slate:#54686a;--red:#e2231a;--cy:#3ce0e0;
+      --ice:#8fa8bd;--line:#e6e6e6;--card:#fffdf9;--crim:#ff625d}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;color:#fff;font-family:'HarmonyOS Sans SC','Microsoft YaHei',sans-serif;padding:14px 0 30px}
+.lab,.ctl,.note,.galwrap{width:1280px;margin:0 auto}
+.lab{font-size:13px;line-height:20px}.lab b{font-size:16px}.lab i{font-style:normal;color:#a9c6d6}.lab u{text-decoration:none;color:#ffd9a0}
+.galwrap{margin-top:8px;background:#eef4f8;border:1px solid #cdd9e2}
+#gal{display:block;width:1280px;height:176px}
+#st{position:relative;width:1280px;height:720px;margin:10px auto 0;overflow:hidden;background:#eaf2f7;user-select:none}
+#st>div,#st>canvas{position:absolute}
+.bg{inset:0;background:url('../assets/skin-saint/bg.png') center/cover no-repeat;z-index:0}
+.veil{inset:0;background:#fff;opacity:.52;z-index:1}
+.hair{inset:0;z-index:2;opacity:.10;background-image:repeating-linear-gradient(#8fa8bd 0 1px,transparent 1px 4px)}
+.grid{inset:0;z-index:3;opacity:.13;
+  background-image:linear-gradient(#54686a 1px,transparent 1px),linear-gradient(90deg,#54686a 1px,transparent 1px);
+  background-size:40px 40px}
+.plate{top:160px;width:272px;height:264px;background:#141519;border:2px solid #2a2b30;border-radius:4px;
+       box-shadow:3px 3px 0 rgba(31,32,36,.13);z-index:4}
+.plateL{left:14px}.plateR{left:994px}
+.flag{position:absolute;left:-2px;top:-2px;width:0;height:0;border-top:18px solid #fff44f;border-right:18px solid transparent}
+#spL{left:75px;top:194px;width:150px;height:196px;z-index:5}
+#spR{left:1020px;top:200px;width:220px;height:220px;z-index:5}
+.nm{top:436px;font-family:'Novecento Wide','HarmonyOS Sans SC';font-size:17px;font-weight:600;line-height:20px;z-index:6;white-space:nowrap}
+.nmL{left:14px;color:var(--fg)}.nmR{left:994px;color:var(--crim)}
+.bar{top:464px;width:272px;height:16px;background:var(--card);border:1px solid var(--line);z-index:6}
+.barL{left:14px}.barR{left:994px}
+.bar>i{position:absolute;left:0;top:0;bottom:0;display:block}
+.tk{position:absolute;top:2px;bottom:2px;width:1px;background:rgba(31,32,36,.22)}
+.hpn{top:484px;font-family:'Space Grotesk',monospace;font-size:20px;line-height:20px;color:var(--fg);z-index:6;white-space:nowrap}
+.hpl{top:489px;font-family:'Novecento Wide';font-size:10px;line-height:10px;color:var(--muted);z-index:6;letter-spacing:.06em;white-space:nowrap}
+.pill{left:20px;width:84px;height:26px;top:13px;background:#fff44f;border:1px solid #1f2024;display:flex;
+      align-items:center;justify-content:center;font-family:'Novecento Wide';font-size:12px;color:#1f2024;z-index:6}
+.hudl{top:16px;line-height:20px;z-index:6;white-space:nowrap}
+#hst{left:116px;font-family:'Novecento Wide';font-size:11px;color:var(--muted)}
+#hhp{right:386px;font-family:'Space Grotesk',monospace;font-size:15px;color:var(--fg)}
+#hcur{right:244px;font-family:'Space Grotesk',monospace;font-size:15px;color:var(--fg)}
+#quit{right:14px;top:9px;width:104px;height:34px;background:var(--card);border:1px solid var(--line);
+      display:flex;align-items:center;justify-content:center;font-size:14px;color:#24252a;z-index:6}
+.hudrule{left:0;right:0;top:52px;height:1px;background:var(--ice);opacity:.65;z-index:6}
+.footrule{left:300px;top:656px;width:680px;height:1px;background:var(--ice);opacity:.55;z-index:6}
+#ftl{left:300px;top:673px;font-family:'Novecento Wide';font-size:10.5px;line-height:10.5px;color:var(--muted);z-index:6}
+#ftc{left:344px;top:666px;display:flex;gap:8px;z-index:6}
+.chip{height:24px;padding:0 10px;display:flex;align-items:center;background:#fff;border:1px solid var(--line);font-size:12px;color:#24252a}
+#cdlab{left:320px;top:90px;font-size:13px;line-height:18px;color:var(--ink);z-index:6}
+#cd{left:320px;top:117px;width:640px;height:12px;background:#ececec;border:1px solid var(--line);z-index:6}
+#cdfill{position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--slate)}
+#cdnum{right:322px;top:82px;font-family:'Space Grotesk',monospace;font-size:22px;line-height:22px;color:var(--slate);z-index:6}
+#cvBack{inset:0;z-index:10}
+.node{position:absolute;width:220px;height:86px;background:rgba(255,255,255,.5);border:1px solid var(--slate);
+      display:flex;align-items:center;justify-content:center;padding:6px;text-align:center;color:var(--ink);
+      line-height:24px;z-index:30}
+.node.en{font-family:'Space Grotesk',monospace;font-weight:700;font-size:34px}
+.node:not(.en){font-family:'HarmonyOS Sans SC';font-size:17px}
+.node.sel{border-width:3px;background:rgba(255,255,255,.72)}
+#toast{left:0;top:250px;width:1280px;text-align:center;font-size:38px;font-weight:700;color:var(--slate);
+       opacity:0;transition:opacity .25s;z-index:50;line-height:46px;text-shadow:0 2px 0 rgba(255,255,255,.8)}
+.ctl{margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+.ctl button{font-family:'HarmonyOS Sans SC';font-size:13px;padding:7px 13px;background:#2c3439;color:#dfe9ee;
+            border:1px solid #4a565d;border-radius:3px;cursor:pointer}
+.ctl button:hover{background:#3a444a}
+.ctl button.on{background:#54686a;border-color:#8fb0b3;color:#fff}
+.ctl .sp{width:14px}
+.note{margin-top:8px;background:#2c3439;border-left:3px solid var(--slate);padding:8px 12px;color:#dfe9ee;
+      font-size:13px;line-height:20px}
+.note em{font-style:normal;color:#9fb3bd}.note b{color:#ffd9a0}
+</style></head><body>
+
+<div class="lab"><b>圣徒 · 三阶段「爪形箭头」6 案对照</b>　<i>对照带里 6 个爪子同尺寸同角度</i> ✓
+　<u>下面游戏画面里飞的就是你选中的那个</u> ✓　消散依旧<b>从爪子开始被粒子吃掉</b> ✓</div>
+
+<div class="galwrap"><canvas id="gal" width="2560" height="352"></canvas></div>
+
+<div id="st">
+  <div class="bg"></div><div class="veil"></div><div class="hair"></div><div class="grid"></div>
+  <canvas id="cvBack" width="1280" height="720"></canvas>
+  <div class="plate plateL"><div class="flag"></div></div>
+  <div class="plate plateR"><div class="flag"></div></div>
+  <canvas id="spL" width="300" height="392"></canvas>
+  <canvas id="spR" width="440" height="440"></canvas>
+  <div class="nm nmL">逻各斯</div><div class="nm nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#5cc5e8;width:100%"></i></div>
+  <div class="bar barR"><i style="background:#d8c9a3;width:100%"></i></div>
+  <div class="hpn" style="left:14px">10 / 10</div>
+  <div class="hpl" style="left:286px;transform:translateX(-100%)">目标生命</div>
+  <div class="hpn" style="left:994px">38</div>
+  <div class="hpl" style="left:1266px;transform:translateX(-100%)">ENEMY HP</div>
+  <div class="pill">B1 / 01</div>
+  <div class="hudl" id="hst">// 回声层 · 待定</div>
+  <div class="hudl" id="hhp">目标生命 10 / 10</div>
+  <div class="hudl" id="hcur">残页 15</div>
+  <div id="quit">退出</div>
+  <div class="hudrule"></div><div class="footrule"></div>
+  <div id="ftl">藏品</div><div id="ftc"><div class="chip">回响残片</div><div class="chip">定音锤</div></div>
+  <div id="cdlab">剩余时间</div><div id="cd"><i id="cdfill"></i></div><div id="cdnum">12</div>
+  <div id="toast"></div>
+</div>
+
+<div class="ctl">
+  <span style="color:#dfe9ee">爪形：</span>
+  <button class="v on" data-v="A">A 三爪折钩</button>
+  <button class="v" data-v="B">B 四爪弧钩</button>
+  <button class="v" data-v="C">C 实心楔形三爪</button>
+  <button class="v" data-v="D">D 双爪钳形</button>
+  <button class="v" data-v="E">E 鹰爪（掌＋三趾）</button>
+  <button class="v" data-v="F">F 抓痕三道</button>
+  <span class="sp"></span>
+  <button id="bReplay">▶ 答对了（触发消散）</button>
+  <button id="bRelaunch">↺ 重新起飞</button>
+  <button id="bAuto" class="on">自动循环</button>
+  <button id="bSlow">慢放 0.35×</button>
+  <span id="readout" style="color:#dfe9ee"></span>
+</div>
+
+<div class="note">
+  <em>A 三爪折钩＝最"印刷"的一个，只有直线段，和项目里 1px 硬边语言最贴；B 四爪弧钩＝有弧度，最像真爪子；
+  C 实心楔形＝块面感、最醒目、远处也认得出；D 双爪钳形＝两片大钳子，最凶；E 鹰爪＝有掌心与趾节，最"解剖"、细节最多；
+  F 抓痕三道＝不是尖头而是一道抓痕，最像技能图标。</em><br>
+  <em>爪子尺寸/张角/线宽都能单独调 ✓ 选一个（或"要 A 但张角再大点"这种改法也行 ✓）我就实装进红线。</em>
+</div>
+
+<script>
+/* ★★ 爪形定义：全部只用 moveTo / lineTo / arc / closePath ＋ stroke / fill ✓
+ *    —— 实装时 Graphics 里照抄即可（Phaser：beginPath/moveTo/lineTo/arc/closePath/strokePath/fillPath ✓）
+ *    坐标系：原点＝原箭头尖那一点 ✓ +x ＝ 前进方向（朝着词）✓ +y ＝ 线的右侧 ✓ 单位＝设计像素 ✓ */
+(function () {
+  var RED = '#e2231a';
+
+  function poly(c, pts, close, fill) {
+    c.beginPath();
+    for (var i = 0; i < pts.length; i++) { i ? c.lineTo(pts[i][0], pts[i][1]) : c.moveTo(pts[i][0], pts[i][1]); }
+    if (close) c.closePath();
+    fill ? c.fill() : c.stroke();
+  }
+  function rr(deg) { var r = deg * Math.PI / 180; return [Math.cos(r), Math.sin(r)]; }
+  function dir(deg, len) { var u = rr(deg); return [u[0] * len, u[1] * len]; }
+  function add(p, q) { return [p[0] + q[0], p[1] + q[1]]; }
+
+  /* 主入口：v＝'A'..'F'，x/y＝爪子尖位置，ang＝飞行方向（弧度），k＝缩放，alpha＝透明度 */
+  function claw(c, v, x, y, ang, k, alpha) {
+    c.save();
+    c.translate(x, y); c.rotate(ang); c.scale(k, k);
+    c.globalAlpha = Math.max(0, Math.min(1, alpha));
+    c.strokeStyle = RED; c.fillStyle = RED; c.lineJoin = 'miter'; c.lineCap = 'butt';
+    var i, u, p1, p2, base;
+    if (v === 'A') {
+      /* A 三爪折钩：每根爪＝两段折线（先向外前 → 再钩回来 ✓） */
+      c.lineWidth = 3;
+      [-34, 0, 34].forEach(function (deg) {
+        base = [-13, 0];
+        p1 = add([-2, 0], dir(deg, 8));
+        p2 = add(p1, dir(deg + 118, 10));
+        poly(c, [base, p1, p2], false, false);
+      });
+      c.lineWidth = 3; poly(c, [[-14, -4], [-14, 4]], false, false);   // 根部一小横杠（收得住 ✓）
+    } else if (v === 'B') {
+      /* B 四爪弧钩：每根爪＝一段弧（弧心在后方 ✓ 所以往前鼓 ✓）＋ 一小段直线收尖 ✓ */
+      c.lineWidth = 3;
+      [-50, -17, 17, 50].forEach(function (deg) {
+        var r = 15, cen = [-7, 0];
+        c.beginPath();
+        c.arc(cen[0], cen[1], r, (deg - 26) * Math.PI / 180, (deg + 52) * Math.PI / 180, false);
+        c.stroke();
+        var e = [cen[0] + Math.cos((deg + 52) * Math.PI / 180) * r, cen[1] + Math.sin((deg + 52) * Math.PI / 180) * r];
+        poly(c, [e, add(e, dir(deg + 96, 7))], false, false);
+      });
+    } else if (v === 'C') {
+      /* C 实心楔形三爪：三个实心窄三角 ＋ 后方一个方块（块面感 ✓ 远处也认得出 ✓） */
+      [-30, 0, 30].forEach(function (deg) {
+        var L = 15, hw = 3.6;
+        var a1 = add(dir(deg, L), dir(deg + 90, hw));
+        var a2 = add(dir(deg, L), dir(deg - 90, hw));
+        var b1 = add([-10, 0], dir(deg + 90, hw + 1.2));
+        var b2 = add([-10, 0], dir(deg - 90, hw + 1.2));
+        poly(c, [b1, b2, a1, a2], true, true);
+      });
+      poly(c, [[-16, -4], [-9, -4], [-9, 4], [-16, 4]], true, true);
+    } else if (v === 'D') {
+      /* D 双爪钳形：两片大钳子（实心 ✓ 中间留缝 ✓ 最凶 ✓） */
+      [-1, 1].forEach(function (sgn) {
+        poly(c, [
+          [-8, sgn * 3], [4, sgn * 17], [14, sgn * 20], [10, sgn * 8], [4, sgn * 4]
+        ], true, true);
+      });
+      poly(c, [[-14, -3.5], [-6, -3.5], [-6, 3.5], [-14, 3.5]], true, true);
+    } else if (v === 'E') {
+      /* E 鹰爪：掌心（实心多边）＋ 三根两节趾（每节带小方块关节 ✓ 最"解剖" ✓） */
+      poly(c, [[-13, -5], [1, -7], [6, 0], [1, 7], [-13, 5]], true, true);
+      c.lineWidth = 2.6;
+      [-40, 0, 40].forEach(function (deg) {
+        var s0 = [3, 0];
+        var s1 = add(s0, dir(deg, 8));
+        var s2 = add(s1, dir(deg + 62, 7));
+        poly(c, [s0, s1, s2], false, false);
+        poly(c, [[s1[0] - 1.6, s1[1] - 1.6], [s1[0] + 1.6, s1[1] - 1.6], [s1[0] + 1.6, s1[1] + 1.6], [s1[0] - 1.6, s1[1] + 1.6]], true, true);
+        poly(c, [[s2[0] - 1.2, s2[1] - 1.2], [s2[0] + 1.2, s2[1] - 1.2], [s2[0] + 1.2, s2[1] + 1.2], [s2[0] - 1.2, s2[1] + 1.2]], true, true);
+      });
+    } else {
+      /* F 抓痕三道：三道平行斜划（不是尖头 ✓ 是一道"抓痕" ✓ 最像技能图标 ✓） */
+      var W = [3, 4.5, 3], D = [-7, 0, 7];
+      for (i = 0; i < 3; i++) {
+        c.lineWidth = W[i];
+        poly(c, [[-11 + D[i], 9], [11 + D[i], -9]], false, false);
+      }
+      c.lineWidth = 2;
+      poly(c, [[-13, 3], [-7, 8]], false, false);
+    }
+    c.restore();
+  }
+  window.ClawDraw = claw;
+  window.ClawNames = { A: '三爪折钩', B: '四爪弧钩', C: '实心楔形三爪', D: '双爪钳形', E: '鹰爪（掌＋三趾）', F: '抓痕三道' };
+  window.ClawWhy = {
+    A: '只有直线段 ✓ 与项目 1px 硬边语言最贴 ✓ 最"印刷" ✓',
+    B: '带弧度 ✓ 最像真爪子 ✓ 张角 4 根时最饱满 ✓',
+    C: '实心块面 ✓ 最醒目 ✓ 缩到很小也认得出 ✓',
+    D: '两片大钳子 ✓ 中间留缝 ✓ 最有攻击性 ✓',
+    E: '有掌心与趾节 ✓ 细节最多 ✓ 也最"重" ✓',
+    F: '不是尖头而是抓痕 ✓ 像技能图标 ✓ 最不像"箭头" ✓',
+  };
+})();
+</script>
+
+<script>
+/* ===== 下半页：游戏画面 1:1 ＋ 把选中的爪形装到红线上 ===== */
+function DIS_MS() { return 820; }          // 与游戏一致 ✓（560 → 820 用户要求再慢 ✓）
+var DIS_ACC = 150, FLY_MS = 4500, GL_MS = 700, GL_ON = 180, EMIT_PER_S = 190, MIN_GAP = 2000;
+
+(function () {
+  var stage = document.getElementById('st');
+  var cb = document.getElementById('cvBack'), ctx = cb.getContext('2d');
+  var toastEl = document.getElementById('toast'), readout = document.getElementById('readout');
+  var bAuto = document.getElementById('bAuto'), bSlow = document.getElementById('bSlow');
+  var V = 'A', slow = false, auto = true;
+
+  var IMG = {};
+  ['../assets/skin-saint/bg.png', '../assets/img/logos-idle.png', '../assets/img/saint-idle.png'].forEach(function (u) {
+    var im = new Image(); im.src = u; IMG[u] = im;
+  });
+
+  /* 立绘逐帧（照游戏 ✓）*/
+  var SPR = [
+    { cv: document.getElementById('spL'), url: '../assets/img/logos-idle.png', fw: 260, fh: 340, last: 149, flip: false, fps: 30 },
+    { cv: document.getElementById('spR'), url: '../assets/img/saint-idle.png', fw: 180, fh: 180, last: 174, flip: true, fps: 30 }
+  ];
+  SPR.forEach(function (p) { var c = p.cv.getContext('2d'); c.scale(2, 2); p.ctx = c; p.w = p.cv.width / 2; p.h = p.cv.height / 2; });
+  function drawSpr(p, now) {
+    var im = IMG[p.url];
+    if (!im || !im.complete || !im.naturalWidth) return;
+    if (!p.ready) { p.cols = Math.max(1, Math.round(im.naturalWidth / p.fw)); p.ready = true; }
+    var i = Math.floor(now / 1000 * p.fps) % (p.last + 1);
+    p.ctx.clearRect(0, 0, p.w, p.h);
+    p.ctx.save();
+    if (p.flip) { p.ctx.translate(p.w, 0); p.ctx.scale(-1, 1); }
+    p.ctx.drawImage(im, (i % p.cols) * p.fw, Math.floor(i / p.cols) * p.fh, p.fw, p.fh, 0, 0, p.w, p.h);
+    p.ctx.restore();
+  }
+
+  var CX = 640, CY = 360, LX = 400, RX = 880;
+  var dyL = 130, dyR = 104, y0L = CY - dyL, y0R = CY - 1.5 * dyR;
+  var nodes = [], air = [], parts = [], fired = false, cool = 0;
+  function mk(side, text, pair, x, y, isEn, phase) {
+    var d = document.createElement('div');
+    d.className = 'node' + (isEn ? ' en' : '');
+    d.textContent = text;
+    d.style.left = (x - 110) + 'px'; d.style.top = (y - 43) + 'px';
+    stage.appendChild(d);
+    nodes.push({ el: d, side: side, pair: pair, x: x, y: y, ph: phase, dur: 2 * (2100 + phase * 320) / 1000 });
+  }
+  var DEMO = [{ en: 'address', zh: '向……讲话；对……发表演说' }, { en: 'book', zh: '预订' }, { en: 'last', zh: '持续' }];
+  function build() {
+    nodes.forEach(function (n) { n.el.remove(); });
+    nodes = [];
+    DEMO.forEach(function (p, i) { mk('L', p.en, p.en, LX, y0L + i * dyL, true, i); });
+    var rights = DEMO.map(function (p) { return { zh: p.zh, pair: p.en }; });
+    rights.push({ zh: '把……归因于', pair: '__extra__' });
+    [1, 3, 0, 2].forEach(function (oi, i) { mk('R', rights[oi].zh, rights[oi].pair, RX, y0R + i * dyR, false, i); });
+  }
+  function rectOf(nd) {
+    var r = nd.el.getBoundingClientRect(), s2 = stage.getBoundingClientRect();
+    return { cx: r.left - s2.left + r.width / 2, cy: r.top - s2.top + r.height / 2 };
+  }
+  function nodeAt(side, pair) { return nodes.filter(function (n) { return n.side === side && n.pair === pair; })[0]; }
+  function wrongNear(nd) {
+    var a = rectOf(nd), best = null, bd = 1e9;
+    nodes.forEach(function (n) {
+      if (n.side === nd.side || n.pair === nd.pair) return;
+      var b = rectOf(n), d = Math.hypot(b.cx - a.cx, b.cy - a.cy);
+      if (d < bd) { bd = d; best = n; }
+    });
+    return best;
+  }
+  function launch() {
+    air = []; parts = []; fired = false; cool = 0;
+    nodes.forEach(function (n) { n.el.classList.remove('sel'); n.el.style.boxShadow = ''; });
+    var t1 = nodeAt('L', 'address'), t2 = nodeAt('L', 'book');
+    var s1 = wrongNear(t1), s2 = wrongNear(t2);
+    if (s1) { air.push({ src: s1, word: t1, pair: t1.pair, p: 0, dis: 0, dying: false, acc: 0 }); t1.el.classList.add('sel'); }
+    if (s2) { air.push({ src: s2, word: t2, pair: t2.pair, p: -MIN_GAP / FLY_MS, dis: 0, dying: false, acc: 0 }); t2.el.classList.add('sel'); }
+    toastEl.style.opacity = 0;
+  }
+  /* 答对 → 只消散最前面那根 ✓（照游戏 ✓）*/
+  function dissolve() {
+    if (fired) return;
+    var live = air.filter(function (L) { return !L.dying; });
+    if (!live.length) return;
+    live.sort(function (a, b) { return b.p - a.p; });
+    var L = live[0];
+    fired = true; L.dying = true; L.dis = 0;
+    var a = rectOf(L.src), b = rectOf(L.word);
+    spray(a.cx + (b.cx - a.cx) * L.p, a.cy + (b.cy - a.cy) * L.p, 14);
+    toastEl.textContent = '答对 ✓ 消散最前面那根（爪形 ' + V + ' · ' + window.ClawNames[V] + '）';
+    toastEl.style.opacity = 1;
+  }
+  function spray(x, y, n) {
+    for (var i = 0; i < n; i++) {
+      var a = Math.random() * Math.PI * 2, sp = 90 + Math.random() * 300;
+      parts.push({ x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40, life: .3 + Math.random() * .45,
+                   size: 2.5 + Math.random() * 5, cy: Math.random() < .25 });
+    }
+  }
+  function frontOf(L) { return L.p * (1 - L.dis); }
+  function emit(L, dt) {
+    var a = rectOf(L.src), b = rectOf(L.word), t = frontOf(L);
+    var x = a.cx + (b.cx - a.cx) * t, y = a.cy + (b.cy - a.cy) * t;
+    var dx = b.cx - a.cx, dy = b.cy - a.cy, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+    L.acc = (L.acc || 0) + EMIT_PER_S * dt;
+    while (L.acc >= 1) {
+      L.acc -= 1;
+      var sp = 40 + Math.random() * 190;
+      parts.push({ x: x + (Math.random() - .5) * 7, y: y + (Math.random() - .5) * 7,
+                   vx: -ux * sp + (Math.random() - .5) * 130, vy: -uy * sp + (Math.random() - .5) * 130 - 30,
+                   life: .28 + Math.random() * .45, size: 2 + Math.random() * 5, cy: Math.random() < .22 });
+    }
+    if (parts.length > 260) parts.splice(0, parts.length - 260);
+  }
+  function seg(c, x0, y0, x1, y1, col, w) {
+    c.strokeStyle = col; c.lineWidth = w; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke();
+  }
+
+  var lastT = performance.now();
+  function loop(now) {
+    var raw = Math.min((now - lastT) / 1000, .05); lastT = now;
+    var dt = raw * (slow ? 0.35 : 1), tsec = now / 1000;
+    SPR.forEach(function (p) { drawSpr(p, now); });
+
+    for (var i = air.length - 1; i >= 0; i--) {
+      var L = air[i];
+      if (L.dying) {
+        L.dis = Math.min(1, L.dis + dt * 1000 / DIS_MS());
+        emit(L, dt);
+        if (L.dis >= 1) air.splice(i, 1);
+      } else {
+        L.p = Math.min(1, L.p + dt * 1000 / FLY_MS);
+        if (L.p >= 1) {
+          L.word.el.style.boxShadow = '0 0 0 6px rgba(226,35,26,.55)';
+          toastEl.textContent = '『' + L.word.pair + '』被它连上了 ✗';
+          toastEl.style.opacity = 1;
+          air.splice(i, 1);
+        }
+      }
+    }
+    parts.forEach(function (q) { q.life -= dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vy += 330 * dt; q.vx *= (1 - 1.6 * dt); });
+    parts = parts.filter(function (q) { return q.life > 0; });
+
+    if (auto) {
+      if (!fired) {
+        var lead = air.filter(function (x) { return !x.dying; }).sort(function (a, b) { return b.p - a.p; })[0];
+        if (lead && lead.p >= 0.8) dissolve();
+      } else if (!air.length) { cool += dt; if (cool > 2.6) launch(); }
+    }
+    var live = air.filter(function (x) { return !x.dying; }), dying = air.filter(function (x) { return x.dying; });
+    var fmt = function (x) { return x.word.pair + ' ' + (x.p <= 0 ? '排队中' : Math.round(x.p * 100) + '%'); };
+    readout.textContent = '爪形 ' + V + '　' + (fired
+      ? '消散中：' + dying.map(function (x) { return Math.round(x.dis * 100) + '%'; }).join('') + (live.length ? '　｜　还在飞：' + live.map(fmt).join('　·　') : '')
+      : '在飞：' + (live.length ? live.map(fmt).join('　·　') : '—'));
+
+    nodes.forEach(function (n) {
+      n.el.style.transform = 'translateY(' + (12 * Math.sin(2 * Math.PI * tsec / n.dur + n.ph * 1.1)).toFixed(2) + 'px)';
+    });
+
+    ctx.clearRect(0, 0, 1280, 720);
+    var gph = (now % GL_MS) < GL_ON;
+    air.forEach(function (L) {
+      var a = rectOf(L.src), b = rectOf(L.word);
+      var t = frontOf(L);
+      var hx = a.cx + (b.cx - a.cx) * t, hy = a.cy + (b.cy - a.cy) * t;
+      var dx = b.cx - a.cx, dy = b.cy - a.cy, len = Math.hypot(dx, dy) || 1;
+      var ux = dx / len, uy = dy / len, nx = -uy, ny = ux, ang = Math.atan2(dy, dx);
+      if (t > 0.002) {
+        if (gph && !L.dying) {
+          seg(ctx, a.cx + nx * 3, a.cy + ny * 3, hx + nx * 3, hy + ny * 3, 'rgba(60,224,224,.5)', 3);
+          seg(ctx, a.cx - nx * 3, a.cy - ny * 3, hx - nx * 3, hy - ny * 3, 'rgba(226,35,26,.5)', 3);
+        }
+        seg(ctx, a.cx, a.cy, hx, hy, '#e2231a', 3);
+        if (L.dying) {
+          var s10 = Math.min(42, len * t), fx0 = hx - ux * s10, fy0 = hy - uy * s10;
+          seg(ctx, fx0, fy0, hx, hy, 'rgba(255,120,90,.95)', 5);
+          ctx.globalAlpha = Math.min(1, L.dis * 4);
+          seg(ctx, fx0, fy0, hx, hy, '#fff2ee', 2);
+          ctx.globalAlpha = 1;
+        }
+      }
+      /* ★ 爪子：跟着前沿退 ✓ 头 150ms 内先没 ✓（＝"从爪子开始"消散 ✓）*/
+      var gone = L.dying ? Math.min(1, (L.dis * DIS_MS()) / DIS_ACC) : 0;
+      if (gone < 0.98 && t > 0.02) {
+        window.ClawDraw(ctx, V, hx, hy, ang, 1 - 0.45 * gone, 1 - gone);
+      }
+    });
+    parts.forEach(function (q) {
+      ctx.globalAlpha = Math.min(1, q.life * 2.6);
+      ctx.fillStyle = q.cy ? '#3ce0e0' : '#e2231a';
+      ctx.fillRect(q.x - q.size / 2, q.y - q.size / 2, q.size, q.size);
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(loop);
+  }
+
+  /* ---- 对照带（6 个爪子 + 标签 + 一句说明 ✓）---- */
+  function drawGallery() {
+    var g = document.getElementById('gal'), c = g.getContext('2d'), dpr = 2;
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.clearRect(0, 0, 1280, 176);
+    var keys = ['A', 'B', 'C', 'D', 'E', 'F'], cw = 1280 / 6;
+    keys.forEach(function (k, i) {
+      var x0 = i * cw;
+      c.strokeStyle = '#cdd9e2'; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(x0 + .5, 8); c.lineTo(x0 + .5, 168); c.stroke();
+      var active = (k === V);
+      c.font = '600 13px "Novecento Wide", sans-serif';
+      c.fillStyle = active ? '#e2231a' : '#54686a';
+      c.fillText(k + '　' + window.ClawNames[k], x0 + 12, 26);
+      /* 爪子本体：放大到 1.7 倍看形状 ✓ 尖点在格子中央 ✓ */
+      var cxp = x0 + cw / 2 + 26, cyp = 84;
+      c.strokeStyle = '#e6e6e6'; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(x0 + 20, cyp + .5); c.lineTo(x0 + cw - 20, cyp + .5); c.stroke();
+      window.ClawDraw(c, k, cxp, cyp, 0, 1.9, 1);
+      c.fillStyle = '#6b6f76'; c.font = '12px "HarmonyOS Sans SC", sans-serif';
+      wrap(c, window.ClawWhy[k], x0 + 12, 128, cw - 24, 17, active ? '#12232e' : '#6b6f76');
+      if (active) { c.strokeStyle = '#e2231a'; c.lineWidth = 2; c.strokeRect(x0 + 2, 6, cw - 4, 164); }
+    });
+  }
+  function wrap(c, txt, x, y, w, lh, col) {
+    c.fillStyle = col;
+    var line = '';
+    for (var i = 0; i < txt.length; i++) {
+      var t2 = line + txt[i];
+      if (c.measureText(t2).width > w && line) { c.fillText(line, x, y); y += lh; line = txt[i]; }
+      else line = t2;
+    }
+    c.fillText(line, x, y);
+  }
+
+  /* ---- 控件 ---- */
+  Array.prototype.forEach.call(document.querySelectorAll('button.v'), function (b) {
+    b.onclick = function () {
+      V = b.getAttribute('data-v');
+      Array.prototype.forEach.call(document.querySelectorAll('button.v'), function (o) { o.className = 'v' + (o === b ? ' on' : ''); });
+      drawGallery(); launch();
+    };
+  });
+  document.getElementById('bReplay').onclick = function () { dissolve(); };
+  document.getElementById('bRelaunch').onclick = function () { launch(); };
+  bAuto.onclick = function () { auto = !auto; bAuto.className = auto ? 'on' : ''; };
+  bSlow.onclick = function () { slow = !slow; bSlow.className = slow ? 'on' : ''; bSlow.textContent = slow ? '慢放 0.35×（开）' : '慢放 0.35×'; };
+  stage.addEventListener('mousedown', function () { if (!fired) dissolve(); else launch(); });
+
+  ['barL', 'barR'].forEach(function (cls) {
+    var b = document.querySelector('.' + cls);
+    for (var i = 1; i < 9; i++) { var t = document.createElement('div'); t.className = 'tk'; t.style.left = (272 * i / 9) + 'px'; b.appendChild(t); }
+  });
+
+  build(); launch(); drawGallery();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body></html>

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>巴别残响 · 战斗页改造预览 v0</title>
+<style>
+/* ============================================================================
+   巴别残响 · 战斗页改造预览（v0，供风格确认，尚未落到游戏）
+   方向：E-Ink / Paper × Editorial Grid（强化本作既有"浅色编辑风"）
+   真实素材：assets/fonts（Novecento Wide / HarmonyOS Sans SC / Gilroy / Space Grotesk）
+             assets/img（logos-idle.png、andoain-idle.png —— 均为精灵图，用第 0 帧）
+   ========================================================================== */
+
+/* ---------- 字体（游戏内真实字体文件） ---------- */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-Medium.748604.woff2')format('woff2');font-weight:500;font-display:block}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600;font-display:block}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2')format('woff2');font-weight:700;font-display:block}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400;font-display:block}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500;font-display:block}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700;font-display:block}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2')format('woff2');font-weight:900;font-display:block}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500;font-display:block}
+@font-face{font-family:'SpaceGrotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2');font-weight:400 600;font-display:block}
+
+/* ---------- 设计令牌 ---------- */
+:root{
+  /* 纸与墨 */
+  --bg:#f1f0ec;          /* 画布纸底（沿用游戏现值） */
+  --card:#fffdf9;        /* 暖白纸卡（白得更有纸感，不刺眼） */
+  --ink:#1f2024;         /* 墨（比原 #24252a 略深，硬边更利落） */
+  --ink-soft:#4a4d55;    /* 次级墨 */
+  --muted:#6b6f76;       /* 说明灰：对纸底 4.6:1（原 #9b9fa5 仅 2.33:1，不达标） */
+  --line:#c9c6bd;        /* 细线：清晰可辨（原 #d9d8d3 对纸底仅 1.25:1） */
+  --line-ink:#1f2024;    /* 墨线（界框） */
+  --marker:#fff44f;      /* 标志黄：荧光笔/图章 */
+  --ok:#8eef5b; --ok-text:#2f7d3a;      /* 亮绿只做填充；文字用深绿 4.9:1 */
+  --bad:#ff625d; --bad-text:#c0392b;    /* 亮红只做填充；文字用深红 4.6:1 */
+  --amber:#f5a623; --player:#5cc5e8;
+
+  /* 间距：8pt 栅格 */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s6:24px; --s8:32px;
+
+  /* 形状与阴影 */
+  --r:4px; --r-sm:3px;
+  --shadow-hard:3px 3px 0 rgba(31,32,36,.13);
+  --shadow-hard-up:4px 4px 0 rgba(31,32,36,.20);
+
+  /* 动效：干脆、无弹跳（e-ink 语义） */
+  --ease:cubic-bezier(.2,.7,.3,1);
+  --t-fast:120ms; --t:180ms;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:#e6e4de; color:var(--ink);
+  font-family:'HOS',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-wrap:pretty;
+}
+
+/* ---------- 工作台（预览外壳，与游戏无关） ---------- */
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:var(--s4);padding:var(--s6) var(--s4) 96px}
+.desk-head{width:100%;max-width:1320px;display:flex;align-items:baseline;gap:var(--s3);flex-wrap:wrap}
+.desk-head h1{font-family:'HOS';font-weight:900;font-size:20px;margin:0;letter-spacing:.01em}
+.desk-head p{margin:0;color:#6b6f76;font-size:13px}
+.desk-head .kbd{margin-left:auto;font-family:'SpaceGrotesk';font-size:12px;color:#6b6f76;border:1px solid #c9c6bd;border-radius:var(--r-sm);padding:2px 8px;background:#f7f6f2}
+
+.viewport{position:relative;width:100%;max-width:1320px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 24px 60px rgba(31,32,36,.18)}
+
+/* ============================================================================
+   战斗页：1280×720
+   ========================================================================== */
+.screen{position:relative;width:1280px;height:720px;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+/* 纸纹 + 极淡暗角：程序化生成（游戏里已有 _makeGrain/_makeVignette，此前从未启用） */
+.screen .grain{position:absolute;inset:0;pointer-events:none;z-index:3;opacity:.05;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>")}
+.screen .vig{position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:radial-gradient(120% 90% at 50% 42%,rgba(0,0,0,0) 55%,rgba(31,32,36,.06) 100%)}
+
+/* ---------- 页眉：统一到所有场景（层名 / 残页 / 目标生命 / 节点） ---------- */
+.hud{position:relative;z-index:4;height:52px;flex:0 0 52px;display:flex;align-items:center;gap:var(--s3);
+  padding:0 var(--s6);background:var(--card);border-bottom:1px solid var(--line-ink)}
+.hud .pill{font-family:'Novecento';font-weight:600;font-size:12px;letter-spacing:.04em;background:var(--marker);
+  border:1px solid var(--line-ink);border-radius:var(--r-sm);padding:3px 9px}
+.hud .floor{font-family:'Novecento';font-weight:500;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.hud .floor b{font-family:'HOS';font-weight:700;font-size:14px;letter-spacing:.02em;color:var(--ink)}
+.hud .spacer{flex:1}
+.hud .stat{display:flex;align-items:baseline;gap:6px;font-size:12px;color:var(--muted)}
+.hud .stat b{font-family:'SpaceGrotesk';font-weight:600;font-size:19px;color:var(--ink);letter-spacing:.02em}
+.hud .stat s{font-family:'SpaceGrotesk';font-size:12px;color:var(--muted);text-decoration:none}
+.hud .node{font-family:'HOS';font-weight:700;font-size:12px;color:#7a1f1f;background:#f6d9d7;
+  border:1px solid #b8564f;border-radius:var(--r-sm);padding:3px 9px}
+
+/* ---------- 战场：三栏（左=逻各斯 / 中=题面 / 右=敌人） ---------- */
+.field{position:relative;z-index:4;flex:1;display:grid;grid-template-columns:280px 1fr 280px;gap:var(--s6);
+  padding:var(--s6);min-height:0}
+
+/* 立绘牌：深色"图版"贴在纸上（游戏内立绘为黑底精灵图，必须走深色卡）
+   两框对齐：左右各留一个等高槽位（右侧放台词缎带、左侧留空），使两侧牌子顶边严格对齐 */
+.side{display:flex;flex-direction:column;align-items:center;gap:var(--s2);min-width:0}
+.slot{width:272px;height:58px;display:flex;align-items:flex-end}
+.plate{position:relative;width:272px;height:264px;border-radius:var(--r);border:1px solid var(--line-ink);
+  background:linear-gradient(180deg,#1b1c20,#111216);box-shadow:var(--shadow-hard);overflow:hidden}
+.plate .art{position:absolute;left:50%;top:14px;transform:translateX(-50%);
+  width:200px;height:262px;background-repeat:no-repeat;background-position:0 0}
+/* 精灵图第 0 帧：整体贴图按"帧显示尺寸 × 列/行数"铺开即可精确取帧 */
+.plate.left  .art{background-image:url('../assets/img/logos-idle.png');background-size:3000px 2620px}   /* 15×10 帧，帧 260×340 */
+/* 敌人恒镜像面向逻各斯（对应游戏内 setFlipX(true)；仅里恩 flipX:false 不镜像） */
+.plate.right .art{background-image:url('../assets/img/andoain-idle.png');background-size:2000px 2120px;transform:translateX(-50%) scaleX(-1)}/* 10×10 帧，帧 240×255 */
+.plate .corner{position:absolute;left:0;top:0;width:0;height:0;border-top:14px solid var(--marker);border-right:14px solid transparent}
+.plate .ptag{position:absolute;right:8px;top:8px;font-family:'Novecento';font-weight:500;font-size:10px;
+  letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.62)}
+
+/* 名字带 + 血条 + 数值 */
+.nameband{width:272px;display:flex;align-items:center;gap:var(--s2);padding-bottom:2px}
+.nameband .nm{font-family:'HOS';font-weight:700;font-size:16px;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nameband .lvl{margin-left:auto;font-family:'Novecento';font-weight:500;font-size:10px;letter-spacing:.12em;color:var(--muted)}
+.hp{position:relative;width:272px;height:16px;border:1px solid var(--line-ink);border-radius:2px;background:#fff;overflow:hidden}
+.hp i{position:absolute;inset:0;transform-origin:left center;display:block}
+.hp i.p{background:var(--player)} .hp i.e{background:var(--bad)}
+/* 刻度：让"仪器感"出来（原版是一条光溜的色块） */
+.hp .ticks{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent 0 8px,rgba(31,32,36,.22) 8px 9px)}
+.hprow{width:272px;display:flex;align-items:baseline;gap:var(--s2)}
+.hprow .num{font-family:'SpaceGrotesk';font-weight:600;font-size:20px;letter-spacing:.02em}
+.hprow .num small{font-size:12px;color:var(--muted);font-weight:400}
+.hprow .lab{margin-left:auto;font-family:'Novecento';font-weight:500;font-size:10px;letter-spacing:.14em;color:var(--muted)}
+
+/* 机制状态（如圣环）：像仪表一样的小胶囊 */
+.mech{width:272px;display:flex;align-items:center;gap:10px;margin-top:2px}
+/* 胶囊与方格同高同心：line-height:1 固定胶囊高度，方格用 flex 居中，避免基线错位 */
+.mech .mk{display:inline-flex;align-items:center;height:26px;padding:0 10px;line-height:1;
+  font-family:'SpaceGrotesk','HOS',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:.02em;color:var(--ink);
+  border:1px solid var(--line-ink);border-radius:3px;background:var(--card)}
+.mech .pips{display:flex;align-items:center;gap:4px}
+.mech .pip{width:15px;height:15px;border:1px solid var(--line-ink);border-radius:2px;background:var(--bad)}
+.mech .pip.off{background:#fff}
+
+/* 敌人台词：墨色缎带（原版是浮在空中的红字） */
+.ribbon{width:272px;background:var(--ink);color:#f4efe4;border-radius:var(--r-sm);padding:6px 10px;
+  font-size:12.5px;line-height:1.35;box-shadow:var(--shadow-hard)}
+.ribbon em{font-style:normal;color:var(--marker);font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.14em;display:block;margin-bottom:2px}
+
+/* ---------- 中栏：词卡（索引卡）＋ 选项 ---------- */
+.center{display:flex;flex-direction:column;gap:var(--s4);min-width:0}
+
+.wordcard{position:relative;background:var(--card);border:1px solid var(--line-ink);border-radius:var(--r);
+  box-shadow:var(--shadow-hard);padding:var(--s4) var(--s6) var(--s6);overflow:hidden}
+.wc-head{display:flex;align-items:center;gap:var(--s3)}
+.wc-head .tag{font-family:'Novecento';font-weight:500;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.wc-head .idx{margin-left:auto;font-family:'SpaceGrotesk';font-weight:600;font-size:13px;color:var(--muted)}
+.word{font-family:'SpaceGrotesk';font-weight:600;font-size:60px;line-height:1.06;letter-spacing:-.012em;
+  margin:2px 0 var(--s3);word-break:break-word}
+/* 荧光笔签名：本作的识别元素（替代"只用黄描边"） */
+.word .mk{background:linear-gradient(180deg,transparent 58%,var(--marker) 58% 92%,transparent 92%);padding:0 2px}
+.rule{height:1px;background:var(--line);margin:0 0 var(--s3)}
+.wc-foot{display:flex;align-items:center;gap:var(--s3)}
+.wc-foot .hint{font-size:13px;color:var(--muted)}
+.wc-foot .sec{margin-left:auto;display:flex;align-items:baseline;gap:6px}
+.wc-foot .sec b{font-family:'SpaceGrotesk';font-weight:600;font-size:24px;letter-spacing:.02em}
+.wc-foot .sec i{font-style:normal;font-family:'Novecento';font-weight:500;font-size:10px;letter-spacing:.14em;color:var(--muted)}
+/* 倒计时条：贴在卡片下缘，带每秒刻度 */
+.timer{position:absolute;left:0;right:0;bottom:0;height:6px;background:#e7e4dc}
+.timer i{position:absolute;left:0;top:0;bottom:0;width:61%;background:var(--amber)}
+.timer .t{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent 0 24px,rgba(31,32,36,.28) 24px 25px)}
+
+/* 选项：2×2（沿用游戏排布），加键位帽 + 悬停黄条 + 硬阴影 */
+.options{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)}
+.opt{position:relative;display:flex;align-items:center;gap:var(--s3);text-align:left;cursor:pointer;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:0 var(--s4);height:76px;
+  font-family:'HOS';font-weight:500;font-size:19px;color:var(--ink);
+  transition:transform var(--t) var(--ease),box-shadow var(--t) var(--ease),border-color var(--t) var(--ease),background var(--t) var(--ease)}
+.opt .key{flex:0 0 26px;height:26px;display:grid;place-items:center;border:1px solid var(--line-ink);border-radius:var(--r-sm);
+  font-family:'SpaceGrotesk';font-weight:600;font-size:13px;background:#fff}
+.opt::before{content:'';position:absolute;left:-1px;top:8px;bottom:8px;width:3px;background:var(--marker);
+  transform:scaleY(0);transform-origin:center;transition:transform var(--t) var(--ease)}
+.opt:hover{border-color:var(--line-ink);box-shadow:var(--shadow-hard);transform:translate(1px,-1px)}
+.opt:hover::before{transform:scaleY(1)}
+.opt:active{transform:translate(2px,1px);box-shadow:none}
+.opt:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.opt.is-ok{border-color:var(--line-ink);background:#f2fbe9}
+.opt.is-ok .key{background:var(--ok);border-color:var(--line-ink)}
+.opt.is-bad{border-color:#b8564f;background:#fdf1f0;color:#8d2c25}
+.opt.is-bad .key{background:var(--bad);border-color:#8d2c25;color:#fff}
+/* 禁用态：够灰、无指针（原版没有禁用样式） */
+.opt[disabled]{opacity:.4;cursor:not-allowed;box-shadow:none;transform:none;background:var(--card)}
+.opt[disabled]::before{display:none}
+
+/* 状态行：连击（等宽数字）+ 反馈图章 */
+.statusline{display:flex;align-items:center;gap:var(--s3);min-height:44px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-ink);border-radius:var(--r-sm);
+  background:var(--card);padding:4px 10px;font-size:12.5px;font-weight:700}
+.chip b{font-family:'SpaceGrotesk';font-weight:600;font-size:16px;color:#a06a00}
+/* 图章：对/错反馈（替代"整块刷色"） */
+.stamp{font-family:'HOS';font-weight:900;font-size:15px;letter-spacing:.06em;padding:3px 12px;border:2px solid currentColor;
+  border-radius:3px;transform:rotate(-4deg);opacity:.92}
+.stamp.ok{color:var(--ok-text);background:#f1fbe8}
+.stamp.bad{color:var(--bad-text);background:#fdeeed}
+.feedback{margin-left:auto;font-size:13px;color:var(--muted)}
+
+/* ============================================================================
+   改造前（现状）—— 同一份 DOM，仅覆盖令牌，保证对比是"同一内容不同工艺"
+   ========================================================================== */
+body.mode-before{--card:#ffffff;--ink:#24252a;--muted:#9b9fa5;--line:#d9d8d3;--line-ink:#d9d8d3;
+  --shadow-hard:none;--r:8px;--r-sm:8px}
+body.mode-before .grain,body.mode-before .vig{display:none}
+body.mode-before .plate{background:#000;border-color:#d9d8d3}
+body.mode-before .plate .corner,body.mode-before .plate .ptag{display:none}
+body.mode-before .hp .ticks,body.mode-before .timer .t{display:none}
+body.mode-before .timer{background:#fff;height:10px;border:1px solid #d9d8d3;left:auto;right:auto;bottom:auto;position:static;
+  width:320px;margin:var(--s3) auto 0}
+body.mode-before .timer i{width:62%}
+body.mode-before .word{font-family:'HOS';font-weight:700;font-size:46px;letter-spacing:0}
+body.mode-before .word .mk{background:none}
+body.mode-before .opt{height:96px;font-size:22px;box-shadow:none;border-color:#fff44f;border-width:1px}
+body.mode-before .opt .key{display:none}
+body.mode-before .opt::before{display:none}
+body.mode-before .opt:hover{background:#fffbe0;transform:none;box-shadow:none}
+body.mode-before .ribbon{background:none;box-shadow:none;color:var(--bad);text-align:center;font-size:15px}
+body.mode-before .ribbon em{display:none}
+body.mode-before .stamp{border-width:0;background:none;transform:none;font-weight:700;font-size:14px}
+body.mode-before .stamp.ok{color:var(--ok-text)}body.mode-before .stamp.bad{color:var(--bad-text)}
+body.mode-before .hud{border-bottom-color:#d9d8d3}
+body.mode-before .hud .pill{border-color:#d9d8d3}
+body.mode-before .mech .mk,body.mode-before .chip{border-color:#d9d8d3}
+body.mode-before .wc-foot .hint,body.mode-before .hud .stat{color:#9b9fa5}
+body.mode-before .plate .art{top:0}
+
+/* ============================================================================
+   改造后 · 变体 B：更硬朗的印刷风（高对比、无圆角、更强墨框）
+   ========================================================================== */
+body.mode-bold{--card:#ffffff;--ink:#101114;--muted:#5b5f66;--line:#a9a59a;--line-ink:#101114;
+  --r:0px;--r-sm:0px;--shadow-hard:4px 4px 0 var(--ink)}
+body.mode-bold .word{font-size:66px}
+body.mode-bold .hud{border-bottom-width:2px}
+body.mode-bold .plate{border-width:2px;box-shadow:4px 4px 0 var(--ink)}
+body.mode-bold .wordcard,body.mode-bold .opt{border-width:2px}
+body.mode-bold .opt{height:72px}
+body.mode-bold .opt:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+body.mode-bold .hp{border-width:2px;height:18px}
+body.mode-bold .grain{opacity:.075}
+
+/* ---------- 8pt 栅格叠加（Tweaks 开关） ---------- */
+body.show-grid .screen::after{content:'';position:absolute;inset:0;z-index:9;pointer-events:none;
+  background-image:repeating-linear-gradient(0deg,rgba(200,40,40,.16) 0 1px,transparent 1px 8px),
+                   repeating-linear-gradient(90deg,rgba(200,40,40,.16) 0 1px,transparent 1px 8px)}
+
+/* ============================================================================
+   规格条（供确认风格与否，不属于游戏画面）
+   ========================================================================== */
+.spec{width:100%;max-width:1320px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s6);
+  display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s6)}
+.spec h3{margin:0 0 var(--s3);font-family:'Novecento';font-weight:600;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.sw{display:flex;align-items:center;gap:var(--s2);margin-bottom:8px;font-size:12.5px;color:var(--ink-soft)}
+.sw i{width:26px;height:26px;border:1px solid var(--line);border-radius:var(--r-sm);flex:0 0 26px}
+.sw code{font-family:'SpaceGrotesk';font-size:12px;color:var(--muted);margin-left:auto}
+.typerow{display:flex;align-items:baseline;gap:var(--s3);margin-bottom:10px}
+.typerow code{font-family:'SpaceGrotesk';font-size:11px;color:var(--muted);margin-left:auto}
+.typerow .d{font-family:'Novecento';font-weight:600}
+.typerow .h{font-family:'HOS';font-weight:900}
+.typerow .b{font-family:'HOS';font-weight:400}
+.typerow .w{font-family:'SpaceGrotesk';font-weight:600}
+.btns{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.btn{font-family:'HOS';font-weight:700;font-size:13px;padding:8px 16px;border-radius:var(--r-sm);border:1px solid var(--ink);cursor:pointer;background:var(--card);color:var(--ink)}
+.btn.pri{background:var(--ink);color:#fffdf9}
+.btn.dan{background:var(--bad);border-color:#8d2c25;color:#fff}
+.btn.gh{background:transparent;border-color:var(--line)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.btn:hover:not([disabled]){box-shadow:var(--shadow-hard);transform:translate(1px,-1px)}
+.btnrow{display:flex;gap:var(--s2);align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.notes{font-size:12.5px;color:var(--ink-soft);line-height:1.7}
+.notes b{font-family:'SpaceGrotesk';font-weight:600}
+.notes .fix{color:var(--ok-text);font-weight:700}
+.notes .bad{color:var(--bad-text);font-weight:700}
+
+/* ---------- Tweaks 面板 ---------- */
+.tweaks{position:fixed;right:20px;bottom:20px;z-index:99;font-family:'HOS'}
+.tweaks .tab{background:var(--ink);color:#fff;border:none;border-radius:var(--r);padding:9px 14px;font-family:'Novecento';
+  font-weight:600;font-size:11px;letter-spacing:.16em;cursor:pointer;box-shadow:var(--shadow-hard)}
+.tweaks .panel{display:none;width:264px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:0 18px 40px rgba(31,32,36,.22);padding:var(--s4);margin-bottom:8px}
+.tweaks.open .panel{display:block}
+.tweaks .grp{margin-bottom:var(--s3)}
+.tweaks .grp:last-child{margin-bottom:0}
+.tweaks label{display:flex;align-items:center;gap:8px;font-size:13px;padding:5px 0;cursor:pointer}
+.tweaks .lbl{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:1180px){.spec{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body class="mode-after">
+
+<div class="desk">
+  <div class="desk-head">
+    <h1>战斗页改造预览 · v0</h1>
+    <p>方向：E-Ink / Paper × Editorial Grid｜内容与游戏一致（第一层 BOSS · 殉道者·安多恩 · 圣环机制）</p>
+    <span class="kbd">右下角 Tweaks 可切换 改造前 / 改造后A / 改造后B</span>
+  </div>
+
+  <div class="viewport">
+    <div class="stage" id="stage">
+      <div class="screen">
+        <div class="vig"></div>
+        <div class="grain"></div>
+
+        <!-- 页眉：统一到所有场景 -->
+        <div class="hud">
+          <span class="pill">B1 / 01</span>
+          <span class="floor">// FLOOR · <b>回声层</b></span>
+          <span class="spacer"></span>
+          <span class="stat">残页 <b>27</b></span>
+          <span class="stat">目标生命 <b>12</b><s>/ 15</s></span>
+          <span class="node">险路恶敌</span>
+        </div>
+
+        <!-- 战场三栏 -->
+        <div class="field">
+          <!-- 左：逻各斯 -->
+          <div class="side">
+            <div class="slot"></div><!-- 与右栏台词槽等高，保证两侧立绘牌顶边对齐 -->
+            <div class="plate left">
+              <div class="corner"></div>
+              <div class="art"></div>
+              <span class="ptag">Player</span>
+            </div>
+            <div class="nameband"><span class="nm">逻各斯</span><span class="lvl">Lv.1</span></div>
+            <div class="hp"><i class="p" style="transform:scaleX(.8)"></i><span class="ticks"></span></div>
+            <div class="hprow">
+              <span class="num">12<small> / 15</small></span>
+              <span class="lab">Target HP</span>
+            </div>
+          </div>
+
+          <!-- 中：题面 -->
+          <div class="center">
+            <div class="wordcard">
+              <div class="wc-head">
+                <span class="tag">// Boss · 词条 07</span>
+                <span class="idx">07 / 12</span>
+              </div>
+              <div class="word">con<span class="mk">sensus</span></div>
+              <div class="rule"></div>
+              <div class="wc-foot">
+                <span class="hint">选择正确的中文释义</span>
+                <span class="sec"><i>Time</i><b>13</b></span>
+              </div>
+              <div class="timer"><i></i><span class="t"></span></div>
+            </div>
+
+            <div class="options">
+              <button class="opt"><span class="key">A</span><span>共识；一致</span></button>
+              <button class="opt is-ok"><span class="key">B</span><span>矛盾；冲突</span></button>
+              <button class="opt is-bad"><span class="key">C</span><span>惯例；习俗</span></button>
+              <button class="opt" disabled><span class="key">D</span><span>（已排除）</span></button>
+            </div>
+
+            <div class="statusline">
+              <span class="chip">连击 <b>×3</b></span>
+              <span class="stamp ok">正确</span>
+              <span class="feedback">圣环 2/3 · 连续答对以击碎圣环</span>
+            </div>
+          </div>
+
+          <!-- 右：敌人 -->
+          <div class="side">
+            <div class="slot"><div class="ribbon"><em>Taunt</em>真义不在你口中，而在你尚未行至之处。</div></div>
+            <div class="plate right">
+              <div class="corner"></div>
+              <div class="art"></div>
+              <span class="ptag">Boss</span>
+            </div>
+            <div class="nameband"><span class="nm">殉道者 · 安多恩</span><span class="lvl">Shield</span></div>
+            <div class="hp"><i class="e" style="transform:scaleX(1)"></i><span class="ticks"></span></div>
+            <div class="hprow">
+              <span class="num">12<small> / 12</small></span>
+              <span class="lab">Enemy HP</span>
+            </div>
+            <div class="mech">
+              <span class="mk">圣环 2/3</span>
+              <span class="pips"><i class="pip"></i><i class="pip"></i><i class="pip off"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 规格条 -->
+  <div class="spec">
+    <div>
+      <h3>Color · 对比度已修</h3>
+      <div class="sw"><i style="background:#f1f0ec"></i>纸底 #f1f0ec<code>--bg</code></div>
+      <div class="sw"><i style="background:#fffdf9"></i>暖白卡 #fffdf9<code>--card</code></div>
+      <div class="sw"><i style="background:#1f2024"></i>墨 #1f2024<code>13.4:1</code></div>
+      <div class="sw"><i style="background:#6b6f76"></i>说明灰 #6b6f76<code>4.6:1 ✓</code></div>
+      <div class="sw"><i style="background:#c9c6bd"></i>细线 #c9c6bd<code>边界可见 ✓</code></div>
+      <div class="sw"><i style="background:#fff44f"></i>标志黄 #fff44f<code>--marker</code></div>
+      <div class="sw"><i style="background:#2f7d3a"></i>文字绿 #2f7d3a<code>4.9:1 ✓</code></div>
+      <div class="sw"><i style="background:#c0392b"></i>文字红 #c0392b<code>4.6:1 ✓</code></div>
+    </div>
+
+    <div>
+      <h3>Type · 字阶</h3>
+      <div class="typerow"><span class="d" style="font-size:26px">B1 / 01</span><code>Novecento 26 · 标签/编号</code></div>
+      <div class="typerow"><span class="h" style="font-size:22px">回声层</span><code>HarmonyOS 900 · 中文标题</code></div>
+      <div class="typerow"><span class="w" style="font-size:30px">consensus</span><code>SpaceGrotesk 30 · 词条</code></div>
+      <div class="typerow"><span class="b" style="font-size:16px">共识；一致</span><code>HarmonyOS 400 · 正文</code></div>
+      <div class="typerow"><span class="w" style="font-size:19px">12 / 15 · 13</span><code>SpaceGrotesk 19 · 数字（等宽）</code></div>
+      <div class="notes" style="margin-top:10px">数字与英文改用 Grotesk/Gilroy，避免中文字体渲染拉丁字母的歪斜；数字等宽后倒计时不再跳动。</div>
+    </div>
+
+    <div>
+      <h3>Components · 按钮三档 + 状态</h3>
+      <div class="btnrow"><button class="btn pri">开始探索</button><button class="btn">返回</button><button class="btn dan">放弃本局</button><button class="btn" disabled>已禁用</button></div>
+      <div class="btnrow"><span class="stamp ok">正确</span><span class="stamp bad">错误</span><span class="chip">连击 <b>×3</b></span></div>
+      <div class="notes">
+        主操作＝墨底白字（全屏唯一）；次操作＝纸白描边；危险＝红。<br />
+        悬停：上浮 1px + 硬阴影长出；按下：下沉 1px + 阴影消失；禁用：40% 且无指针。
+      </div>
+    </div>
+
+    <div>
+      <h3>Notes · 改了什么（与"改造前"逐项对比）</h3>
+      <div class="notes">
+        1. 说明灰 <span class="bad">2.33:1 →</span> <span class="fix">4.6:1</span>；卡片边 <span class="bad">1.25:1 →</span> <span class="fix">可见</span>。<br />
+        2. 启用纸纹 + 极淡暗角（程序化生成，游戏里早已写好却从未调用）。<br />
+        3. 卡片＝1px 墨边 + 3px 实心硬阴影（印刷/工作台质感），圆角 8→4。<br />
+        4. 词卡变"索引卡"：品类标签 + 编号 + 细分隔线 + 倒计时贴下缘带刻度。<br />
+        5. 选项加键位帽/悬停黄条/禁用态；对错反馈改为"图章"。<br />
+        6. 血条与倒计时加刻度；数字统一等宽。<br />
+        7. 新增统一页眉（层名/残页/目标生命/节点），可铺到地图与事件页。<br />
+        8. 台词从"浮空红字"改为墨色缎带。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tweaks -->
+<div class="tweaks" id="tweaks">
+  <div class="panel">
+    <div class="grp">
+      <div class="lbl">Mode</div>
+      <label><input type="radio" name="mode" value="mode-before" /> 改造前（现状）</label>
+      <label><input type="radio" name="mode" value="mode-after" checked /> 改造后 A · 精修纸感</label>
+      <label><input type="radio" name="mode" value="mode-bold" /> 改造后 B · 硬朗印刷</label>
+    </div>
+    <div class="grp">
+      <div class="lbl">Display</div>
+      <label><input type="checkbox" id="tGrid" /> 显示 8pt 栅格</label>
+    </div>
+  </div>
+  <button class="tab" id="tTab">TWEAKS</button>
+</div>
+
+<script>
+/* 舞台等比缩放（固定 1280×720 画布，随窗口缩放，不裁切不变形） */
+const stage = document.getElementById('stage');
+const viewport = document.querySelector('.viewport');
+function fit(){
+  const avail = Math.min(viewport.clientWidth, 1320);
+  const maxH = window.innerHeight - 240;
+  const k = Math.min(avail / 1280, Math.max(0.42, maxH / 720));
+  stage.style.transform = 'scale(' + k + ')';
+  viewport.style.height = (720 * k) + 'px';
+}
+window.addEventListener('resize', fit);
+document.fonts && document.fonts.ready.then(fit);
+fit();
+
+/* Tweaks：模式切换 + 栅格 */
+const body = document.body;
+document.querySelectorAll('input[name="mode"]').forEach(r => {
+  r.addEventListener('change', () => {
+    body.classList.remove('mode-before', 'mode-after', 'mode-bold');
+    body.classList.add(r.value);
+  });
+});
+document.getElementById('tGrid').addEventListener('change', e => body.classList.toggle('show-grid', e.target.checked));
+const tw = document.getElementById('tweaks');
+document.getElementById('tTab').addEventListener('click', () => tw.classList.toggle('open'));
+tw.classList.add('open');
+</script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>巴别残响 · 编辑排版家族（E1–E8）+ 基准 R1</title>
+<style>
+/* ============================================================================
+   编辑/排版家族 —— 以 R1「学术期刊」为基准继续深化（同一家族，不同处理）
+     R1 基准 / E1 期刊深色 / E2 图书馆卡片 / E3 美术馆展签 / E4 报纸头版
+     E5 技术手册 / E6 节目单 / E7 编辑粗体 / E8 深色编辑·暖
+   几何锁死（与游戏一致）：页眉52 | 立绘牌272×264 顶边160(左14/右994)
+     名字带432 血条466 数值480 | 词卡 300~980 × 145~325 | 机制槽位514
+     选项 320×84 中心(468/812,436/536) | 底栏 656/666
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2')format('woff2');font-weight:900}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#cfcdc7;font-family:'HOS',sans-serif;-webkit-font-smoothing:antialiased}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 16px 80px}
+.head{width:100%;max-width:1360px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.head h1{font-size:18px;margin:0;font-weight:900}
+.head p{margin:0;color:#6b6f76;font-size:12.5px}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto;max-width:900px;justify-content:flex-end}
+.tabs button{font-weight:700;font-size:12px;padding:6px 10px;border-radius:3px;cursor:pointer;border:1px solid #b9b6ad;background:#fff;color:#24252a}
+.tabs button.on{background:#101214;color:#fff;border-color:#101214}
+.tabs button.base{border-color:#8c1d1d;color:#8c1d1d}
+.viewport{position:relative;width:100%;max-width:1360px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 20px 54px rgba(0,0,0,.20);overflow:hidden}
+.notes{width:100%;max-width:1360px;background:#fff;border:1px solid #dcdad5;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.8;color:#24252a}
+.notes b{font-weight:900}.notes code{font-family:'Grotesk';font-size:12px}
+
+/* ============ 令牌 ============ */
+body.r1{--bg:#fff;--surface:#fff;--ink:#141414;--muted:#6f6f6f;--rule:#d8d8d8;--accent:#8c1d1d;--on-accent:#fff;
+  --r:0px;--shadow:none;--wF:'Novecento';--wW:600;--wS:56px;--wLS:.02em;--wA:center;--wC:none;
+  --cTop:2px solid var(--ink);--cBot:1px solid var(--rule);--cAll:none;--grain:none}
+/* E1 期刊·深色 */
+body.e1{--bg:#0f1114;--surface:#0f1114;--ink:#eef1f4;--muted:#8d97a1;--rule:#252b31;--accent:#7fb2ff;--on-accent:#07131f;
+  --r:0px;--shadow:none;--wF:'Novecento';--wW:600;--wS:56px;--wLS:.02em;--wA:center;--wC:none;
+  --cTop:2px solid var(--ink);--cBot:1px solid var(--rule);--cAll:none;--grain:none}
+/* E2 图书馆卡片 */
+body.e2{--bg:#efe7d6;--surface:#f8f2e4;--ink:#2f2a22;--muted:#8b8067;--rule:#cdc0a4;--accent:#a8342a;--on-accent:#fdf6e8;
+  --r:0px;--shadow:0 1px 0 rgba(47,42,34,.06);--wF:'Grotesk';--wW:600;--wS:54px;--wLS:.01em;--wA:center;--wC:none;
+  --cTop:1px solid var(--rule);--cBot:1px solid var(--rule);--cAll:1px solid var(--rule);--grain:1}
+/* E3 美术馆展签 */
+body.e3{--bg:#fff;--surface:#fff;--ink:#111;--muted:#8a8a8a;--rule:#e6e6e6;--accent:#e2231a;--on-accent:#fff;
+  --r:0px;--shadow:none;--wF:'Gilroy';--wW:500;--wS:84px;--wLS:-.02em;--wA:center;--wC:none;
+  --cTop:none;--cBot:1px solid #111;--cAll:none;--grain:none}
+/* E4 报纸头版 */
+body.e4{--bg:#f2efe6;--surface:#f2efe6;--ink:#14120f;--muted:#6a6459;--rule:#b9b2a2;--accent:#b3261e;--on-accent:#f6f2e8;
+  --r:0px;--shadow:none;--wF:'Novecento';--wW:700;--wS:64px;--wLS:-.01em;--wA:left;--wC:none;
+  --cTop:4px solid var(--ink);--cBot:1px solid var(--ink);--cAll:none;--grain:1}
+/* E5 技术手册 */
+body.e5{--bg:#fbfbfa;--surface:#fbfbfa;--ink:#1b1f24;--muted:#6b7681;--rule:#d5dae0;--accent:#0b6bcb;--on-accent:#fff;
+  --r:2px;--shadow:none;--wF:'Grotesk';--wW:600;--wS:52px;--wLS:.01em;--wA:left;--wC:none;
+  --cTop:none;--cBot:none;--cAll:1px solid var(--rule);--grain:none}
+/* E6 节目单 */
+body.e6{--bg:#f7f3ea;--surface:#f7f3ea;--ink:#2a2620;--muted:#8a8171;--rule:#d9cfba;--accent:#8a6a2f;--on-accent:#fdf8ee;
+  --r:0px;--shadow:none;--wF:'Novecento';--wW:600;--wS:60px;--wLS:.06em;--wA:center;--wC:none;
+  --cTop:none;--cBot:3px double var(--rule);--cAll:none;--grain:1}
+/* E7 编辑粗体 */
+body.e7{--bg:#fff;--surface:#fff;--ink:#0d0d0d;--muted:#757575;--rule:#0d0d0d;--accent:#e2231a;--on-accent:#fff;
+  --r:0px;--shadow:none;--wF:'Grotesk';--wW:700;--wS:92px;--wLS:-.045em;--wA:left;--wC:uppercase;
+  --cTop:6px solid #0d0d0d;--cBot:none;--cAll:none;--grain:none}
+/* E8 深色编辑·暖 */
+body.e8{--bg:#0f0d0c;--surface:#0f0d0c;--ink:#f2ece4;--muted:#9a9086;--rule:#2a2522;--accent:#d9a24b;--on-accent:#1a1206;
+  --r:0px;--shadow:none;--wF:'Novecento';--wW:600;--wS:58px;--wLS:.03em;--wA:center;--wC:none;
+  --cTop:1px solid var(--rule);--cBot:1px solid var(--rule);--cAll:none;--grain:none}
+
+/* ============ 画面 ============ */
+.screen{position:relative;width:1280px;height:720px;background:var(--bg);color:var(--ink);overflow:hidden}
+.grain{position:absolute;inset:0;pointer-events:none;z-index:6;display:none;mix-blend-mode:multiply;opacity:.28;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/></filter><rect width='180' height='180' filter='url(%23p)' opacity='0.5'/></svg>")}
+body.e2 .grain,body.e4 .grain,body.e6 .grain{display:block}
+
+.hud{position:absolute;left:0;top:0;width:1280px;height:52px;display:flex;align-items:center;gap:16px;padding:0 30px;z-index:5;border-bottom:1px solid var(--rule)}
+.pill{font-family:'Novecento';font-weight:600;font-size:11.5px;letter-spacing:.08em;color:var(--accent);border:1px solid var(--accent);padding:3px 8px;border-radius:var(--r)}
+.floor{font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.floor b{font-family:'HOS';font-weight:700;font-size:13.5px;letter-spacing:.02em;color:var(--ink)}
+.spacer{flex:1}
+.stat{font-family:'Grotesk';font-size:14.5px;letter-spacing:.02em}
+.stat i{font-style:normal;color:var(--muted);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-family:'Novecento';font-weight:600}
+.btn-ghost{font-weight:700;font-size:12.5px;color:var(--ink);background:transparent;border:1px solid var(--rule);padding:6px 16px;border-radius:var(--r);cursor:pointer}
+body.e4 .hud{border-bottom:1px solid var(--ink);border-top:4px solid var(--ink)}
+body.e7 .hud{border-bottom:2px solid #0d0d0d}
+
+/* 立绘：本家族一律"无框化"，只保留一条基准线 —— 让画面像插图页而非头像框 */
+.plate{position:absolute;top:160px;width:272px;height:264px;overflow:hidden;z-index:2;background:transparent}
+.plate.left{left:14px}.plate.right{left:994px}
+body.e2 .plate{background:#3a332a}
+body.e4 .plate .art{filter:grayscale(1) contrast(1.35)}
+body.e6 .plate .art{filter:sepia(.35) contrast(1.02)}
+body.e8 .plate .art{filter:saturate(.8) brightness(.96)}
+.plate .art{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background-repeat:no-repeat;background-position:0 0}
+.plate.left .art{width:150px;height:196px;background-image:url('../assets/img/logos-idle.png');background-size:2250px 1960px}
+.plate.right .art{width:190px;height:202px;background-image:url('../assets/img/andoain-idle.png');background-size:1900px 2020px;transform:translate(-50%,-50%) scaleX(-1)}
+.plate .base{position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--rule)}
+body.e7 .plate .base{height:2px;background:#0d0d0d}
+body.e3 .plate .base{height:1px;background:#111}
+
+.nameband{position:absolute;top:434px;width:272px;display:flex;align-items:baseline;z-index:3}
+.nameband.left{left:14px}.nameband.right{left:994px}
+.nameband .nm{font-weight:700;font-size:16px;color:var(--ink)}
+body.r1 .nameband .nm,body.e1 .nameband .nm,body.e4 .nameband .nm,body.e6 .nameband .nm,body.e8 .nameband .nm{font-family:'Novecento';font-weight:600;font-size:15px;letter-spacing:.05em}
+body.e3 .nameband .nm{font-weight:700;font-size:15px;letter-spacing:-.01em}
+body.e5 .nameband .nm{font-family:'Grotesk';letter-spacing:.03em;font-size:15px}
+body.e7 .nameband .nm{font-weight:900;font-size:18px;letter-spacing:-.02em}
+.hp{position:absolute;top:466px;width:272px;height:1px;background:var(--rule);z-index:3;overflow:hidden}
+.hp.left{left:14px}.hp.right{left:994px}
+.hp i{position:absolute;inset:0;transform-origin:left center;background:var(--accent)}
+body.r1 .hp i.p,body.e1 .hp i.p{background:#5cc5e8}
+body.e3 .hp{height:2px;background:#e6e6e6}
+body.e4 .hp{height:3px;background:#cfc7b4}
+body.e7 .hp{height:5px;background:#e8e8e8}
+body.e5 .hp{height:3px;background:#e3e8ee}
+body.e8 .hp{height:2px}
+.numrow{position:absolute;top:478px;width:272px;display:flex;align-items:baseline;z-index:3}
+.numrow.left{left:14px}.numrow.right{left:994px}
+.numrow .n{font-family:'Grotesk';font-weight:600;font-size:17px;color:var(--ink);letter-spacing:.02em}
+.numrow .l{margin-left:auto;font-family:'Novecento';font-weight:600;font-size:9.5px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase}
+body.r1 .numrow .n,body.e1 .numrow .n{font-size:15px;color:var(--accent)}
+body.e3 .numrow .n{font-weight:500;font-size:14px;color:var(--muted)}
+body.e4 .numrow .n{font-size:20px;font-weight:600}
+body.e7 .numrow .n{font-size:22px;font-weight:700}
+body.e8 .numrow .n{font-size:15px;color:var(--accent)}
+
+/* 题面卡 */
+.card{position:absolute;left:300px;top:145px;width:680px;height:180px;background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);
+  border-top:var(--cTop);border-bottom:var(--cBot);z-index:4}
+body.e2 .card{border:1px solid var(--rule);border-top:1px solid var(--rule)}
+body.e5 .card{border:1px solid var(--rule)}
+body.e7 .card{border-top:6px solid #0d0d0d;border-bottom:1px solid #e8e8e8}
+.card .word{position:absolute;left:36px;right:36px;top:80px;transform:translateY(-50%);color:var(--ink);
+  font-family:var(--wF);font-weight:var(--wW);font-size:var(--wS);letter-spacing:var(--wLS);text-align:var(--wA);text-transform:var(--wC);line-height:1}
+body.e3 .card .word{top:78px}
+body.e7 .card .word{left:28px;right:28px;top:84px}
+body.e6 .card .word{top:76px}
+.card .rule{position:absolute;left:36px;right:36px;top:120px;height:1px;background:var(--rule)}
+body.r1 .card .rule{background:var(--ink)}
+body.e3 .card .rule{background:#111}
+body.e4 .card .rule{background:var(--ink);height:1px}
+body.e6 .card .rule{height:3px;background:transparent;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+body.e7 .card .rule{background:#e8e8e8}
+.card .hint{position:absolute;left:36px;top:142px;transform:translateY(-50%);font-size:12.5px;color:var(--muted)}
+body.r1 .card .hint,body.e1 .card .hint,body.e4 .card .hint,body.e8 .card .hint{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.2em;text-transform:uppercase}
+body.e3 .card .hint{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+body.e5 .card .hint{font-family:'Grotesk';font-size:11px;letter-spacing:.08em}
+body.e6 .card .hint{font-size:11.5px;letter-spacing:.1em}
+body.e7 .card .hint{font-weight:700;color:#0d0d0d;letter-spacing:.02em}
+.card .sec{position:absolute;right:36px;top:142px;transform:translateY(-50%);font-family:'Grotesk';font-weight:600;font-size:19px;color:var(--ink)}
+body.r1 .card .sec,body.e1 .card .sec{font-family:'Novecento';font-size:18px;color:var(--accent)}
+body.e3 .card .sec{font-weight:500;font-size:16px;color:var(--muted)}
+body.e4 .card .sec{font-size:24px}
+body.e7 .card .sec{font-size:28px;font-weight:700}
+body.e8 .card .sec{color:var(--accent);font-size:20px}
+.card .timer{position:absolute;left:36px;right:36px;bottom:9px;height:1px;background:var(--rule);overflow:hidden}
+.card .timer i{position:absolute;left:0;top:0;bottom:0;width:61%;background:var(--accent)}
+body.e3 .card .timer{height:2px;bottom:8px;background:#eee}
+body.e4 .card .timer{height:4px;background:#cfc7b4}
+body.e6 .card .timer{height:2px}
+body.e7 .card .timer{left:28px;right:28px;height:6px;background:#e8e8e8}
+
+/* 机制槽位 */
+.mech{position:absolute;left:994px;top:512px;display:flex;align-items:center;gap:10px;z-index:4}
+.chip{display:inline-flex;align-items:center;height:24px;padding:0 8px;gap:6px;font-family:'Grotesk';font-weight:600;font-size:12px;
+  color:var(--ink);border:1px solid var(--rule);border-radius:var(--r)}
+body.r1 .chip,body.e1 .chip,body.e4 .chip,body.e8 .chip{border:1px solid var(--accent);color:var(--accent)}
+body.e2 .chip{border:1px dashed var(--rule)}
+body.e3 .chip{border:0;border-bottom:1px solid var(--rule);padding:0 2px;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+body.e5 .chip{color:var(--accent);border-color:#cfe0f2}
+body.e7 .chip{border:2px solid #0d0d0d}
+.pips{display:flex;gap:5px}
+.pip{width:9px;height:9px;border-radius:50%;border:1px solid var(--rule)}
+.pip.on{background:var(--accent);border-color:var(--accent)}
+body.e7 .pip{border-radius:0}
+
+/* 作答区：一律"条目化"（去框），把重量交给文字 */
+.opt{position:absolute;width:320px;height:84px;display:flex;align-items:center;color:var(--ink);z-index:4;background:transparent;
+  font-weight:500;font-size:23px;border-bottom:1px solid var(--rule);border-radius:var(--r);
+  transition:border-color .16s,color .16s,background .16s,transform .16s}
+.opt.a{left:308px;top:394px}.opt.b{left:652px;top:394px}.opt.c{left:308px;top:494px}.opt.d{left:652px;top:494px}
+.opt{padding-left:44px;justify-content:flex-start}
+.opt::before{content:attr(data-k);position:absolute;left:10px;font-family:'Novecento';font-weight:600;font-size:12.5px;color:var(--accent);letter-spacing:.06em}
+.opt:hover{border-bottom-color:var(--accent)}
+body.r1 .opt{font-size:22px}
+body.r1 .opt:hover,body.e1 .opt:hover{background:rgba(140,29,29,.05)}
+body.e1 .opt:hover{background:rgba(127,178,255,.07)}
+body.e2 .opt{border-bottom-style:dotted;font-family:'Grotesk';font-size:22px;letter-spacing:.01em}
+body.e2 .opt::before{font-family:'Grotesk'}
+body.e2 .opt:hover{color:var(--accent);border-bottom-color:var(--accent)}
+body.e3 .opt{border-bottom-color:#eee;padding-left:0;font-size:22px}
+body.e3 .opt::before{display:none}
+body.e3 .opt:hover{color:#111;border-bottom-color:#111;background:#fafafa}
+body.e4 .opt{font-weight:700;font-size:22px;border-bottom:1px solid var(--rule);padding-left:38px}
+body.e4 .opt::before{font-size:11px}
+body.e4 .opt:hover{background:#eae6da;border-bottom-color:var(--ink)}
+body.e5 .opt{border:1px solid var(--rule);border-radius:2px;font-size:21px;padding-left:52px;background:#fff}
+body.e5 .opt::before{left:16px;color:var(--muted);font-size:11px}
+body.e5 .opt:hover{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+body.e6 .opt{border-bottom:1px solid var(--rule);justify-content:center;padding-left:0;font-size:22px}
+body.e6 .opt::before{left:12px;color:var(--accent);font-family:'Novecento'}
+body.e6 .opt:hover{background:rgba(138,106,47,.07)}
+body.e7 .opt{border-bottom:2px solid #0d0d0d;font-weight:700;font-size:26px;padding-left:56px;letter-spacing:-.01em}
+body.e7 .opt::before{font-size:22px;left:12px;font-family:'Grotesk';font-weight:700}
+body.e7 .opt:hover{background:#0d0d0d;color:#fff;border-bottom-color:#0d0d0d}
+body.e8 .opt{border-bottom:1px solid var(--rule);font-size:22px}
+body.e8 .opt:hover{background:rgba(217,162,75,.08);border-bottom-color:var(--accent)}
+
+/* 底栏 */
+.foot{position:absolute;left:300px;top:656px;width:680px;height:1px;background:var(--rule);z-index:3}
+.footrow{position:absolute;left:300px;top:666px;width:680px;display:flex;align-items:center;gap:12px;z-index:3}
+.footrow .lab{font-family:'Novecento';font-weight:600;font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+.footrow .c{font-size:12px;color:var(--muted)}
+body.e3 .footrow .c{color:#8a8a8a}
+body.e5 .footrow .c{color:#6b7681;font-family:'Grotesk';font-size:11.5px}
+body.e7 .footrow .c{color:#0d0d0d;font-weight:700}
+</style>
+</head>
+<body class="r1">
+
+<div class="desk">
+  <div class="head">
+    <h1>编辑排版家族（E1–E8）＋ 基准 R1</h1>
+    <p>同一家族内做字号落差 / 线条纪律 / 留白的变体 · 几何锁死</p>
+    <div class="tabs" id="tabs">
+      <button data-s="r1" class="on base">R1 学术期刊（基准）</button>
+      <button data-s="e1">E1 期刊·深色</button>
+      <button data-s="e2">E2 图书馆卡片</button>
+      <button data-s="e3">E3 美术馆展签</button>
+      <button data-s="e4">E4 报纸头版</button>
+      <button data-s="e5">E5 技术手册</button>
+      <button data-s="e6">E6 节目单</button>
+      <button data-s="e7">E7 编辑粗体</button>
+      <button data-s="e8">E8 深色编辑·暖</button>
+    </div>
+  </div>
+
+  <div class="viewport"><div class="stage" id="stage">
+    <div class="screen">
+      <div class="grain"></div>
+
+      <div class="hud">
+        <span class="pill">B1 / 01</span>
+        <span class="floor">// FLOOR · <b>回声层</b> · BOSS</span>
+        <span class="spacer"></span>
+        <span class="stat"><i>残页</i> 27</span>
+        <span class="stat"><i>目标生命</i> 12 / 15</span>
+        <button class="btn-ghost">返回</button>
+      </div>
+
+      <div class="plate left"><div class="art"></div><div class="base"></div></div>
+      <div class="nameband left"><span class="nm">逻各斯</span></div>
+      <div class="hp left"><i class="p" style="transform:scaleX(.8)"></i></div>
+      <div class="numrow left"><span class="n">12 / 15</span><span class="l">目标生命</span></div>
+
+      <div class="plate right"><div class="art"></div><div class="base"></div></div>
+      <div class="nameband right"><span class="nm">殉道者 · 安多恩</span></div>
+      <div class="hp right"><i class="e" style="transform:scaleX(1)"></i></div>
+      <div class="numrow right"><span class="n">12 / 12</span><span class="l">ENEMY HP</span></div>
+
+      <div class="mech"><span class="chip">圣环 2/3</span>
+        <span class="pips"><i class="pip on"></i><i class="pip on"></i><i class="pip"></i></span></div>
+
+      <div class="card">
+        <div class="word">attitude</div>
+        <div class="rule"></div>
+        <div class="hint">连续答对题目以击碎圣环</div>
+        <div class="sec">11</div>
+        <div class="timer"><i></i></div>
+      </div>
+
+      <div class="opt a" data-k="01">重要的；重大的</div>
+      <div class="opt b" data-k="02">日落；傍晚</div>
+      <div class="opt c" data-k="03">栖息地；产地</div>
+      <div class="opt d" data-k="04">态度；看法</div>
+
+      <div class="foot"></div>
+      <div class="footrow"><span class="lab">藏品</span>
+        <span class="c">破环之诫</span><span class="c">迅捷之羽</span><span class="c">凝视之瞳</span></div>
+    </div>
+  </div></div>
+
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+const NOTES={
+ 'r1':'<b>R1 学术期刊（基准，保留）</b>：白纸 + 深红唯一强调。卡片只有 <b>2px 顶线 + 1px 底线</b>；词条居中宽体；选项去框成"条目"（细底线 + 左侧 01/02）；血条 1px；立绘无框、只留一条基准线。',
+ 'e1':'<b>E1 期刊·深色</b>：R1 的反相。近黑纸 + 冷白字 + <b>淡蓝强调</b>；同样的线条纪律放在暗底上，像学术期刊的夜间模式，安静且高级（也解决"黑底立绘突兀"）。',
+ 'e2':'<b>E2 图书馆卡片</b>：米黄卡纸 + <b>打字机等宽</b>标签 + 点状下划线；选项像借书卡条目，朱红做唯一强调；纸纹轻微。老派知识感。',
+ 'e3':'<b>E3 美术馆展签</b>：纯白 + <b>超大细体词条（84px）</b> + 极小 11px 大写字距标签，对比拉到极致；卡片只有一条黑色底线（像展墙的挂线）；选项是"作品清单"——无框、无序号、只留极淡分隔与红色悬停。',
+ 'e4':'<b>E4 报纸头版</b>：报纸灰 + <b>4px 顶栏黑线</b> + 粗黑标题 + 密排条目；唯一红作栏标；字号落差中等但密度最高，信息感最强。',
+ 'e5':'<b>E5 技术手册</b>：白 + 蓝灰 + <b>编号系统（01/02 + §）</b>；选项是有框的表格行，悬停出现蓝色左竖线；数字等宽。最"工具"的一套。',
+ 'e6':'<b>E6 节目单</b>：米白 + 暖金 + <b>3px 双线</b>与宽字距居中排版；选项也居中，像节目单的曲目列。优雅、有仪式感。',
+ 'e7':'<b>E7 编辑粗体</b>：白 + 纯黑 + 红。词条 <b>92px 极紧字距全大写</b>、卡片 6px 黑顶线；选项 2px 底线 + 巨大序号，悬停<b>整行反白</b>。冲击力最强，最"当代设计"。',
+ 'e8':'<b>E8 深色编辑·暖</b>：近黑 + 暖金 + 宽字距标题；线条极细、层级靠字重与留白；像精装书内页在暖光下。深色系里最"贵"的一套。'
+};
+const tabs=document.getElementById('tabs'),notes=document.getElementById('notes');
+function setScheme(s){document.body.className=s;
+  tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
+  notes.innerHTML=NOTES[s]||'';}
+tabs.addEventListener('click',e=>{if(e.target.dataset.s)setScheme(e.target.dataset.s)});
+setScheme('r1');
+const stage=document.getElementById('stage'),vp=document.querySelector('.viewport');
+function fit(){const k=Math.min(vp.clientWidth/1280,Math.max(.42,(window.innerHeight-320)/720));
+  stage.style.transform='scale('+k+')';vp.style.height=(720*k)+'px';}
+window.addEventListener('resize',fit);document.fonts&&document.fonts.ready.then(fit);fit();
+</script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>幽影 · 字母框重做六版（换掉"白底细框"这个前提）</title>
+<style>
+/* ============================================================================
+   幽影「静默回响」字母框 —— 重做六版
+   ----------------------------------------------------------------------------
+   旧版的问题：五版都只是"白底 + 细线方框"的微调，骨架一样 → 看起来和现方案没差。
+   这一稿直接换前提，六个方向：
+     0 原版对照        白底 + 1px 发丝方框（当前实现，留作基线）
+     1 铅字活字        深色铅字块 + 反白字母 + 微旋转（印刷/词典味）
+     2 墨渍晕染        完全无直线，字母浮在墨晕里，用尽＝墨迹洇开
+     3 碑文拓片        石刻条带；悬停＝打拓（黑底反白）；用尽＝风化
+     4 黑色虚空带      中栏一条黑带，字母是黑里的光（唯一走"实心块"的一版）
+     5 残页碎片        撕裂纸片，每片角度/缺口都不同，用尽＝卷走
+   ★ 另一个开关是【结构】层面的：已拼框放在"词消失的那个位置"(原位) 还是下方（现版下移）。
+      原位＝消散的字母从格子里消失、拼写把字母放回同一格，视觉上是同一件事。
+   ----------------------------------------------------------------------------
+   真实坐标（1280×720，cx=640，cy=360）：页眉 0~52 ／ 词卡下沿黑线 y=325 ／
+   消散字母行 y=219 ／ 已拼框 y=370（格 52）／ 提示 y=448 ／ 字母块 y=510 ／
+   藏品栏分隔 y=656；中栏纪律 cx±340（300~980）；立绘牌 272×264 中心 cx±490
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Light.9981d6.woff2')format('woff2');font-weight:300}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 16px 80px}
+.head{width:100%;max-width:1340px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.head h1{font-size:17px;margin:0;font-weight:900;white-space:nowrap}
+.head p{margin:0;font-size:12px;color:#6f6f6f}
+.tabs{display:flex;gap:5px;flex-wrap:wrap}
+.tabs.grp{margin-left:auto}
+.tabs button{font-family:'HOS';font-weight:700;font-size:12px;padding:6px 11px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#111;color:#fff;border-color:#111}
+.tabs button.red.on{background:#e2231a;border-color:#e2231a}
+.viewport{position:relative;width:100%;max-width:1340px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 18px 50px rgba(0,0,0,.18);overflow:hidden;background:#fff;position:relative}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.85}
+.notes b{font-weight:700}
+.notes .warn{color:#e2231a;font-weight:700}
+
+/* ---------- 游戏骨架（真实位置） ---------- */
+.hud{position:absolute;left:0;top:0;width:1280px;height:52px;border-bottom:1px solid #111;display:flex;align-items:center;gap:14px;padding:0 20px}
+.hud .pill{width:84px;height:26px;background:#fff44f;border:1px solid #1f2024;display:flex;align-items:center;justify-content:center;font-family:'Grotesk';font-size:12px}
+.hud .nm{font-family:'Novecento';font-weight:600;font-size:11px;letter-spacing:.22em;color:#6f6f6f;text-transform:uppercase}
+.hud .right{margin-left:auto;display:flex;gap:22px;font-family:'Grotesk';font-size:15px}
+.hud .back{width:104px;height:34px;border:1px solid #e6e6e6;display:flex;align-items:center;justify-content:center;font-size:14px;color:#24252a}
+.plate{position:absolute;top:160px;width:272px;height:264px;background:#141519;border:1px solid #2a2b30}
+.plate.l{left:14px}.plate.r{left:994px}
+.plate .fold{position:absolute;left:0;top:0;width:16px;height:16px;background:#fff44f;clip-path:polygon(0 0,100% 0,0 100%)}
+.plate .who{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Gilroy';font-weight:300;color:#4a4b52;font-size:13px;letter-spacing:.1em}
+.plate .pname{position:absolute;left:50%;bottom:-46px;transform:translateX(-50%);font-family:'HOS';font-weight:700;font-size:17px;white-space:nowrap}
+.plate .pbar{position:absolute;left:0;bottom:-72px;width:272px;height:16px;background:#fff;border:1px solid #e6e6e6}
+.plate .pbar i{display:block;height:100%;background:#ff625d}
+.plate .pbar.l i{background:#5cc5e8}
+.plate .pnum{position:absolute;left:0;bottom:-96px;font-family:'Grotesk';font-size:20px}
+.plate .plab{position:absolute;right:0;bottom:-96px;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.18em;color:#6f6f6f}
+.cardrule{position:absolute;left:300px;top:325px;width:680px;height:1px;background:#111}
+.cardrule2{position:absolute;left:332px;top:271px;width:616px;height:1px;background:#e6e6e6}
+.cd{position:absolute;left:320px;top:307px;width:640px;height:12px;background:#ececec}
+.cd i{display:block;height:100%;width:62%;background:#f5a623}
+.cd.p2 i{background:#8b0d0b}
+.foot{position:absolute;left:80px;top:656px;width:1120px;height:1px;background:#e6e6e6}
+.foottxt{position:absolute;left:80px;top:668px;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.2em;color:#6f6f6f}
+.guide{position:absolute;border:1px dashed #b9d5ff;pointer-events:none;display:none}
+.guide.on{display:block}
+.guide span{position:absolute;left:0;top:-14px;font-family:'Grotesk';font-size:10px;color:#3b7ddd;white-space:nowrap}
+
+/* ---------- 行位（原位 / 下移共用） ---------- */
+.row{position:absolute;left:0;width:1280px;display:flex;align-items:center;justify-content:center}
+.slot{position:relative;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.hint{position:absolute;left:0;top:440px;width:1280px;text-align:center;font-size:14px;color:#6f6f6f}
+.hint .st{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.2em;color:#e2231a;margin-right:8px}
+.tick{position:absolute;left:0;top:404px;width:1280px;text-align:center;font-family:'Grotesk';font-size:13px;color:#e2231a;opacity:0;transition:opacity .2s}
+.tick.on{opacity:1}
+.done{position:absolute;left:0;width:1280px;text-align:center;font-family:'HOS';font-weight:700;font-size:15px;color:#2f7d3a;opacity:0;transition:opacity .25s}
+.done.on{opacity:1}
+.padnote{position:absolute;left:0;width:1280px;text-align:center;font-family:'Novecento';font-weight:600;font-size:9.5px;letter-spacing:.2em;color:#b9b9b9}
+
+/* 字母块通用 */
+.tile{position:absolute;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;
+  font-family:'Gilroy';font-weight:300;transition:all .16s ease}
+/* 原位模式：字母是纸白色（坐在墨底字窝上），否则墨色 */
+.v1 .wordrow .wc, .v3 .wordrow .wc, .v4 .wordrow .wc{color:#f4efe4}
+.tile.wrong{animation:shakeit .3s}
+@keyframes shakeit{0%,100%{transform:translateX(0) var(--rot,rotate(0deg))}25%{transform:translateX(-3px) var(--rot,rotate(0deg))}75%{transform:translateX(3px) var(--rot,rotate(0deg))}}
+
+/* ======================= 0 原版对照（发丝格律） ======================= */
+.v0 .slot{border:1px solid #e6e6e6;background:#fff}
+.v0 .tile{background:#fff;border:1px solid #e6e6e6}
+.v0 .tile:hover{border-color:#e2231a;color:#e2231a}
+.v0 .tile.done{background:#fbfbfb;border-style:dashed;color:#d8d8d8;cursor:default}
+.v0 .slot.spelled{border-color:#111}
+
+/* ======================= 1 铅字活字（letterpress） ======================= */
+.v1 .slot, .v1 .tile{background:#16161a;color:#f4efe4;font-weight:500;
+  box-shadow:inset 0 -2px 0 rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08), 0 1px 0 rgba(0,0,0,.18)}
+.v1 .tile{transform:var(--rot,rotate(0deg))}
+.v1 .tile:hover{background:#e2231a;color:#fff;transform:rotate(0deg) translateY(-3px);
+  box-shadow:inset 0 -2px 0 rgba(0,0,0,.4), 0 4px 10px rgba(226,35,26,.28)}
+.v1 .tile.done{background:#fbfaf7;color:#e4e0d6;box-shadow:inset 0 0 0 1px #eeece7;cursor:default;transform:rotate(0deg)}
+.v1 .slot{box-shadow:inset 0 -2px 0 rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08)}
+.v1 .slot.empty{background:#fbfaf7;box-shadow:inset 0 0 0 1px #eeece7;color:#d8d5cd}
+
+/* ======================= 2 墨渍晕染（ink wash） ======================= */
+.v2 .slot, .v2 .tile{background:radial-gradient(circle at 46% 44%, rgba(17,17,17,.09), rgba(17,17,17,.03) 58%, rgba(17,17,17,0) 78%);
+  border:0;border-radius:50%;color:#111}
+.v2 .tile{font-weight:300}
+.v2 .tile:hover{background:radial-gradient(circle at 46% 44%, rgba(226,35,26,.22), rgba(226,35,26,.06) 60%, rgba(226,35,26,0) 80%);
+  color:#e2231a;filter:saturate(1.1)}
+.v2 .tile.done{background:radial-gradient(circle at 50% 50%, rgba(17,17,17,.05) 0 42%, rgba(17,17,17,.02) 62%, rgba(17,17,17,0) 82%);
+  color:#eaeaea;cursor:default;filter:blur(.3px)}
+.v2 .slot{--
+}
+
+/* ======================= 3 碑文拓片（inscription） ======================= */
+.v3 .band{position:absolute;left:300px;width:680px;background:#f7f6f1;border-top:1px solid #e6e6e6;border-bottom:1px solid #e6e6e6;
+  background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.035) 0 1px,transparent 1px 7px),
+                   repeating-linear-gradient(0deg,rgba(0,0,0,.03) 0 1px,transparent 1px 6px)}
+.v3 .slot, .v3 .tile{color:#111;font-weight:500;border-right:1px solid rgba(0,0,0,.06);
+  text-shadow:0 1px 0 #fff, 0 -1px 0 rgba(0,0,0,.18)}
+.v3 .tile:hover{background:#16161a;color:#f4efe4;text-shadow:none}
+.v3 .tile.done{color:#dedad2;text-shadow:0 1px 0 #fff;cursor:default;
+  background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.05) 0 2px,transparent 2px 5px)}
+.v3 .slot{color:#111}
+.v3 .slot.empty{color:#e6e2da}
+
+/* ======================= 4 黑色虚空带（void band） ======================= */
+.v4 .band{position:absolute;left:300px;width:680px;background:#0e0e11;box-shadow:0 10px 26px rgba(0,0,0,.25) inset}
+.v4 .slot, .v4 .tile{color:#f2ece1;font-weight:300;background:transparent}
+.v4 .tile:hover{color:#e2231a;text-shadow:0 0 14px rgba(226,35,26,.55)}
+.v4 .tile.done{color:rgba(242,236,225,.10);cursor:default}
+.v4 .slot.empty{color:rgba(242,236,225,.22);
+  background-image:radial-gradient(circle at 50% 60%, rgba(242,236,225,.06), transparent 70%)}
+
+/* ======================= 5 残页碎片（torn shards） ======================= */
+.v5 .tile, .v5 .slot{background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.10);color:#111;
+  clip-path:polygon(2% 6%, 96% 0%, 100% 88%, 88% 100%, 6% 96%, 0% 16%)}
+.v5 .tile{transform:var(--rot,rotate(0deg))}
+.v5 .tile:hover{transform:rotate(0deg) translateY(-4px);box-shadow:0 8px 16px rgba(0,0,0,.16);
+  clip-path:polygon(0 0,100% 2%,98% 100%,4% 96%);color:#e2231a}
+.v5 .tile.done{background:#fbfbfb;color:#dcdcdc;box-shadow:none;cursor:default;transform:rotate(0deg) scale(.82);
+  clip-path:polygon(6% 22%, 92% 12%, 100% 74%, 78% 96%, 12% 88%, 2% 34%)}
+.v5 .slot{box-shadow:none;background:#fbfbfb;color:#dcdcdc}
+.v5 .slot.empty{background:repeating-linear-gradient(135deg,#fafafa 0 5px,#fff 5px 10px)}
+</style>
+</head>
+<body>
+
+<div class="desk">
+  <div class="head">
+    <h1>幽影 · 字母框重做（六版）</h1>
+    <p>旧版问题：五版都只是"白底+细线框"的微调。<b>这稿换前提</b>：铅字／墨渍／碑文／黑带／碎片。</p>
+    <div class="tabs grp" id="tabs">
+      <button data-v="1" class="on">1 铅字活字 ★已选</button>
+      <button data-v="0">0 原版对照</button>
+      <button data-v="2">2 墨渍晕染</button>
+      <button data-v="3">3 碑文拓片</button>
+      <button data-v="4">4 黑色虚空带</button>
+      <button data-v="5">5 残页碎片</button>
+    </div>
+  </div>
+  <div class="head">
+    <div class="tabs" id="phases">
+      <button data-p="1" class="on red">阶段一（HP &gt; 17）</button>
+      <button data-p="2" class="red">阶段二（HP ≤ 17）</button>
+    </div>
+    <div class="tabs" id="words">
+      <button data-w="memory" class="on">短词 memory</button>
+      <button data-w="silence">中词 silence</button>
+      <button data-w="achievement">长词 achievement</button>
+    </div>
+    <div class="tabs" id="lays">
+      <button data-l="slot" class="on">结构：已拼框在“词消失处”</button>
+      <button data-l="below">结构：已拼框在下方（现版）</button>
+    </div>
+    <div class="tabs">
+      <button id="replay">▶ 重播消散</button>
+      <button id="gbtn">辅助线</button>
+    </div>
+  </div>
+  <div class="viewport"><div class="stage" id="stage"></div></div>
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+/* ------------------------------------------------------------------ 数据 ---- */
+const WORDS = { memory: 1, silence: 1, achievement: 1 };
+const DISTINCT = w => Array.from(new Set(w.split('')));
+const ALPHA = Array.from({length: 26}, (_, i) => String.fromCharCode(97 + i));
+const ghosts = (w, n) => ALPHA.filter(c => w.indexOf(c) < 0).slice(0, n);
+function stableShuffle(arr) {           /* 预览固定乱序，方便反复对比 */
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = (i * 7 + 3) % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+/* 与游戏同一套公式：laneW 660 / 阶段一 gap 10 块 40~68 / 阶段二 排 3 行 gap 6 块 ≤60 */
+function grid(count, gap, opts) {
+  const o = opts || {};
+  const laneW = 660;
+  const rowsWant = o.rows || 1;
+  const cols = Math.max(1, Math.ceil(count / rowsWant));
+  const maxKey = o.maxKey || 68;
+  const tileSize = Math.max(34, Math.min(maxKey, Math.floor((laneW - (cols - 1) * gap) / cols)));
+  const maxPerRow = Math.max(1, Math.floor((laneW + gap) / (tileSize + gap)));
+  const rows = o.rows ? rowsWant : Math.ceil(count / Math.min(count, maxPerRow));
+  const colsUsed = o.rows ? cols : Math.min(count, maxPerRow);
+  return { tileSize, cols: colsUsed, rows, rowW: colsUsed * tileSize + (colsUsed - 1) * gap, gap };
+}
+/* 原位模式：格子按词长切，格宽 = clamp(620/n, 34, 76)，字号 ≤ 格宽*0.8（保证字落在格里） */
+function slotMetrics(n) {
+  const cell = Math.max(34, Math.min(76, Math.round(620 / n)));
+  const font = Math.min(80, Math.round(cell * 0.8));
+  return { cell, font, total: cell * n };
+}
+/* 下移模式：词用大字（同游戏 _setupSilence 的自适应），框 52 */
+function bigFont(n) {
+  let size = 80;
+  const est = () => n * 0.55 * size;
+  if (est() > 600) size = Math.max(30, size * (600 / est()));
+  if (est() > 600) size = Math.max(22, size * (600 / est()));
+  return Math.round(size);
+}
+const TILES_TOP = 510;
+
+/* ------------------------------------------------------------ 渲染状态 ---- */
+const S = { v: '1', phase: 1, word: 'achievement', lay: 'slot', built: [], remain: {}, guide: false, timers: [] };
+const V_NAME = { '0': '0 原版对照', '1': '1 铅字活字', '2': '2 墨渍晕染', '3': '3 碑文拓片', '4': '4 黑色虚空带', '5': '5 残页碎片' };
+
+function tilesFor() {
+  if (S.phase === 2) return ALPHA.map(c => ({ ch: c, pad: true }));
+  const real = DISTINCT(S.word);
+  return stableShuffle(real.concat(ghosts(S.word, 4))).map(c => ({ ch: c, fake: real.indexOf(c) < 0 }));
+}
+/* 每块的确定性随机量（角度/大小），让"活字"和"碎片"看起来是物理摆放的 */
+function rnd(i, seed) { const x = Math.sin((i + 1) * (seed * 12.9898)) * 43758.5453; return x - Math.floor(x); }
+/* 与游戏 _silenceJitter(i, deg, minDeg) 同一套算法：±deg、且有最小倾斜 → 每块都看得出歪 */
+function jitter(i, deg, minDeg) {
+  const v = Math.sin((i + 1) * 12.9898) * 43758.5453;
+  const n = v - Math.floor(v) - 0.5;
+  const mag = Math.abs(n) * 2, sign = n < 0 ? -1 : 1, m = Math.min(minDeg == null ? 0 : minDeg, deg);
+  return sign * (m + mag * (deg - m));
+}
+const TILE_TILT = { deg: 3.5, min: 1.2, dy: 2 };   /* 字母块：±3.5°（最小 1.2°）+ 上下错位 ±2px */
+const SLOT_TILT = { deg: 1.4, min: 0.5 };          /* 字窝/字母：±1.4°（最小 0.5°） */
+
+const stage = document.getElementById('stage');
+const notes = document.getElementById('notes');
+
+/* ---------------------------------------------------------------- 渲染 ---- */
+function render() {
+  S.timers.forEach(t => clearTimeout(t)); S.timers = [];
+  S.built = []; S.remain = {};
+  for (const c of S.word.split('')) S.remain[c] = (S.remain[c] || 0) + 1;
+
+  const word = S.word, n = word.length, tiles = tilesFor();
+  const pad = S.phase === 2;
+  /* 与游戏同一套规则：阶段二 a–z 排 **3 行（9/9/8）/ 单键 ≤60px**；
+     阶段一优先单行，若单行会把键压到 <52px 就自动折两行（13 块单行只有 41px，太小） */
+  const gapT = pad ? 6 : 10;
+  const rowsT = pad ? 3 : ((Math.floor((660 - (tiles.length - 1) * gapT) / Math.max(1, tiles.length)) >= 52) ? 1 : 2);
+  const G = grid(tiles.length, gapT, { rows: rowsT, maxKey: pad ? 60 : 68 });
+  const SM = slotMetrics(n);
+  const inSlot = S.lay === 'slot';
+  const rowTop = inSlot ? 219 : 370;                 /* 原位＝词那一行；下移＝现版 */
+  const slotSize = inSlot ? SM.cell : 52;
+  const wordFont = inSlot ? SM.font : bigFont(n);
+  const rowW = slotSize * n;
+  const rowL = 640 - rowW / 2;
+  const startX = 640 - G.rowW / 2;
+  const tilesTop = pad ? 450 : (rowsT === 2 ? 478 : 510);   /* 3 行键面上移；底边 ≤ cy+282 < 藏品栏 cy+296 */
+
+  stage.className = 'stage v' + S.v + (S.phase === 2 ? ' p2' : '');
+
+  let h = '';
+  /* 骨架 */
+  h += '<div class="hud"><span class="pill">B2 / 01</span>'
+    + '<span class="nm">// 回响层 · ' + (S.phase === 2 ? '静默回响 II' : '静默回响 I') + '</span>'
+    + '<span class="right"><span>残页 21</span><span>目标生命 8 / 15</span></span>'
+    + '<span class="back">返回</span></div>'
+    + '<div class="plate l"><span class="fold"></span><span class="who">LOGOS</span><span class="pname">逻各斯</span>'
+    + '<span class="pbar l"><i style="width:53%"></i></span><span class="pnum">8 / 15</span><span class="plab">目标生命</span></div>'
+    + '<div class="plate r"><span class="fold"></span><span class="who">PHANTOM</span>'
+    + '<span class="pname" style="color:#ff625d">幽影</span>'
+    + '<span class="pbar"><i style="width:' + (S.phase === 2 ? '35' : '72') + '%"></i></span>'
+    + '<span class="pnum">' + (S.phase === 2 ? '12 / 34' : '24.5 / 34') + '</span><span class="plab">ENEMY HP</span></div>'
+    + '<span class="cardrule2"></span><span class="cardrule"></span>'
+    + '<span class="cd' + (S.phase === 2 ? ' p2' : '') + '"><i></i></span>'
+    + '<span class="foot"></span><span class="foottxt">// 藏品 2 件</span>';
+
+  /* 碑文 / 黑带 需要一条"条带"垫在字后面 */
+  if (S.v === '3' || S.v === '4') {
+    const bandTop = rowTop - slotSize / 2 - (inSlot ? 10 : 8);
+    const bandH = slotSize + (inSlot ? 20 : 16);
+    h += '<div class="band" style="top:' + bandTop + 'px;height:' + bandH + 'px"></div>';
+  }
+
+  /* 已拼框（原位：与词同一行；下移：y=370）——铅字版带轻微摆放角，与字母一致 */
+  let rowHtml = '';
+  for (let i = 0; i < n; i++) {
+    const slotRot = (S.v === '1') ? ' rotate(' + jitter(i, SLOT_TILT.deg, SLOT_TILT.min).toFixed(2) + 'deg)'
+      : (S.v === '5' ? ' rotate(' + (rnd(i, 3) * 5 - 2.5).toFixed(2) + 'deg)' : ' rotate(0deg)');
+    rowHtml += '<span class="slot' + (i < S.built.length ? ' spelled' : ' empty') + '" data-s="' + i + '"'
+      + ' style="width:' + slotSize + 'px;height:' + slotSize + 'px;font-size:' + wordFont + 'px;transform:' + slotRot + '">'
+      + (i < S.built.length ? S.built[i] : '') + '</span>';
+  }
+  h += '<div class="row" style="left:0;top:' + rowTop + 'px;height:' + slotSize + 'px">' + rowHtml + '</div>';
+
+  /* 下移模式才单独画"消散字母行"；原位模式里字母就落在格子上 */
+  if (!inSlot) {
+    h += '<div class="row" id="wordrow" style="top:219px;height:80px">'
+      + word.split('').map((c, i) => '<span class="wc" data-i="' + i + '" style="font-family:Gilroy;font-weight:300;font-size:' + bigFont(n) + 'px;line-height:1;transition:opacity .3s linear">' + c + '</span>')
+        .join('') + '</div>';
+  } else {
+    /* 原位模式：格子里显示字母；拼上后替换成已拼字母（视觉上是同一件事） */
+    h += '<div class="row" id="wordrow" style="top:' + rowTop + 'px;height:' + slotSize + 'px;pointer-events:none">'
+      + word.split('').map((c, i) => '<span class="wc" data-i="' + i + '" style="font-family:Gilroy;font-weight:300;font-size:' + wordFont + 'px;line-height:1;width:' + slotSize + 'px;display:flex;align-items:center;justify-content:center;transition:opacity .3s linear;color:inherit">' + c + '</span>')
+        .join('') + '</div>';
+  }
+
+  /* 提示 + 反馈 */
+  h += '<div class="hint" style="top:' + (pad ? 420 : 440) + 'px"><span class="st">SILENT ECHO</span>'
+    + (S.phase === 2 ? '字母已被吞没 —— 用 a–z 全盘默写这个词' : '看一瞬 —— 字母正在消散，还要辨出哪些是假的') + '</div>'
+    + '<div class="tick" id="tick">拼写错误 −1 秒</div>'
+    + '<div class="done" id="done" style="top:' + (tilesTop + G.rows * (G.tileSize + G.gap) + 34) + 'px">拼写完成 ✓</div>';
+
+  /* 字母块 */
+  h += '<div class="row" style="top:0;height:0">';
+  tiles.forEach((t, i) => {
+    const col = i % G.cols, row = Math.floor(i / G.cols);
+    const x = startX + col * (G.tileSize + G.gap);
+    /* 铅字版：±3.5°（最小 1.2°）摆放角 + 上下错位 ±2px，像手摆在字盘里 */
+    const dy = (S.v === '1') ? jitter(i * 31 + 7, 1, 0) * TILE_TILT.dy : 0;
+    const y = tilesTop + row * (G.tileSize + G.gap) + dy;
+    const fsT = Math.max(18, Math.round(G.tileSize * 0.62));
+    const rot = (S.v === '1') ? (jitter(i, TILE_TILT.deg, TILE_TILT.min).toFixed(2) + 'deg')
+      : (S.v === '5' ? ((rnd(i, 7) * 5 - 2.5).toFixed(2) + 'deg') : '0deg');
+    h += '<span class="tile" data-i="' + i + '" data-ch="' + t.ch + '" style="left:' + x + 'px;top:' + y + 'px;'
+      + 'width:' + G.tileSize + 'px;height:' + G.tileSize + 'px;font-size:' + fsT + 'px;--rot:rotate(' + rot + ')">'
+      + t.ch + '</span>';
+  });
+  h += '</div>';
+  if (S.phase === 2) {
+    h += '<div class="padnote" style="top:' + (tilesTop + G.rows * (G.tileSize + G.gap) + 8) + 'px">A – Z &nbsp;·&nbsp; 26 KEYS &nbsp;·&nbsp; 字母表序</div>';
+  }
+
+  /* 辅助线 */
+  h += '<span class="guide' + (S.guide ? ' on' : '') + '" style="left:300px;top:100px;width:680px;height:520px"><span>中栏 cx±340 = 300~980</span></span>'
+    + '<span class="guide' + (S.guide ? ' on' : '') + '" style="left:994px;top:160px;width:272px;height:264px"><span>敌军立绘牌</span></span>'
+    + '<span class="guide' + (S.guide ? ' on' : '') + '" style="left:80px;top:656px;width:1120px;height:1px"><span>藏品栏分隔 y=656</span></span>';
+
+  stage.innerHTML = h;
+  bind();
+  layoutWordRow();
+  playDissolve();
+}
+
+/* 下移模式：把消散字母行水平居中（保持游戏里"整词居中"的手感） */
+function layoutWordRow() {
+  const row = document.getElementById('wordrow');
+  if (!row || S.lay === 'slot') return;
+  row.style.justifyContent = 'center';
+  row.style.gap = '2px';
+}
+
+/* ---------------------------------------------------------------- 交互 ---- */
+function bind() {
+  stage.querySelectorAll('.tile').forEach(el => {
+    el.addEventListener('click', () => {
+      const ch = el.dataset.ch;
+      if (el.classList.contains('done')) return;
+      const need = S.word[S.built.length];
+      if (ch === need) {
+        S.built.push(ch);
+        if (S.remain[ch] != null) {
+          S.remain[ch] = Math.max(0, S.remain[ch] - 1);
+          if (S.remain[ch] <= 0) stage.querySelectorAll('.tile[data-ch="' + ch + '"]').forEach(x => x.classList.add('done'));
+        }
+        const slot = stage.querySelector('.slot[data-s="' + (S.built.length - 1) + '"]');
+        if (slot) { slot.textContent = ch; slot.classList.remove('empty'); slot.classList.add('spelled'); }
+        /* 原位模式：这一格的"消散字母"就该消失（与拼写同步） */
+        const wc = stage.querySelector('.wc[data-i="' + (S.built.length - 1) + '"]');
+        if (wc && S.lay === 'slot') wc.style.opacity = '0';
+        if (S.built.length === S.word.length) document.getElementById('done').classList.add('on');
+      } else {
+        el.classList.add('wrong');
+        setTimeout(() => el.classList.remove('wrong'), 320);
+        const t = document.getElementById('tick');
+        t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 700);
+      }
+    });
+  });
+}
+
+/* 消散：阶段一 右→左；阶段二 两端→中间（与游戏一致） */
+function playDissolve() {
+  S.timers.forEach(t => clearTimeout(t)); S.timers = [];
+  const chars = Array.from(stage.querySelectorAll('#wordrow .wc'));
+  chars.forEach(c => { c.style.opacity = '1'; });
+  const n = chars.length, order = [];
+  if (S.phase === 2) { let lo = 0, hi = n - 1; while (lo <= hi) { order.push(hi); if (hi !== lo) order.push(lo); hi--; lo++; } }
+  else { for (let i = n - 1; i >= 0; i--) order.push(i); }
+  /* 与游戏一致：消散间隔用 dissolveMs（阶段一 490 / 阶段二 350），条长预算另算（700/500） */
+  const show = S.phase === 2 ? 900 : 1200, per = S.phase === 2 ? 350 : 490;
+  order.forEach((idx, k) => {
+    S.timers.push(setTimeout(() => {
+      const c = chars[idx];
+      if (!c) return;
+      /* 已拼到的格子不该被消散动画盖掉 */
+      if (S.lay === 'slot' && idx < S.built.length) return;
+      c.style.opacity = '0';
+    }, show + k * per));
+  });
+}
+
+/* ------------------------------------------------------------------ 说明 ---- */
+const NOTES = {
+ '0': '<b>0 原版对照（发丝格律）</b>——当前实现的基线：白底 + 1px 发丝方框 + 用尽变虚线。留着是为了让你直接对比"新五版到底差多少"。',
+ '1': '<b>1 铅字活字（letterpress）</b>：每块是<b>一枚深色铅字</b>——墨底反白字母、下沿一条内阴影（铅字侧面）、每块有 ±1.2° 的<b>摆放角度</b>；悬停时<b>翻成红墨并转正抬起</b>；用尽的块变成<b>纸白空字模</b>（油墨已干）。'
+   + '<br><b>为什么不像旧版</b>：块从"浅色描边"变成"<b>深色实心</b>"，整排看起来像一块<b>排字盘</b>，与纸上其他元素对比强烈。<b>风险</b>：深色块排成 13 个会有点重；二阶段 26 键会很像老式键盘（也可以当成优点）。',
+ '2': '<b>2 墨渍晕染（ink wash）</b>：<b>一根直线都没有</b>——字母浮在一团淡淡墨晕上（径向渐变 + 圆形），悬停时墨晕<b>泛红加深</b>、字母锐起来；用尽的块<b>墨迹洇开</b>（晕圈变大变淡、字母退成水痕）。'
+   + '<br><b>为什么不像旧版</b>：完全没有"框／格"的概念，靠墨色深浅暗示可点区域，整页只剩文字与墨。<b>风险</b>：可点范围全靠墨晕，密排 26 键时会显得"糊成一片"，需要靠间距拉开。',
+ '3': '<b>3 碑文拓片（inscription）</b>：字后面垫一条<b>石刻条带</b>（细密石纹 + 上下细线），字母是<b>刻痕</b>（上白下暗的阴阳刻）；悬停＝<b>打拓</b>（整格翻成黑底反白，拓片效果）；用尽的块<b>风化</b>（字退成石灰、叠上斜向裂纹）。'
+   + '<br><b>为什么不像旧版</b>：从"纸上的格"变成"<b>石上的刻</b>"，质感来源完全不同，且与世界观里"本土词怪＝碑文/残卷"（skill §8.2）对得上。<b>风险</b>：石纹在 26 键下会显碎，需要把石纹调淡。',
+ '4': '<b>4 黑色虚空带（void band）</b>：<b>中栏一条黑带</b>，字母是黑里的<b>光</b>（纸白花体）；悬停时字母<b>转红并带一点外发光</b>；用尽的字母<b>沉回黑暗</b>（几乎不可见）。'
+   + '<br><b>为什么不像旧版</b>：这是唯一<b>把"黑暗"本身画出来</b>的一版——机制说"字母被黑暗吃掉"，这版让黑暗<b>成为背景</b>。'
+   + '<br><span class="warn">注意</span>：E3 规范里"唯一允许的实心块是深色立绘图版"，这版多了一条黑色横带（等于第二个实心块），<b>属于越规</b>——但幽影本来就是"影"，我认为值得破例；你若不想破例就跳过这版。',
+ '5': '<b>5 残页碎片（torn shards）</b>：每块是<b>一片撕下来的纸</b>——不规则缺口、每片角度不同（±2.5°）、有投影，像摊在桌上的纸屑；悬停时<b>转正抬起</b>；用尽的片<b>缩小卷走</b>（scale .82 + 换一套更破的缺口）。已拼框的空位是<b>斜纹空片</b>。'
+   + '<br><b>为什么不像旧版</b>：块不再是"格子"，是<b>实物碎片</b>，轮廓本身不规则，整排有"手摆"的生命感；同时呼应本作货币"<b>残页</b>"。'
+   + '<b>风险</b>：26 键排两行时会显得很乱（建议二阶段改回规整的一版，或把角度压到 ±1°）。',
+};
+notes.innerHTML = NOTES[S.v] || '';
+
+/* ------------------------------------------------------------------ 控制 ---- */
+const tabs = document.getElementById('tabs'), phases = document.getElementById('phases'),
+      words = document.getElementById('words'), lays = document.getElementById('lays');
+function sync() {
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === S.v));
+  phases.querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.p === S.phase));
+  words.querySelectorAll('button').forEach(b => b.classList.toggle('on', !!WORDS[b.dataset.w] && b.dataset.w === S.word));
+  lays.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.l === S.lay));
+  notes.innerHTML = NOTES[S.v] || '';
+  try { history.replaceState(null, '', '#' + S.v + '-' + S.phase + '-' + S.word + '-' + S.lay); } catch (e) {}
+}
+(function preset() {
+  const m = (location.hash || '').replace('#', '').split('-');
+  if (m[0] && NOTES[m[0]]) S.v = m[0];
+  if (m[1] === '1' || m[1] === '2') S.phase = +m[1];
+  if (m[2] && WORDS[m[2]]) S.word = m[2];
+  if (m[3] === 'slot' || m[3] === 'below') S.lay = m[3];
+})();
+tabs.addEventListener('click', e => { if (e.target.dataset.v) { S.v = e.target.dataset.v; sync(); render(); } });
+phases.addEventListener('click', e => { if (e.target.dataset.p) { S.phase = +e.target.dataset.p; sync(); render(); } });
+words.addEventListener('click', e => { if (e.target.dataset.w) { S.word = e.target.dataset.w; sync(); render(); } });
+lays.addEventListener('click', e => { if (e.target.dataset.l) { S.lay = e.target.dataset.l; sync(); render(); } });
+document.getElementById('replay').addEventListener('click', playDissolve);
+document.getElementById('gbtn').addEventListener('click', () => { S.guide = !S.guide; document.getElementById('gbtn').classList.toggle('on', S.guide); render(); });
+
+sync(); render();
+
+const vp = document.querySelector('.viewport');
+function fit() {
+  const k = Math.min(vp.clientWidth / 1280, Math.max(.42, (window.innerHeight - 380) / 720));
+  stage.style.transform = 'scale(' + k + ')';
+  vp.style.height = (720 * k) + 'px';
+}
+window.addEventListener('resize', fit);
+document.fonts && document.fonts.ready.then(() => { fit(); render(); });
+fit();
+</script>
+</body>
+</html>

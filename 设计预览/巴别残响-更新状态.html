@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>巴别残响 · 后续更新路线图</title>
+<style>
+  @font-face{font-family:"Gilroy";src:url("../assets/fonts/Gilroy-Light.9981d6.woff2") format("woff2");font-weight:300;font-display:swap}
+  @font-face{font-family:"Gilroy";src:url("../assets/fonts/Gilroy-Medium.376b06.woff2") format("woff2");font-weight:500;font-display:swap}
+  @font-face{font-family:"Novecento Wide";src:url("../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2") format("woff2");font-weight:600;font-display:swap}
+  @font-face{font-family:"Novecento Wide";src:url("../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2") format("woff2");font-weight:700;font-display:swap}
+  @font-face{font-family:"Space Grotesk";src:url("../assets/fonts/SpaceGrotesk.edd157.woff2") format("woff2");font-weight:400 700;font-display:swap}
+  @font-face{font-family:"HarmonyOS Sans SC";src:url("../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2") format("woff2");font-weight:400;font-display:swap}
+  @font-face{font-family:"HarmonyOS Sans SC";src:url("../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2") format("woff2");font-weight:500;font-display:swap}
+  @font-face{font-family:"HarmonyOS Sans SC";src:url("../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2") format("woff2");font-weight:700;font-display:swap}
+  @font-face{font-family:"HarmonyOS Sans SC";src:url("../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2") format("woff2");font-weight:900;font-display:swap}
+
+  :root{
+    --ink:#111111; --text:#141414; --muted:#6f6f6f; --line:#e6e6e6;
+    /* ★ --green 已于 2026-09-30 移除 ✗ —— Debug 从"已实装"改成"进行中"后无人引用 ✓
+     *   留着会让人以为"完成态"还在用 ✓ 要用时再加回来 ✓ */
+    --red:#e2231a; --gold:#c8a24a;
+    --paper:#ffffff; --page:#f2f2f0; --soft:#3f4145;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--page);color:var(--text);
+    font:16px/1.6 "HarmonyOS Sans SC","Microsoft YaHei",system-ui,sans-serif;
+    padding:44px 52px 38px;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1440px;margin:0 auto;position:relative}
+
+  /* ===== 页眉 ===== */
+  /* ★★★ 标题改成**游戏内的排法** ✗✗（用户："这个改成游戏标题的英文样式"）
+   *   出处：`src/scenes/StartScene.js` L12 / L37-46 —— StartScene 是这么排的：
+   *     · 小字「巴别残响」   HarmonyOS body ✓ 14px ✓ **加粗** ✓ 衬在大字**上方** ✓
+   *     · 大字「Babel」「Resonance」  **Gilroy** 88px ✓ **双色拼接** ✓
+   *         Babel = 墨 `#111111` ／ Resonance = **红 `#e2231a`** ✓
+   *         （Phaser 单个 Text 做不了双色 ✗ 所以游戏里是**两个 Text 拼**的 ✓
+   *           HTML 里一个 span 就够 ✓ —— 视觉结果一致即可 ✓）
+   *     · 其下一条**红色短横线** ✓
+   *   ★ 所以这一版的层级跟游戏**一致** ✗：
+   *     小字（中文名）在上 ✓ 大字（英文名）在下 ✓ 红线收尾 ✓
+   *   ★ 注意：这里**不是**"英文小标" ✗ —— 它是**标题本体** ✓
+   *     StartScene 里真正的"英文小标"是 Babel.FONTS.display（Novecento 全大写 ✓）
+   *     用在别处（如页脚 `BABEL RESONANCE · ROADMAP` ✓）两者不要混 ✗ */
+  .cn{font-family:"HarmonyOS Sans SC",sans-serif;font-size:18px;font-weight:700;
+    color:var(--ink);letter-spacing:.02em}
+  /* ★★ 三个数值**逐字照抄 StartScene** ✗✗（不要自己估 ✓）
+   *   · `letterSpacing(-2*s)` → 88px 字号下 −2px ✓ 按比例换成 em：
+   *       −2 / 88 = **−0.0227em** ✓（用 em 才能跟着字号走 ✓ 写死 px 换字号就错 ✓）
+   *   · `tB.setX(L + tA.width + 22*s)` → 两词之间留 **22px ≈ 一个空格宽** ✓
+   *       同样按比例：22 / 88 = **0.25em** ✓
+   *   · 红线 `160*s × 3*s` → 按同一比例换成 **174 × 3.3**（本页字号 96 vs 游戏 88 ✓）
+   *   ★ 口径：**"照抄游戏视觉"要把游戏里的 px 按字号比例换算成 em** ✗
+   *     直接抄 px → 字号一改就全歪 ✓；抄 em → 任何字号下比例都对 ✓ */
+  h1{font-family:"Gilroy","HarmonyOS Sans SC",sans-serif;font-weight:500;
+    font-size:96px;line-height:1.02;letter-spacing:-0.0227em;color:var(--ink);
+    margin-top:6px}
+  h1 .rd{color:var(--red);margin-left:0.25em}
+  .sub{font-family:"HarmonyOS Sans SC",sans-serif;font-size:22px;font-weight:500;
+    color:var(--soft);margin-top:14px;letter-spacing:.01em;
+    display:flex;align-items:center;gap:14px}
+  /* ★「测试版」小签 ✗ 细描边 ＋ 灰字 ✓（E3 不用实心块 ✓ 唯一强调红留给 Resonance ✓）
+   *   ★ 与泳道右边的状态徽记**同一套语言** ✓ 但更小一号 ✓ 免得抢主标题 ✓ */
+  .sub .tag{font-size:15px;font-weight:700;color:var(--muted);
+    border:1.5px solid #d8d5cf;border-radius:5px;padding:3px 11px;letter-spacing:.04em}
+  .rule{width:174px;height:3.3px;background:var(--red);margin-top:20px}
+
+  /* ===== KPI（细线格 ✗ 不用实心块 ✓）===== */
+  .kpis{display:flex;gap:0;margin-top:30px;border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line)}
+  /* ★ 四项之间加**竖向细线** ✗ —— 否则四组数字漂在一条线上 ✓ 归属不清 ✓
+   *   （第一版就是那样 ✓ 看图会觉得"3687"离"语域"更近 ✓）*/
+  .kpi{flex:1;padding:20px 28px 20px 28px;border-right:1px solid var(--line)}
+  .kpi:first-child{padding-left:0}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-family:"Space Grotesk","HarmonyOS Sans SC",sans-serif;font-size:44px;
+    font-weight:700;color:var(--ink);line-height:1.05;font-variant-numeric:tabular-nums}
+  .kpi .v small{font-size:17px;font-weight:400;color:var(--muted);margin-left:5px}
+  .kpi .k{font-family:"Novecento Wide",sans-serif;font-size:12px;letter-spacing:.2em;
+    color:var(--muted);text-transform:uppercase;margin-top:7px}
+
+  /* ===== 路线图：五条泳道 ===== */
+  /* ★★ 为什么不用"百分比" ✗✗（这次是按行业做法改的 ✓）
+   *   · Steam 的官方路线图指引与各家通行做法都避免写死完成度 ✓
+   *     —— 百分比是**承诺** ✗ 到期没做完就要被追责 ✓
+   *   · 给玩家看的路线图，业界惯例是**阶段模型**：
+   *       Now（在做）→ Next（接着）→ Later（将来）✓
+   *     玩家真正想知道的是"**这个在不在做**"✓ 不是"做了 62% 还是 58%"✓
+   *   ⇒ 改成**五条并列泳道** ✗ 每条 = 一个阶段 ＋ 状态 ＋ 一段进度感 ✗
+   *     · 进度条的**长度只表示"排到哪一档"**（不标数字 ✓ 不承诺 ✓）
+   *     · 状态用文字徽记 ✓ 已完成 = 实心 ✓ 在做 = 金 ✓ 将来 = 空 ✓
+   *   ★ 口径：**对外材料里"数字"要么精确、要么不写** ✗✗
+   *     模糊的百分比是最糟的一档 ✓ 看着精确、其实全靠估 ✓ */
+  .lanes{margin-top:32px;display:flex;flex-direction:column;gap:0;
+    background:var(--paper);border:1px solid var(--line);border-radius:12px;
+    padding:0 34px}
+  /* ★★ 删掉英文小标后，行高从"标题＋小标"变成"只有标题" ✗
+   *   → 行看着变空 ✓ 所以**行距加大**（22 → 30）+ **标题加大**（28 → 32）✓
+   *   ★ 口径：**删掉一个元素后要重新配平留白** ✗ 不然会显得塌 ✓ */
+  .lane{display:flex;align-items:center;gap:16px;padding:30px 0;
+    border-bottom:1px solid var(--line)}
+  .lane:last-child{border-bottom:0}
+  /* ★ 序号与标题**贴在一起** ✗（第一版序号单独漂在最左 ✓ 看着像两列 ✓）
+   *   做法：把序号与文字放进同一个 flex 子项 ✓ 内部 gap 小一点 ✓
+   * ★ 宽度 400 → **468** ✗（原来右侧空出一大段 ✓ 进度条没吃满 ✓）
+   *   最长标题「加入更多词库 · 难度系统」实测约 396px ✓ 468 留够白 ✓ */
+  .lane .idx{flex:none;display:flex;align-items:center;gap:16px;width:468px}
+  .lane .no{font-family:"Space Grotesk",sans-serif;font-size:32px;font-weight:700;
+    color:var(--ink);opacity:.14;line-height:1;flex:none;
+    font-variant-numeric:tabular-nums}
+  .lane .nm{min-width:0}
+  .lane .nm h2{font-size:32px;font-weight:700;color:var(--ink);line-height:1.2;
+    letter-spacing:-.014em;white-space:nowrap}
+  .lane .bar{flex:1;min-width:120px;height:16px;background:#eeece8;border-radius:9px;
+    overflow:hidden}
+  .lane .bar i{display:block;height:100%;border-radius:9px}
+  .lane .bd{flex:none;width:130px;text-align:right}
+
+  /* 状态徽记（细描边 ✗ E3 不用实心块 ✓ 只给一个很淡的底 ✓）
+   * ★ 三态：进行中（金）／下一步（红）／规划中（灰）✗
+   *   原来的"已实装"（绿）已随 Debug 改档一并移除 ✓ */
+  .badge{display:inline-block;font-size:15px;font-weight:700;padding:5px 14px;
+    border-radius:5px;border:1.5px solid;white-space:nowrap;letter-spacing:.01em}
+  .b-doing{color:#8a6a17;border-color:var(--gold);background:#fdf8ec}
+  .b-next{color:var(--red);border-color:var(--red);background:#fdf3f2}
+  .b-plan{color:var(--muted);border-color:#d8d5cf;background:transparent}
+
+  /* ===== 收尾 ===== */
+  .sign{margin-top:30px;display:flex;align-items:center;gap:18px;
+    font-family:"Novecento Wide",sans-serif;font-size:12px;letter-spacing:.24em;
+    color:var(--muted);text-transform:uppercase}
+  .sign .ln{flex:1;height:1px;background:var(--line)}
+
+  @media (max-width:1180px){
+    body{padding:28px 24px}
+    h1{font-size:44px}
+    .kpis{flex-wrap:wrap}
+    .kpi{flex:1 1 42%}
+    .lane{flex-wrap:wrap;gap:14px}
+    .lane .nm{width:auto;flex:1 1 100%}
+    .lane .bd{width:auto}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="cn">巴别残响</div>
+  <h1>Babel<span class="rd">Resonance</span></h1>
+  <!-- ★ 副标题行 ✗ 用户要求「先行版」→「测试版」，且不要版本号 ✓
+       ★ 所以「测试版」搬到这里 ✓ 与「后续更新路线图」并列 ✓
+       ★ 用细描边小签 ✗ 不用实心块 ✓（E3 纪律 ✓）-->
+  <div class="sub">后续更新路线图<span class="tag">测试版</span></div>
+  <div class="rule"></div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="v">3<small>层</small></div><div class="k">语域</div></div>
+    <div class="kpi"><div class="v">3687<small>条</small></div><div class="k">词库</div></div>
+    <div class="kpi"><div class="v">6<small>套</small></div><div class="k">专属题库</div></div>
+  </div>
+
+  <!-- 五条泳道 ✗ 长度只表示"排到哪一档" ✓ 不标数字 ✓ 不承诺 ✓ -->
+  <div class="lanes">
+
+    <!-- ★★ 01 Debug：**不再是"已实装"** ✗✗（2026-09-30 用户："这个不要已实装，还在进行中"）
+         ★ 这条改得**对** ✓ 而且比原来更实诚：
+           Debug 档里"战斗结算的稳定性"那条**本来就没修完** ✓
+           （奎隆结算崩溃是你明确要求回滚掉的 ✓ 所以整档不可能"已实装" ✓）
+         ⇒ 状态回到**进行中**（金色 ✓）进度条从 88% 压到 **64%** ✓
+         ★ 顺带：这一改让"五条长度单调递减"更顺（64 / 52 / 34 / 16 / 0 ✓）
+           原来是 88 / 52 / 34 / 16 / 0 ✓ 首尾落差太大 ✓ 看着像"第一条快完了"✓ -->
+    <div class="lane">
+      <div class="idx">
+        <div class="no">01</div>
+        <div class="nm">
+          <h2>Debug</h2>
+        </div>
+      </div>
+      <div class="bar"><i style="width:64%;background:var(--gold)"></i></div>
+      <div class="bd"><span class="badge b-doing">进行中</span></div>
+    </div>
+
+    <div class="lane">
+      <div class="idx">
+        <div class="no">02</div>
+        <div class="nm">
+          <h2>优化 UI</h2>
+        </div>
+      </div>
+      <div class="bar"><i style="width:52%;background:var(--gold)"></i></div>
+      <div class="bd"><span class="badge b-doing">进行中</span></div>
+    </div>
+
+    <div class="lane">
+      <div class="idx">
+        <div class="no">03</div>
+        <div class="nm">
+          <h2>平衡调整</h2>
+        </div>
+      </div>
+      <div class="bar"><i style="width:34%;background:var(--gold)"></i></div>
+      <div class="bd"><span class="badge b-doing">进行中</span></div>
+    </div>
+
+    <div class="lane">
+      <div class="idx">
+        <div class="no">04</div>
+        <div class="nm">
+          <h2>加入更多词库 · 难度系统</h2>
+        </div>
+      </div>
+      <div class="bar"><i style="width:16%;background:var(--red)"></i></div>
+      <div class="bd"><span class="badge b-next">下一步</span></div>
+    </div>
+
+    <div class="lane">
+      <div class="idx">
+        <div class="no">05</div>
+        <div class="nm">
+          <h2>后两层语域</h2>
+        </div>
+      </div>
+      <div class="bar"><i style="width:0%;background:#d8d5cf"></i></div>
+      <div class="bd"><span class="badge b-plan">规划中</span></div>
+    </div>
+
+  </div>
+
+  <div class="sign">
+    <span>Babel Resonance · Roadmap</span><span class="ln"></span><span>持续更新</span>
+  </div>
+
+</div>
+</body>
+</html>

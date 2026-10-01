@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>亚当重锤 · 词条配色方案（挑一套不累眼的）</title>
+<style>
+/* ============================================================================
+   词条"色差/描边"方案对比 —— 只在该战斗生效
+   现状问题：青描边 + 红投影 有"红蓝错位重影"感，长时间看眼睛累。
+   这里给 8 套方案，每套都只用 Phaser Text 能做到的两件事：
+     ① setStroke(色, 宽)  ② setShadow(偏移, 色, 模糊)
+   所以下面每套都能 1:1 落到游戏里。
+   ========================================================================== */
+@font-face{font-family:'Orbitron';src:url('../assets/fonts/Orbitron-700-900.woff2')format('woff2');font-weight:700 900}
+@font-face{font-family:'Rajdhani';src:url('../assets/fonts/Rajdhani-500.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111}
+.desk{min-height:100vh;padding:16px 16px 60px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.head{width:100%;max-width:1180px}
+.head h1{font-size:17px;font-weight:900;margin-bottom:4px}
+.head p{font-size:12.5px;color:#6f6f6f;line-height:1.7}
+.stage{width:1180px;background:#04070c;border:1px solid #1b3b46;position:relative;padding:6px 0 10px}
+.row{display:flex;align-items:center;gap:14px;padding:7px 18px;border-bottom:1px solid rgba(94,246,255,.10)}
+.row:last-child{border-bottom:none}
+.tag{width:210px;flex:0 0 auto;font-family:'Rajdhani';font-size:12px;color:#68809a;letter-spacing:.04em;line-height:1.35}
+.tag b{display:block;color:#5ef6ff;font-size:13px}
+.samples{display:flex;align-items:center;gap:34px;flex-wrap:wrap}
+.w{font-family:'Orbitron';font-weight:900;font-size:46px;letter-spacing:.03em;line-height:1.15;color:#eafcff;white-space:nowrap}
+
+/* ① 现状：青描边 + 红投影 */
+.s1{ -webkit-text-stroke:2px #5ef6ff; text-shadow:4px 0 #ff2b4e; }
+/* ② 只用青描边（去掉红投影） */
+.s2{ -webkit-text-stroke:2px #5ef6ff; text-shadow:0 0 18px rgba(94,246,255,.45); }
+/* ③ 白字 + 青色外发光（无描边、无错位） */
+.s3{ text-shadow:0 0 10px rgba(94,246,255,.85),0 0 26px rgba(94,246,255,.45); }
+/* ④ 青描边 + 同色系深青投影（不用红，最不刺眼） */
+.s4{ -webkit-text-stroke:2px #5ef6ff; text-shadow:3px 0 #0d5f70; }
+/* ⑤ 荒坂黄描边 + 青投影（黄蓝对比，赛博味更足） */
+.s5{ color:#fffdf2; -webkit-text-stroke:2px #fcee0a; text-shadow:3px 0 #1b6b7a; }
+/* ⑥ 品红描边 + 青投影（霓虹双色，对比强但比红蓝柔和） */
+.s6{ color:#fff2fb; -webkit-text-stroke:2px #ff5cc8; text-shadow:3px 0 #5ef6ff; }
+/* ⑦ 极简：纯白 + 轻投影（最省眼，几乎无特效） */
+.s7{ color:#ffffff; text-shadow:2px 2px 6px rgba(0,0,0,.85),0 0 20px rgba(94,246,255,.25); }
+/* ⑧ 双层描边感：青描边很细 + 白字 + 深色投影（干净利落） */
+.s8{ color:#eafcff; -webkit-text-stroke:1px #5ef6ff; text-shadow:3px 2px 0 rgba(4,7,12,.95),0 0 16px rgba(94,246,255,.35); }
+</style>
+</head>
+<body>
+<div class="desk">
+  <div class="head">
+    <h1>词条配色方案（8 套，只影响亚当重锤那一场）</h1>
+    <p>每套只用 Phaser Text 的 <b>setStroke（描边）</b> 与 <b>setShadow（投影）</b> 两个能力 → 都能 1:1 落到游戏里。<br>
+       现在用的是 <b>①</b>（青描边＋红投影），红蓝错位最容易累眼。挑一套说编号即可（也可以说"要 ② 但投影换青色"这类微调）。</p>
+  </div>
+  <div class="stage">
+    <div class="row"><div class="tag"><b>① 现状</b>青描边 + 红投影</div>
+      <div class="samples"><span class="w s1">DEAF</span><span class="w s1">MISUNDERSTANDING</span></div></div>
+    <div class="row"><div class="tag"><b>② 只留青描边</b>去掉红投影，加青外发光</div>
+      <div class="samples"><span class="w s2">DEAF</span><span class="w s2">MISUNDERSTANDING</span></div></div>
+    <div class="row"><div class="tag"><b>③ 纯外发光</b>无描边无错位，最柔</div>
+      <div class="samples"><span class="w s3">DEAF</span><span class="w s3">MISUNDERSTANDING</span></div></div>
+    <div class="row"><div class="tag"><b>④ 青描边 + 深青投影</b>同色系，不刺眼</div>
+      <div class="samples"><span class="w s4">DEAF</span><span class="w s4">MISUNDERSTANDING</span></div></div>
+    <div class="row"><div class="tag"><b>⑤ 荒坂黄描边 + 青投影</b>黄蓝对比</div>
+      <div class="samples"><span class="w s5">DEAF</span><span class="w s5">MISUNDERSTANDING</span></div></div>
+    <div class="row"><div class="tag"><b>⑥ 品红描边 + 青投影</b>霓虹双色</div>
+      <div class="samples"><span class="w s6">DEAF</span><span class="w s6">MISUNDERSTANDING</span></div></div>
+    <div class="row"><div class="tag"><b>⑦ 极简白</b>只加轻投影，最省眼</div>
+      <div class="samples"><span class="w s7">DEAF</span><span class="w s7">MISUNDERSTANDING</span></div></div>
+    <div class="row"><div class="tag"><b>⑧ 细青描边 + 深色投影</b>干净利落</div>
+      <div class="samples"><span class="w s8">DEAF</span><span class="w s8">MISUNDERSTANDING</span></div></div>
+  </div>
+  <div class="head"><p>长词（MISUNDERSTANDING）在游戏里会**整体缩放**到卡片内，不会换行（已修）。</p></div>
+</div>
+<script>
+/* 让每行按游戏里的实际显示尺寸预览：长词会自动缩放到 640px 内 */
+document.querySelectorAll('.samples').forEach(function (box) {
+  var words = box.querySelectorAll('.w');
+  var avail = 640;
+  words.forEach(function (w) { w.style.transform = ''; });
+  var max = 0;
+  words.forEach(function (w) { max = Math.max(max, w.getBoundingClientRect().width); });
+  if (max > avail) words.forEach(function (w) { w.style.transform = 'scale(' + (avail / max).toFixed(3) + ')'; w.style.transformOrigin = 'left center'; });
+});
+</script>
+</body>
+</html>

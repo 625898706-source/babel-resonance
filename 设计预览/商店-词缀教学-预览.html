@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>商店 · 词缀教学与猜义（预览）</title>
+<style>
+/* ============================================================================
+   商店「词缀商店」—— 先教一个词缀，再猜一个该词缀相关的词，猜对→本店八折
+   · 风格：E3「美术馆展签」（纸白 / 墨 / 说明灰 / 细线 / 唯一红 #e2231a / 标志黄仅 pill 与折角）
+   · 数据：直接读 ../src/data/affixes.js（真实词缀库，不在页面里写死）
+   ========================================================================== */
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Light.9981d6.woff2')format('woff2');font-weight:300}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'SpaceGrotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2');font-weight:400 700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --paper:#ffffff; --ink:#111111; --muted:#6f6f6f; --line:#e6e6e6;
+  --red:#e2231a; --yellow:#fff44f; --bg:#f7f7f5; --mono-line:#c9c9c9;
+}
+body{background:var(--bg);font-family:'HOS',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.desk{min-height:100vh;padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.head{width:100%;max-width:1280px}
+.head h1{font-family:'HOS';font-weight:700;font-size:17px;margin-bottom:3px}
+.head p{font-size:12.5px;color:var(--muted);line-height:1.7}
+.head code{font-family:Consolas,monospace;font-size:12px;background:#efefec;padding:1px 4px}
+
+/* ===== 舞台：1280×720，与游戏一致 ===== */
+.stage{position:relative;width:1280px;height:720px;background:var(--paper);overflow:hidden;
+  box-shadow:0 6px 26px rgba(0,0,0,.10);transform-origin:top left}
+/* 页眉 */
+.hdr{position:absolute;left:0;top:0;width:100%;height:52px;border-bottom:1px solid var(--line)}
+.pill{position:absolute;left:20px;top:13px;width:84px;height:26px;background:var(--yellow)}
+.pill span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'SpaceGrotesk';font-weight:700;font-size:12px;letter-spacing:.02em}
+.hdr .sub{position:absolute;left:116px;top:0;height:52px;display:flex;align-items:center;
+  font-family:'HOS';font-size:12.5px;color:var(--muted);letter-spacing:.02em}
+.hdr .rule{position:absolute;left:20px;bottom:-1px;width:130px;height:2px;background:var(--yellow)}
+.stat{position:absolute;top:9px;text-align:right}
+.stat .lab{font-family:'HOS';font-size:11px;color:#9b9fa5}
+.stat .val{font-family:'SpaceGrotesk';font-weight:700;font-size:18px;color:var(--ink);margin-top:1px}
+.stat.left{left:auto}
+/* 掌柜台词 */
+.say{position:absolute;left:80px;top:78px;width:1120px;font-family:'HOS';font-size:15px;color:var(--muted);line-height:1.6}
+.say b{color:var(--ink);font-weight:500}
+
+/* ===== 教学卡 ===== */
+.card{position:absolute;left:300px;top:130px;width:680px;border:1px solid var(--line);background:var(--paper)}
+.card:before{content:'';position:absolute;left:-1px;top:-1px;width:34px;height:3px;background:var(--yellow)}
+.card .tag{position:absolute;left:24px;top:18px;font-family:'Novecento';font-size:11px;letter-spacing:.22em;color:#9b9fa5}
+.affix{position:absolute;left:24px;top:40px;font-family:'Gilroy';font-weight:500;font-size:64px;line-height:1;letter-spacing:.01em}
+.affix-zh{position:absolute;left:24px;top:114px;font-family:'HOS';font-weight:700;font-size:20px}
+.note{position:absolute;left:24px;top:150px;width:632px;font-family:'HOS';font-size:14.5px;color:#3f4145;line-height:1.75}
+.exwrap{position:absolute;left:24px;top:212px;width:632px;border-top:1px solid var(--line);padding-top:14px}
+.exlab{font-family:'Novecento';font-size:10.5px;letter-spacing:.2em;color:#9b9fa5;margin-bottom:10px}
+.ex{display:flex;gap:34px}
+.ex div{font-family:'Gilroy';font-weight:500;font-size:20px}
+.ex div small{display:block;font-family:'HOS';font-size:13px;color:var(--muted);margin-top:4px;font-weight:400}
+.hint{position:absolute;left:24px;top:300px;width:632px;border-top:1px solid var(--line);padding-top:12px;
+  font-family:'HOS';font-size:14px;color:var(--muted)}
+.hint em{font-style:normal;color:var(--red);font-weight:500}
+/* 按钮 */
+.btn{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 30px;
+  border:1px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;
+  font-family:'HOS';font-weight:700;font-size:16px;transition:.14s;user-select:none}
+.btn:hover{background:var(--red);border-color:var(--red);color:#fff}
+.btn.ghost{border-color:var(--muted);color:var(--muted);font-weight:400}
+.btn.ghost:hover{background:var(--muted);border-color:var(--muted);color:#fff}
+.cardbtns{position:absolute;left:24px;bottom:22px;display:flex;gap:12px}
+
+/* ===== 猜义题 ===== */
+.qwrap{position:absolute;left:300px;top:130px;width:680px;border:1px solid var(--line)}
+.qhead{position:absolute;left:24px;top:18px;font-family:'Novecento';font-size:11px;letter-spacing:.22em;color:#9b9fa5}
+.qword{position:absolute;left:24px;top:44px;font-family:'Gilroy';font-weight:500;font-size:52px;letter-spacing:.01em}
+.qsub{position:absolute;left:24px;top:110px;font-family:'HOS';font-size:13px;color:var(--muted)}
+.qsub em{font-style:normal;color:var(--red);font-weight:500}
+.opts{position:absolute;left:24px;top:146px;width:632px}
+.opt{position:relative;height:56px;border-bottom:1px solid var(--line);display:flex;align-items:center;
+  font-family:'HOS';font-size:19px;color:#24252a;cursor:pointer;padding:0 6px;transition:.12s}
+.opt:first-child{border-top:1px solid var(--line)}
+.opt:hover{color:var(--red);padding-left:14px}
+.opt .k{position:absolute;right:6px;font-family:'SpaceGrotesk';font-size:12px;color:#c9c9c9}
+.opt.ok{color:var(--ink);font-weight:700}
+.opt.ok:before{content:'';position:absolute;left:0;top:0;width:3px;height:100%;background:var(--ink)}
+.opt.bad{color:var(--red)}
+.opt.bad:before{content:'';position:absolute;left:0;top:0;width:3px;height:100%;background:var(--red)}
+.opt[data-off]{opacity:.45;cursor:default}
+/* 倒计时条 */
+.cd{position:absolute;left:24px;bottom:22px;width:632px}
+.cd .bar{height:8px;background:#f0f0ee;overflow:hidden}
+.cd .bar i{display:block;height:100%;width:100%;background:#f5a623}
+.cd .num{position:absolute;right:0;top:-24px;font-family:'SpaceGrotesk';font-weight:700;font-size:16px;color:#f5a623}
+/* 结算条 */
+.result{position:absolute;left:300px;top:130px;width:680px;border:1px solid var(--line);padding:34px 24px 30px}
+.result .big{font-family:'HOS';font-weight:700;font-size:30px}
+.result .big.ok{color:var(--ink)}
+.result .big.no{color:var(--red)}
+.result .sub{margin-top:10px;font-family:'HOS';font-size:15px;color:var(--muted);line-height:1.8}
+.result .sub b{color:var(--ink)}
+.result .btns{margin-top:22px;display:flex;gap:12px}
+
+/* ===== 货架（折扣可见） ===== */
+.shop{position:absolute;left:0;top:640px;width:1280px}
+.shelf{position:absolute;left:20px;top:640px;width:1240px;height:1px;background:var(--line)}
+.goods{position:absolute;left:80px;top:656px;display:flex;gap:16px;align-items:center}
+.good{display:flex;align-items:baseline;gap:8px;font-family:'HOS';font-size:14px;color:#24252a}
+.good .rar{font-family:'Novecento';font-size:10px;letter-spacing:.14em;color:#9b9fa5}
+.good .price{font-family:'SpaceGrotesk';font-weight:700;font-size:15px}
+.good .price.off{color:var(--red)}
+.good .was{font-family:'SpaceGrotesk';font-size:12px;color:#c1c1bd;text-decoration:line-through;margin-left:-3px}
+.disc{position:absolute;right:22px;top:654px;font-family:'Novecento';font-size:12px;letter-spacing:.2em;color:var(--red)}
+.disc.off{color:var(--red)}
+.disc.none{color:#c9c9c9}
+.notes{width:100%;max-width:1280px;background:#fff;border:1px solid var(--line);padding:12px 14px;font-size:12.5px;line-height:1.85}
+.notes b{font-weight:700}
+</style>
+</head>
+<body>
+<div class="desk">
+  <div class="head">
+    <h1>商店 · 词缀教学 + 猜义打折（预览）</h1>
+    <p>流程：<b>教一个词缀</b>（含义 + 记忆要点 + 例词）→ <b>出一道该词缀相关的词，猜中文意思</b> → <b>猜对＝本店八折</b>（货架价格实时显示折后价）。
+       数据直接读 <code>src/data/affixes.js</code>（6 个词缀 / 24 道题）。点「换一个词缀」可循环体验。</p>
+  </div>
+
+  <div class="stage" id="stage">
+    <!-- 页眉 -->
+    <div class="hdr">
+      <div class="pill"><span>B1 / 01</span></div>
+      <div class="sub">// 名词语域 · 商店　|　词缀商店 · 猜对打折</div>
+      <div class="stat" style="right:400px"><div class="lab">残页</div><div class="val" id="currency">15</div></div>
+      <div class="stat" style="right:236px"><div class="lab">本店折扣</div><div class="val" id="discTop" style="color:#c9c9c9">—</div></div>
+      <div class="stat" style="right:60px"><div class="lab">已学词缀</div><div class="val" id="learned">0</div></div>
+      <div class="rule"></div>
+    </div>
+
+    <div class="say" id="say"></div>
+
+    <!-- ① 教学卡 / ② 猜义题 / ③ 结算：三块轮流显示 -->
+    <div id="slot"></div>
+
+    <!-- 货架 -->
+    <div class="shelf"></div>
+    <div class="goods" id="goods"></div>
+    <div class="disc none" id="discLabel">本店无折扣</div>
+  </div>
+
+  <div class="notes" id="notes"></div>
+</div>
+
+<script src="../src/data/affixes.js"></script>
+<script>
+(function () {
+  'use strict';
+  const AFFIXES = (window.Babel && window.Babel.AFFIXES) || [];
+  const GOODS = [   // 用游戏里的真实藏品名与稀有度定价（common 6 / rare 9 / epic 12）
+    { name: '卖炭人',     rarity: 'COMMON', cost: 6 },
+    { name: '亚麻书脊',   rarity: 'RARE',   cost: 9 },
+    { name: '巨力之页',   rarity: 'EPIC',   cost: 12 },
+  ];
+  const QUIZ_MS = 12000;      // 猜义题限时（预览用 12 秒，正式可调；超时＝没猜对，不打折）
+  const $ = id => document.getElementById(id);
+  const stage = $('stage'), slot = $('slot');
+
+  const S = { idx: 0, phase: 'teach', currency: 15, discount: false, learned: 0, timer: null, left: 0 };
+
+  function rnd(n) { return Math.floor(Math.random() * n); }
+  function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  const price = c => S.discount ? Math.round(c * 0.8) : c;   // 八折（四舍五入）
+
+  function renderTop() {
+    $('currency').textContent = S.currency;
+    $('learned').textContent = S.learned;
+    const d = $('discTop');
+    d.textContent = S.discount ? '8 折' : '—';
+    d.style.color = S.discount ? '#e2231a' : '#c9c9c9';
+    const lb = $('discLabel');
+    lb.textContent = S.discount ? '本店 8 折生效中' : '本店无折扣';
+    lb.className = 'disc ' + (S.discount ? 'off' : 'none');
+    $('goods').innerHTML = GOODS.map(g =>
+      '<div class="good"><span class="rar">' + g.rarity + '</span><span>' + g.name + '</span>' +
+      '<span class="price' + (S.discount ? ' off' : '') + '">残页×' + price(g.cost) + '</span>' +
+      (S.discount ? '<span class="was">' + g.cost + '</span>' : '') + '</div>').join('');
+  }
+
+  function clearTimer() { if (S.timer) { clearInterval(S.timer); S.timer = null; } }
+
+  /* ---------- ① 教学卡 ---------- */
+  function showTeach() {
+    clearTimer(); S.phase = 'teach';
+    const a = AFFIXES[S.idx];
+    $('say').innerHTML = '掌柜把一块木牌推到你面前：<b>「先记这个，等会儿我要考你。」</b>';
+    slot.innerHTML =
+      '<div class="card" style="height:404px">' +
+        '<div class="tag">AFFIX · ' + (a.kind === 'prefix' ? 'PREFIX 前缀' : 'SUFFIX 后缀') + '</div>' +
+        '<div class="affix">' + a.affix + '</div>' +
+        '<div class="affix-zh">' + a.zh + '</div>' +
+        '<div class="note">' + a.note + '</div>' +
+        '<div class="exwrap"><div class="exlab">EXAMPLES</div><div class="ex">' +
+          a.examples.map(e => '<div>' + e.en + '<small>' + e.zh + '</small></div>').join('') +
+        '</div></div>' +
+        '<div class="hint">记住了就点右边 →　答对这道题，<em>本店给你打八折</em>。</div>' +
+        '<div class="cardbtns">' +
+          '<div class="btn" id="toQuiz">开始猜义题</div>' +
+          '<div class="btn ghost" id="nextAffix">换一个词缀</div>' +
+        '</div>' +
+      '</div>';
+    $('toQuiz').onclick = showQuiz;
+    $('nextAffix').onclick = () => { S.idx = (S.idx + 1) % AFFIXES.length; showTeach(); };
+  }
+
+  /* ---------- ② 猜义题 ---------- */
+  function showQuiz() {
+    S.phase = 'quiz';
+    const a = AFFIXES[S.idx];
+    const q = a.quiz[rnd(a.quiz.length)];
+    const opts = shuffle([q.zh].concat(q.near.slice(0, 3)));
+    $('say').innerHTML = '掌柜敲了敲柜台：<b>「这个词，猜猜看什么意思。」</b>';
+    slot.innerHTML =
+      '<div class="qwrap" style="height:404px">' +
+        '<div class="qhead">QUIZ · ' + a.affix + '</div>' +
+        '<div class="qword">' + q.en + '</div>' +
+        '<div class="qsub">它带上了 <em>' + a.affix + '</em>（' + a.zh + '）—— 结合词缀推一推</div>' +
+        '<div class="opts">' +
+          opts.map((t, i) => '<div class="opt" data-i="' + i + '" data-ok="' + (t === q.zh ? 1 : 0) + '">' + t +
+            '<span class="k">0' + (i + 1) + '</span></div>').join('') +
+        '</div>' +
+        '<div class="cd"><div class="num" id="cdNum">12</div><div class="bar"><i id="cdBar"></i></div></div>' +
+      '</div>';
+
+    const remain = QUIZ_MS;
+    S.left = remain;
+    const bar = $('cdBar'), num = $('cdNum');
+    const t0 = performance.now();
+    clearTimer();
+    S.timer = setInterval(() => {
+      const p = Math.min(1, (performance.now() - t0) / remain);
+      S.left = Math.max(0, remain * (1 - p));
+      bar.style.width = (100 * (1 - p)) + '%';
+      num.textContent = Math.ceil(S.left / 1000);
+      if (p >= 1) { clearTimer(); onPick(null, q); }
+    }, 60);
+
+    Array.from(document.querySelectorAll('.opt')).forEach(el => {
+      el.onclick = () => { if (el.hasAttribute('data-off')) return; clearTimer(); onPick(el, q); };
+    });
+  }
+
+  /* ---------- ③ 结算 ---------- */
+  function onPick(el, q) {
+    const ok = !!(el && el.dataset.ok === '1');
+    // 选项着色
+    Array.from(document.querySelectorAll('.opt')).forEach(x => {
+      x.setAttribute('data-off', '1');
+      if (x.dataset.ok === '1') x.classList.add('ok');
+      else if (x === el) x.classList.add('bad');
+    });
+    const good = GOODS[0];
+    const s = ok
+      ? '答对了：<b>' + q.en + ' = ' + q.zh + '</b>　—— 掌柜点头：<b>「本店给你八折。」</b>'
+      : '正确答案是 <b>' + q.zh + '</b>。掌柜摇头：<b>「这单按原价。」</b>　（可以再学一个词缀、再来一题）';
+    const bar = document.createElement('div');
+    bar.className = 'result';
+    bar.style.top = '556px';
+    bar.style.padding = '16px 24px';
+    bar.innerHTML = '<div class="sub" style="margin:0">' + s + '</div>';
+    document.querySelector('.qwrap').appendChild(bar);
+
+    if (ok && !S.discount) {
+      S.discount = true; S.learned++;
+    }
+    setTimeout(() => { renderTop(); }, 260);
+    setTimeout(() => {
+      const btns = document.createElement('div');
+      btns.className = 'btns';
+      btns.style.marginTop = '14px';
+      btns.innerHTML = '<div class="btn" id="again">再学一个词缀</div><div class="btn ghost" id="stay">留在货架</div>';
+      bar.appendChild(btns);
+      $('again').onclick = () => { S.idx = (S.idx + 1) % AFFIXES.length; showTeach(); };
+      $('stay').onclick = () => { const b = bar.querySelector('#stay').parentNode; b.innerHTML = '<span style="font-family:HOS;font-size:14px;color:#6f6f6f">（点上方页眉的「残页」不改数字；这里只是预览 —— 换一个词缀继续看）</span>'; };
+    }, 700);
+    document.title = ok ? '商店预览 · 打折成功' : '商店预览 · 未打折';
+  }
+
+  /* ---------- 说明 ---------- */
+  $('notes').innerHTML =
+    '<b>这条玩法的定义（预览即定稿口径）</b>：<br>' +
+    '① <b>先教</b>：词缀 + 中文含义 + 记忆要点 + 3 个例词（数据来自 <code>src/data/affixes.js</code>，现有 6 个词缀 / 24 道题）。<br>' +
+    '② <b>再猜</b>：给一个<b>带该词缀的词</b>，4 个中文选项（正确 + 3 个形近/义近干扰），限时 ' + (QUIZ_MS / 1000) + ' 秒（预览用长限时，正式可调到 6~8 秒）。<br>' +
+    '③ <b>结果</b>：猜对 → <b>本店八折</b>（货架价格立刻显示折后价 ✓，右上角「本店折扣 8 折」✓）；猜错 → 按原价，但可以再学一个词缀再来（<b>不扣血、不惩罚</b>，教学场景）。<br>' +
+    '<b>待你定的三件事</b>：① 限时几秒？② 折扣是"本店八折"还是"全场/下一次战斗"？③ 每店只教 1 个词缀，还是可以连教到答对为止（答对即锁定折扣）？';
+  renderTop(); showTeach();
+  /* URL 预设：#quiz 直接看第二屏（猜义题）；#affix-2 / #affix-3 指定第 n 个词缀 */
+  (function preset() {
+    const h = (location.hash || '').replace('#', '');
+    const m = /^affix-(\d+)$/.exec(h);
+    if (m) { S.idx = Math.max(0, Math.min(AFFIXES.length - 1, parseInt(m[1], 10) - 1)); showTeach(); }
+    if (h === 'quiz' || m) { setTimeout(showQuiz, 30); }
+  })();
+
+  /* 自适应缩放（1280 宽舞台） */
+  function fit() {
+    const k = Math.min(1, (window.innerWidth - 60) / 1280);
+    stage.style.transform = 'scale(' + k + ')';
+    stage.parentNode.style.height = (720 * k) + 'px';
+  }
+  window.addEventListener('resize', fit);
+  document.fonts && document.fonts.ready.then(fit);
+  setTimeout(fit, 60);
+})();
+</script>
+</body>
+</html>

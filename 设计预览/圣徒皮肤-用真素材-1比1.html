@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒皮肤 · 直接用众生行记素材（1:1）</title>
+<style>
+/* ============================================================================
+   这一版**不再用 CSS 模仿风格** ✗ —— 直接把「众生行记」的 PNG 素材摆进画面 ✓✓
+     ① 背景   bg.png（真素材 ✓ cover 铺满 ✓）＋ 白纱 ＋ 细横纹
+     ② 标题   event-title-full.png（真标题卡 ✓ 缩小放在左上 ✓ 替换原来那行冷文字 ✓）
+     ③ 词卡   entry_bg.png（真雾纹 ✓ alpha .55 铺在卡上 ✓）
+     ④ 选项   ★ hover 时一只**真白鸽**（bird_left1.png ✓）从左飞入该行、右侧飞出 ✓
+              其余保持"无框＋冰蓝下底线"✓（E3 结构 ✓ 只是底换了 ✓）
+     ⑤ 数字/线 冰蓝 ＋ 淡青（取自标题卡实测色板 #54686a/#475759 ＋ teal ✓）—— **去掉淡金** ✗
+   ★ 可复现性 ✓：真 PNG（load.image ✓）＋ 矩形 ＋ 1px 线 ＋ 位移/alpha tween ✓
+   ============================================================================ */
+:root{--deep:#12232e;--ice:#8fa8bd;--ice2:#5d7a91;--teal:#8fd0d4;--slate:#54686a;--slate2:#364243}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#6f7276;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.lab{width:1280px;margin:26px auto 8px;color:#fff;font-size:13px;line-height:20px}
+.lab b{font-size:15px}.lab i{color:#8fd0d4;font-style:normal}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto 8px;overflow:hidden;background:#eaf2f7}
+.stage *{position:absolute;box-sizing:border-box}
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.veil{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:.52}
+.grain{left:0;top:0;width:1280px;height:720px;background:repeating-linear-gradient(0deg,rgba(143,168,189,.10) 0 1px,transparent 1px 4px);opacity:.5}
+/* ② 真标题卡（左上 ✓ 替换那行冷文字 ✓） */
+.title{left:44px;top:14px;width:206px;height:166px;background:url('../素材/众生行记/event-title-full.png') center/contain no-repeat}
+.titlerule{left:44px;top:186px;width:206px;height:1px;background:var(--ice2);opacity:.5}
+/* 顶栏其余信息（不带白底 ✓ 与皮肤一致 ✓） */
+.hud{right:44px;top:26px;font-size:14px;color:var(--deep)}
+.hud2{right:44px;top:52px;font-size:12px;color:var(--ice2)}
+.exit{right:44px;top:78px;width:104px;height:34px;border:1px solid rgba(93,122,145,.6);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--deep)}
+/* ③ 词卡：叠真雾纹 */
+.card{left:420px;top:150px;width:440px;height:180px;background:#fff;border:1px solid var(--ice);overflow:hidden}
+.cardmist{left:0;top:0;width:440px;height:180px;background:url('../素材/众生行记/entry_bg.png') center/cover no-repeat;opacity:.55}
+.cardtag{left:436px;top:161px;font-size:11px;color:var(--ice2);letter-spacing:.1em}
+.word{left:440px;top:200px;width:400px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:700;color:var(--deep)}
+/* 倒计时（淡青 ✓ 不用金 ✗） */
+.cdlab{left:420px;top:96px;font-size:13px;color:var(--deep)}
+.cd{left:420px;top:126px;width:440px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.cdfill{left:0;top:0;height:10px;width:62%;background:var(--slate)}
+.cdtxt{left:872px;top:120px;width:64px;text-align:right;font-size:16px;font-weight:700;color:var(--slate);font-family:'Space Grotesk',sans-serif}
+/* ④ 选项：底色透明的行 ＋ 冰蓝下底线 ✓；hover 时鸽子飞过 ✓ */
+.opt{left:420px;width:440px;height:60px}
+.o1{top:360px}.o2{top:430px}.o3{top:500px}.o4{top:570px}
+.opt .t{left:0;top:19px;font-size:20px;color:var(--deep)}
+.opt .k{left:392px;top:20px;width:40px;text-align:right;font-family:'Novecento Wide',sans-serif;font-size:11px;letter-spacing:.14em;color:var(--ice2)}
+.opt .ln{left:0;top:58px;width:440px;height:1px;background:var(--ice2);opacity:.55}
+/* 真白鸽（bird_left1 ✓ 48×48 附近 ✓ 用 tween 飞过 ✓） */
+.dove{left:-60px;top:8px;width:56px;height:56px;background:url('../素材/众生行记/bird_left1.png') center/contain no-repeat;opacity:0}
+.opt.hov .dove{animation:fly 1.15s ease-out infinite}
+@keyframes fly{0%{left:-60px;opacity:0}18%{opacity:1}100%{left:470px;opacity:0}}
+.opt.hov .ln{background:var(--teal);opacity:1;height:2px;top:57px}
+.opt.sel .ln{background:var(--slate);opacity:1;height:2px;top:57px}
+.note{left:920px;top:360px;width:316px;height:300px;background:rgba(255,255,255,.92);border:1px solid var(--ice);padding:14px;font-size:12px;line-height:19px;color:var(--deep)}
+.note b{color:var(--deep)}.note i{color:#2f6f74;font-style:normal;font-weight:700}
+.note hr{border:0;border-top:1px solid var(--ice);opacity:.5;margin:9px 0}
+</style></head><body>
+
+<div class="lab"><b>这版的特点</b>：<i>不再用 CSS 模仿风格</i> ✗ —— 直接把素材摆进去 ✓
+① 标题＝<i>真 event-title-full.png</i> ✓　② 词卡＝叠<i>真 entry_bg 雾纹</i> ✓　③ 选项 hover＝<i>真白鸽</i>（bird_left1 ✓）从左飞入 ✓
+④ 配色改用<i>标题卡实测色板</i>（#54686a / #475759 ＋ 淡青 ✓）—— <b>淡金全部去掉</b> ✗</div>
+
+<div class="stage">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+
+  <div class="title"></div><div class="titlerule"></div>
+  <div class="hud">目标生命 10 / 10</div>
+  <div class="hud2">残页 15　·　回声层 · 待定</div>
+  <div class="exit">退出</div>
+
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+
+  <div class="card"><div class="cardmist"></div></div>
+  <div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div>
+  <div class="word">paint</div>
+
+  <div class="opt o1"><div class="t">奶油；乳脂</div><div class="k">A</div><div class="ln"></div></div>
+  <div class="opt o2 hov"><div class="t">白色；洁白</div><div class="k">B</div><div class="dove"></div><div class="ln"></div></div>
+  <div class="opt o3"><div class="t">自由；许可</div><div class="k">C</div><div class="ln"></div></div>
+  <div class="opt o4 sel"><div class="t">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+
+  <div class="note">
+    <b>这一版用了哪些真素材</b><hr>
+    ① 战场底　<i>bg.png</i>（1560×960 ✓ cover 铺满 ✓）<br>
+    ② 战斗标题　<i>event-title-full.png</i>（430×347 ✓ 缩到 206 宽放左上 ✓ 替掉原来那行冷文字 ✓）<br>
+    ③ 词卡纸纹　<i>entry_bg.png</i>（512×512 雾纹 ✓ alpha .55 ✓ 不动布局 ✓）<br>
+    ④ 选项 hover　<i>bird_left1.png</i>（真白鸽 ✓ 悬停时从行左飞入、行右飞出 ✓ 1.15 秒一轮 ✓）<br>
+    ⑤ 配色　<i>标题卡实测色板</i>（深青灰 #54686a ／ #475759 ＋ 淡青 #8fd0d4 ✓ <b>淡金已全部去掉</b> ✗）<hr>
+    <b>没用上的</b>：<br>
+    · _head.png_（930×1024 人物侧脸＋网格 ✓ 可做整屏极淡底纹 ✓ 但会与圣徒立绘抢 ✗ → 待你定）<br>
+    · _char_entry.png_（入场立绘 ✓ 可做进场动效 ✓ 待你定）<br>
+    · _bird_right.png_（右向鸽子 ✓ 可做第二个方向的 hover ✓）<br>
+    · _letter_e / letter_s_ ✗（只有两个字母 ✓ 拼不出 A/B/C/D ✗）<hr>
+    <b>可复现性</b>：真 PNG（load.image ✓）＋ 矩形 ＋ 1px 线 ＋ 位移/alpha tween ✓ 无模糊 ✗ 无渐变 ✗ 无阴影 ✗
+  </div>
+</div>
+
+<div class="lab" style="height:40px"><b>请看着这版说</b>：标题卡的大小/位置 ✓ 鸽子要不要更快更小 ✓ 配色（青灰 vs 之前的金）✓ head.png 要不要做整屏底纹 ✓ —— 定完我就落到 <i>saint.js</i> ✓</div>
+</body></html>

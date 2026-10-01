@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>巴别残响 · 地图连线优化六版</title>
+<style>
+/* ============================================================================
+   地图连线优化 —— 节点沿用你选中的「线框角标」样式，只迭代【格子间的线条】
+   连线几何照 _drawEdge（源右缘 → 目标左缘，控制点 0.4/0.6 的 S 形）
+   连边规则照 generateFloor ⑤（上排 ≤ 中排 ≤ 下排，非交叉）
+   边分三类（这是本轮的核心改动）：
+     .visited 已走过（源节点已访问）→ 淡
+     .active  下一步（当前节点 → 可走节点）→ 强调（红）
+     .future  后续 → 中间灰
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111;-webkit-font-smoothing:antialiased}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 16px 80px}
+.head{width:100%;max-width:1340px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.head h1{font-size:18px;margin:0;font-weight:900}
+.head p{margin:0;font-size:12.5px;color:#6f6f6f}
+.tabs{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
+.tabs button{font-weight:700;font-size:12px;padding:6px 11px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#111;color:#fff;border-color:#111}
+.viewport{position:relative;width:100%;max-width:1340px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 18px 50px rgba(0,0,0,.18);overflow:hidden}
+.screen{position:absolute;inset:0;width:1280px;height:720px;display:none;background:var(--bg);color:var(--ink)}
+.screen.on{display:block}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.8}
+
+/* 页眉 / 底栏 */
+.hudTop{position:absolute;left:0;top:0;width:1280px;height:52px;display:flex;align-items:center;gap:16px;padding:0 30px;border-bottom:1px solid var(--rule)}
+.pill{font-family:'Novecento';font-weight:600;font-size:11.5px;letter-spacing:.08em;color:#e2231a;border:1px solid #e2231a;padding:3px 8px}
+.hlab{font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.spacer{flex:1}
+.hudState{position:absolute;left:30px;top:62px;font-family:'Grotesk';font-size:15px}
+.hudState span{color:var(--muted);font-size:12.5px;font-family:'HOS';margin-right:6px}
+.hint{position:absolute;left:50%;transform:translateX(-50%);bottom:76px;font-size:12.5px;color:var(--muted)}
+.bag{position:absolute;left:0;bottom:0;width:1280px;height:64px;background:var(--bg);border-top:1px solid var(--rule);display:flex;align-items:center;gap:20px;padding:0 30px}
+.bag .t{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.bag .it{display:flex;align-items:center;gap:7px;font-size:13px}
+.bag .dot{width:7px;height:7px;border-radius:50%;background:#e2231a}
+
+/* 节点：线框角标（你选中的样式） */
+.tile{position:absolute;width:173px;height:92px;margin-left:-86.5px;margin-top:-46px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--tileBg)}
+.tile::before{content:'';position:absolute;inset:0;background:
+  linear-gradient(var(--brk),var(--brk)) left top/14px 1.5px no-repeat,
+  linear-gradient(var(--brk),var(--brk)) left top/1.5px 14px no-repeat,
+  linear-gradient(var(--brk),var(--brk)) right top/14px 1.5px no-repeat,
+  linear-gradient(var(--brk),var(--brk)) right top/1.5px 14px no-repeat,
+  linear-gradient(var(--brk),var(--brk)) left bottom/14px 1.5px no-repeat,
+  linear-gradient(var(--brk),var(--brk)) left bottom/1.5px 14px no-repeat,
+  linear-gradient(var(--brk),var(--brk)) right bottom/14px 1.5px no-repeat,
+  linear-gradient(var(--brk),var(--brk)) right bottom/1.5px 14px no-repeat}
+.tile .lab{line-height:1;margin-bottom:8px;font-weight:700;font-size:22px;color:var(--labC)}
+.tile .desc{font-family:'Novecento';font-weight:600;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.tile.visited{opacity:var(--dim)}
+.tile.cur{--brk:#e2231a;--labC:#111}
+.tile.cur::after{content:'';position:absolute;inset:-6px;border:1px solid #e2231a}
+.tile.cur .here{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-family:'Novecento';font-weight:600;font-size:9.5px;letter-spacing:.2em;color:#e2231a;white-space:nowrap}
+.tile.sel::after{content:'';position:absolute;inset:-6px;border:var(--selStyle)}
+
+/* 连线分组样式（每版只改这里） */
+svg.edges{position:absolute;inset:0;width:1280px;height:720px;pointer-events:none}
+svg.edges path{fill:none;stroke-linecap:round}
+svg.edges polygon{stroke:none}
+
+/* ============ L1 虚线加粗（当前→可走 = 红色实线） ============ */
+body.l1{--bg:#fff;--ink:#111;--muted:#6f6f6f;--rule:#e6e6e6;--tileBg:#fff;--brk:#111;--labC:#111;--dim:.35;--selStyle:1px dashed #111}
+#l1 .visited path{stroke:#dedede;stroke-width:1.5;stroke-dasharray:4 5}
+#l1 .visited polygon{fill:#dedede}
+#l1 .future path{stroke:#c4c4c4;stroke-width:2;stroke-dasharray:9 6}
+#l1 .future polygon{fill:#c4c4c4}
+#l1 .active path{stroke:#e2231a;stroke-width:2.5;stroke-dasharray:none}
+#l1 .active polygon{fill:#e2231a}
+
+/* ============ L2 实线细（连接点小圆） ============ */
+body.l2{--bg:#fff;--ink:#111;--muted:#6f6f6f;--rule:#e6e6e6;--tileBg:#fff;--brk:#111;--labC:#111;--dim:.35;--selStyle:1px solid #111}
+#l2 .visited path{stroke:#e4e4e4;stroke-width:1.5}
+#l2 .visited polygon{fill:#e4e4e4}
+#l2 .future path{stroke:#cfcfcf;stroke-width:1.75}
+#l2 .future polygon{fill:#cfcfcf}
+#l2 .active path{stroke:#111;stroke-width:2.25}
+#l2 .active polygon{fill:#111}
+#l2 svg circle{fill:#cfcfcf}
+#l2 .active circle{fill:#111}
+
+/* ============ L3 双色实线（下一步更亮） ============ */
+body.l3{--bg:#fff;--ink:#111;--muted:#6f6f6f;--rule:#e6e6e6;--tileBg:#fff;--brk:#111;--labC:#111;--dim:.3;--selStyle:1px solid #e2231a}
+#l3 .visited path{stroke:#e8e8e8;stroke-width:2}
+#l3 .visited polygon{fill:#e8e8e8}
+#l3 .future path{stroke:#a9a9a9;stroke-width:2}
+#l3 .future polygon{fill:#a9a9a9}
+#l3 .active path{stroke:#e2231a;stroke-width:3}
+#l3 .active polygon{fill:#e2231a}
+
+/* ============ L4 折线（直角 + 圆点端点） ============ */
+body.l4{--bg:#fff;--ink:#111;--muted:#6f6f6f;--rule:#e6e6e6;--tileBg:#fff;--brk:#111;--labC:#111;--dim:.35;--selStyle:1px dashed #111}
+#l4 .visited path{stroke:#e0e0e0;stroke-width:1.5}
+#l4 .visited polygon{display:none}
+#l4 .future path{stroke:#c9c9c9;stroke-width:1.75}
+#l4 .future polygon{display:none}
+#l4 .active path{stroke:#e2231a;stroke-width:2}
+#l4 .active polygon{display:none}
+#l4 svg circle{fill:#fff;stroke:#c9c9c9;stroke-width:1.5}
+#l4 .active circle{stroke:#e2231a}
+#l4 svg rect.joint{fill:#c9c9c9}
+#l4 .active rect.joint{fill:#e2231a}
+
+/* ============ L5 实线 + 起点方块（工程图） ============ */
+body.l5{--bg:#fff;--ink:#111;--muted:#6f6f6f;--rule:#e6e6e6;--tileBg:#fff;--brk:#111;--labC:#111;--dim:.32;--selStyle:2px solid #111}
+#l5 .visited path{stroke:#e6e6e6;stroke-width:2}
+#l5 .visited polygon{fill:#e6e6e6}
+#l5 .future path{stroke:#b4b4b4;stroke-width:2}
+#l5 .future polygon{fill:#b4b4b4}
+#l5 .active path{stroke:#e2231a;stroke-width:2.5}
+#l5 .active polygon{fill:#e2231a}
+#l5 svg rect.tick{fill:#b4b4b4}
+#l5 .active rect.tick{fill:#e2231a}
+
+/* ============ L6 深色（虚线 + 红下一步） ============ */
+body.l6{--bg:#0f0f11;--ink:#f2f0ec;--muted:#8b8b8b;--rule:#2a2a2e;--tileBg:#0f0f11;--brk:#6a6a70;--labC:#f2f0ec;--dim:.3;--selStyle:1px dashed #f2f0ec}
+#l6 .tile.cur{--brk:#e2231a;--labC:#fff}
+#l6 .visited path{stroke:#2c2c31;stroke-width:1.5;stroke-dasharray:4 5}
+#l6 .visited polygon{fill:#2c2c31}
+#l6 .future path{stroke:#4a4a52;stroke-width:2;stroke-dasharray:9 6}
+#l6 .future polygon{fill:#4a4a52}
+#l6 .active path{stroke:#e2231a;stroke-width:2.5}
+#l6 .active polygon{fill:#e2231a}
+#l6 .hudTop{border-bottom-color:#2a2a2e} #l6 .bag{border-top-color:#2a2a2e}
+</style>
+</head>
+<body class="l1">
+
+<div class="desk">
+  <div class="head">
+    <h1>地图连线优化六版</h1>
+    <p>节点沿用「线框角标」· 连线分三类：已走过 / <b>下一步（红）</b> / 后续</p>
+    <div class="tabs" id="tabs">
+      <button data-s="l1" class="on">L1 虚线加粗</button>
+      <button data-s="l2">L2 实线细 + 圆点</button>
+      <button data-s="l3">L3 双色实线</button>
+      <button data-s="l4">L4 直角折线</button>
+      <button data-s="l5">L5 实线 + 方块</button>
+      <button data-s="l6">L6 深色</button>
+    </div>
+  </div>
+  <div class="viewport"><div class="stage" id="stage"></div></div>
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+/* ================= 几何（照 MapScene） ================= */
+const W = 1280, cols = 6, rows = 3, margin = 30, minGap = 36;
+const nodeW = Math.max(120, Math.min(215, Math.floor((W - 2 * margin - minGap * (cols - 1)) / cols)));
+const nodeH = Math.round(nodeW * 0.53);
+const colGap = Math.min(420, (W - 2 * margin - nodeW) / (cols - 1));
+const rowGap = Math.round(nodeH + nodeW * 0.6);
+const centerY = 356;
+const totalW = (cols - 1) * colGap + nodeW;
+const startX = (W - totalW) / 2 + nodeW / 2;
+const colX = (c) => startX + c * colGap;
+const laneY = (r) => centerY + r * rowGap;
+const LANE = [-1, 0, 1];
+
+/* ================= 连边（generateFloor ⑤ 非交叉单调） ================= */
+const BANDS = [{ size: 2, mMin: 0 }, { size: 1, mMin: 1 }, { size: 3, mMin: 0 }];
+function bandEdges(from, to, band) {
+  const mMin = band.mMin, mMax = band.mMin + band.size - 1, out = [];
+  const top = [0, 1].filter(t => t <= mMin);
+  const mid = []; for (let i = mMin; i <= mMax; i++) mid.push(i);
+  const bot = [1, 2].filter(t => t >= mMax);
+  [top, mid, bot].forEach((set, fi) => set.forEach(ti => out.push([from[fi], to[ti]])));
+  return out;
+}
+
+const T = {
+  entry: ['入口', 'START'], ordinary: ['战', '普通作战'], emergency: ['紧急', '紧急作战'],
+  shop: ['商店', '旧货摊'], reward: ['奖励', '得偿所愿'], exchange: ['失与得', '交换藏品'],
+  boss: ['险路恶敌', '层尾 BOSS'],
+};
+const TYPES = [['ordinary', 'emergency', 'shop'], ['reward', 'ordinary', 'emergency'], ['emergency', 'shop', 'reward'], ['reward', 'emergency', 'exchange']];
+const NODES = [{ id: 's0', col: 0, row: 0, type: 'entry', state: 'visited' }];
+for (let c = 1; c <= 4; c++) for (let i = 0; i < 3; i++) NODES.push({ id: 'n' + c + i, col: c, row: LANE[i], type: TYPES[c - 1][i], state: 'idle' });
+NODES.push({ id: 'boss', col: 5, row: 0, type: 'boss', state: 'idle' });
+NODES.forEach(n => {
+  if (n.col === 0) n.state = 'visited';
+  if (n.col === 1) n.state = (n.row === 1) ? 'cur' : 'visited';
+  if (n.col === 2 && (n.row === -1 || n.row === 0)) n.state = 'sel';
+});
+const byId = {}; NODES.forEach(n => byId[n.id] = n);
+const colOf = (c) => NODES.filter(n => n.col === c).map(n => n.id);
+
+const EDGES = [];
+colOf(1).forEach(id => EDGES.push(['s0', id]));
+for (let c = 1; c <= cols - 3; c++) bandEdges(colOf(c), colOf(c + 1), BANDS[c - 1]).forEach(e => EDGES.push(e));
+colOf(cols - 2).forEach(id => EDGES.push([id, 'boss']));
+
+/* 边分类：已走过 / 下一步（源=当前位置）/ 后续 */
+function edgeKind(a) {
+  if (a.state === 'cur') return 'active';
+  if (a.state === 'visited') return 'visited';
+  return 'future';
+}
+/* 路径：_drawEdge 的 S 形；L4 用直角折线（同样起止点） */
+function pathFor(a, b, orthogonal) {
+  const sx = colX(a.col) + nodeW / 2 - 4, sy = laneY(a.row);
+  const tx = colX(b.col) - nodeW / 2 + 4, ty = laneY(b.row);
+  if (orthogonal) {
+    const mx = (sx + tx) / 2;
+    return { d: `M ${sx} ${sy} L ${mx} ${sy} L ${mx} ${ty} L ${tx} ${ty}`, sx, sy, tx, ty };
+  }
+  const cx1 = sx + (tx - sx) * 0.4, cy1 = sy, cx2 = sx + (tx - sx) * 0.6, cy2 = ty;
+  return { d: `M ${sx} ${sy} C ${cx1} ${cy1} ${cx2} ${cy2} ${tx} ${ty}`, sx, sy, tx, ty };
+}
+
+function build() {
+  const groups = { visited: [], future: [], active: [] };
+  EDGES.forEach(([x, y]) => {
+    const a = byId[x], b = byId[y];
+    const kind = edgeKind(a);
+    const orth = (kind === 'future' || kind === 'active');   // 仅 L4 生效（CSS 决定是否显示）
+    const p = pathFor(a, b, false);
+    const p2 = pathFor(a, b, true);
+    groups[kind].push(
+      `<g><path class="curved" d="${p.d}"/><path class="ortho" d="${p2.d}" style="display:none"/>
+        <polygon points="${p.tx},${p.ty} ${p.tx - 9},${p.ty - 4.5} ${p.tx - 9},${p.ty + 4.5}"/>
+        <rect class="joint" x="${(p.sx + p.tx) / 2 - 2.5}" y="${p.ty - 2.5}" width="5" height="5" rx="1"/>
+        <circle cx="${p.sx}" cy="${p.sy}" r="3"/>
+        <rect class="tick" x="${p.sx - 3}" y="${p.sy - 3}" width="6" height="6"/></g>`);
+  });
+  const svg = `<svg class="edges">
+    <g class="visited">${groups.visited.join('')}</g>
+    <g class="future">${groups.future.join('')}</g>
+    <g class="active">${groups.active.join('')}</g></svg>`;
+
+  const tiles = NODES.map(n => {
+    const [lab, desc] = T[n.type];
+    const cls = 'tile' + (n.state === 'cur' ? ' cur' : n.state === 'sel' ? ' sel' : n.state === 'visited' ? ' visited' : '');
+    const here = n.state === 'cur' ? '<span class="here">当前位置</span>' : '';
+    return `<div class="${cls}" style="left:${colX(n.col)}px;top:${laneY(n.row)}px">${here}
+      <div class="lab">${lab}</div><div class="desc">${desc}</div></div>`;
+  }).join('');
+
+  const bag = ['破环之诫', '迅捷之羽', '凝视之瞳'].map(n => `<span class="it"><i class="dot"></i>${n}</span>`).join('');
+  return `
+    <div class="hudTop"><span class="pill">B1 / 01</span>
+      <span class="hlab">// FLOOR · 回声层</span>
+      <span class="hlab" style="color:#e2231a">险路恶敌</span>
+      <span class="spacer"></span><button class="btn" style="border:1px solid var(--rule);background:transparent;font-weight:700;font-size:12.5px;color:var(--ink);padding:6px 16px">返回</button></div>
+    <div class="hudState"><span>目标生命</span>12 / 15　　<span>残页</span>27　　<span>藏品</span>3</div>
+    ${svg}${tiles}
+    <div class="hint">点击高亮的节点前进（战斗 / 事件）</div>
+    <div class="bag"><span class="t">藏品背包</span>${bag}</div>`;
+}
+
+const HTML = build();
+['l1','l2','l3','l4','l5','l6'].forEach(id => {
+  const d = document.createElement('div');
+  d.className = 'screen' + (id === 'l1' ? ' on' : '');
+  d.id = id; d.innerHTML = HTML;
+  document.querySelector('.stage').appendChild(d);
+});
+
+/* L4 用直角折线：把 curved 隐藏、ortho 显示 */
+const styleL4 = document.createElement('style');
+styleL4.textContent = '#l4 path.curved{display:none} #l4 path.ortho{display:block !important}';
+document.head.appendChild(styleL4);
+/* 各版只保留自己需要的“端点装饰” */
+const styleDeco = document.createElement('style');
+styleDeco.textContent = `
+#l1 svg circle,#l1 svg rect,#l2 svg rect,#l3 svg circle,#l3 svg rect,#l6 svg circle,#l6 svg rect{display:none}
+#l4 svg polygon{display:none} #l4 svg rect.tick{display:none}
+#l5 svg circle,#l5 svg rect.joint{display:none}`;
+document.head.appendChild(styleDeco);
+
+const NOTES = {
+ l1:'<b>L1 虚线加粗</b>：已走过＝极淡短虚线；后续＝<b>2px 长虚线（dash 9/6）</b>，比原来更清楚；<b>下一步＝红色实线 2.5px + 红箭头</b>。虚线保留了你选中的"图纸感"，但不再糊。',
+ l2:'<b>L2 实线细 + 圆点</b>：全部实线（已走 1.5 / 后续 1.75 / <b>下一步 2.25 黑</b>），并在每条线的<b>起点加小圆点</b>，明确"从哪个格子出发"。最干净、最像现代流程图。',
+ l3:'<b>L3 双色实线</b>：后续线条加深到 <b>#a9a9a9 / 2px</b>（强于 L2），<b>下一步为 3px 红实线</b>——三档层级最分明，远看也能一眼找到该走的路。',
+ l4:'<b>L4 直角折线</b>：连线改成<b>直角折线</b>（中点半折），端点圆环 + 中点方块；下一步为红色。像电路/地铁图，秩序感最强。',
+ l5:'<b>L5 实线 + 方块</b>：实线 2px，<b>起点画小方块</b>（工程图端子），终点三角箭头；下一步红色。偏"图纸/接线"气质。',
+ l6:'<b>L6 深色</b>：近黑底 —— 已走过 #2c2c31 短虚线、后续 #4a4a52 长虚线、<b>下一步红实线</b>；与战斗页黑底立绘最协调。'
+};
+const tabs = document.getElementById('tabs'), notes = document.getElementById('notes');
+function setV(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.s === id));
+  notes.innerHTML = NOTES[id] || '';
+}
+tabs.addEventListener('click', e => { if (e.target.dataset.s) setV(e.target.dataset.s); });
+setV('l1');
+
+const stage = document.getElementById('stage'), vp = document.querySelector('.viewport');
+function fit(){const k=Math.min(vp.clientWidth/1280,Math.max(.42,(window.innerHeight-320)/720));
+  stage.style.transform='scale('+k+')';vp.style.height=(720*k)+'px';}
+window.addEventListener('resize',fit);document.fonts&&document.fonts.ready.then(fit);fit();
+</script>
+</body>
+</html>

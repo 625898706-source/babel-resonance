@@ -1,0 +1,155 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8">
+<title>不期而遇 · 辨析卡 / 用法卡 · 预览 v2</title>
+<style>
+  html,body{margin:0;background:#4a4a4a;font-family:"HarmonyOS Sans SC","Microsoft YaHei",sans-serif}
+  #root{width:1280px;margin:0 auto}
+  .page{position:relative;width:1280px;height:720px;background:#ffffff;overflow:hidden;
+        border-bottom:12px solid #4a4a4a}
+  .tag{position:absolute;left:0;top:0;z-index:99;background:#0a0b0d;color:#fff44f;
+       font:12px monospace;padding:5px 12px;letter-spacing:.1em}
+  .title{position:absolute;left:0;right:0;top:44px;text-align:center;color:#24252a;
+         font:30px "Novecento Wide","HarmonyOS Sans SC",sans-serif;letter-spacing:.06em}
+  .status{position:absolute;left:0;right:0;top:90px;text-align:center;color:#6b6f76;font-size:16px}
+  .desc{position:absolute;left:0;right:0;top:120px;text-align:center;color:#6b6f76;font-size:15px}
+  .say{position:absolute;left:0;right:0;top:154px;text-align:center;color:#3f4145;font-size:17px}
+  .done{position:absolute;right:20px;bottom:20px;width:168px;height:46px;
+        background:#fffdf9;border:2px solid #fff44f;border-radius:4px;
+        display:flex;align-items:center;justify-content:center;color:#6b6f76;font-size:18px;
+        box-shadow:3px 3px 0 rgba(31,32,36,.13)}
+  .panel{position:absolute;background:#ffffff;border-radius:4px;box-shadow:3px 3px 0 rgba(31,32,36,.13)}
+  .plabel{position:absolute;font:11px "Novecento Wide",sans-serif;letter-spacing:.14em}
+  /* ---- 四个选项（上下四行，照失与得的 76px 行距 ✓）---- */
+  .opt{position:absolute;left:0;width:560px;height:60px;background:#fffdf9;
+       border:2px solid #c9c6bd;border-radius:4px;display:flex;align-items:center;
+       padding-left:26px;box-sizing:border-box;
+       font:27px "Space Grotesk","HarmonyOS Sans SC",monospace;color:#141414}
+  .opt.right{border-color:#8eef5b;background:#f2ffe9}
+  .opt.wrong{border-color:#ff625d;background:#fff0ef;color:#c0392b}
+  .opt .mk{position:absolute;right:14px;font-size:16px}
+  .ex{position:absolute;color:#3f4145;font:15px "HarmonyOS Sans SC",sans-serif}
+  .ex i{font-style:normal;color:#2f7d3a;font-family:"Space Grotesk",monospace;font-size:16px}
+  .ex s{color:#c0392b;text-decoration:none;font-family:"Space Grotesk",monospace;font-size:16px}
+  .divider{position:absolute;height:1px;background:#e6e6e6}
+  .note{position:absolute;color:#6b6f76;font-size:13px}
+  .why{position:absolute;color:#3f4145;font-size:15.5px;line-height:1.95}
+  .why b{color:#0a0b0d}
+  .why em{font-style:normal;font-family:"Space Grotesk",monospace;color:#c0392b}
+  .k{font-family:"Space Grotesk",monospace;color:#0a0b0d}
+</style></head><body><div id="root">
+
+  <!-- ==================== ① 辨析卡 · 出题态 ==================== -->
+  <div class="page">
+    <div class="tag">① 辨析卡 · 出题态（四个选项 ✓ 正确项掺在里面 ✓）</div>
+    <div class="title">不 期 而 遇</div>
+    <div class="status">目标生命 7    残页 12</div>
+    <div class="desc">遇见一件事，先看看是什么</div>
+    <div class="say">它推来一张纸条，上面写着一个词 —— 让你从四个里挑出最贴近的那个。</div>
+
+    <!-- 左侧：题面 -->
+    <div class="panel" style="left:150px;top:206px;width:520px;height:268px;border:3px solid #8b2635"></div>
+    <div class="plabel" style="left:178px;top:228px;color:#8b2635">DISCRIMINATION · 辨析</div>
+    <div style="position:absolute;left:178px;top:262px;font:56px 'Space Grotesk',monospace;color:#0a0b0d">increase</div>
+    <div style="position:absolute;left:178px;top:336px;font-size:22px;color:#3f4145">增加；增长</div>
+    <div class="divider" style="left:178px;top:386px;width:464px"></div>
+    <div class="note" style="left:178px;top:404px">选出意思最接近的一个</div>
+    <div class="note" style="left:178px;top:432px;color:#9b9fa5">（右边只给英文，不给中文 —— 与失与得一致）</div>
+
+    <!-- 右侧：四个选项 -->
+    <div class="opt" style="left:700px;top:212px">decrease</div>
+    <div class="opt" style="left:700px;top:288px">rise</div>
+    <div class="opt" style="left:700px;top:364px">raise</div>
+    <div class="opt" style="left:700px;top:440px">arise</div>
+
+    <div class="note" style="left:0;right:0;top:534px;text-align:center">
+      ★ 四个选项 ＝ <b>[正确项].concat(三个干扰项)</b> 后洗牌 —— 与失与得的 <span class="k">shuffleArr</span> 同一做法
+    </div>
+    <div class="done">完成</div>
+  </div>
+
+  <!-- ==================== ② 辨析卡 · 揭晓态 ==================== -->
+  <div class="page">
+    <div class="tag">① 辨析卡 · 揭晓态</div>
+    <div class="title">不 期 而 遇</div>
+    <div class="status">目标生命 7    残页 12</div>
+    <div class="desc">遇见一件事，先看看是什么</div>
+    <div class="say">纸条背面还有一行小字。</div>
+
+    <div class="opt right" style="left:700px;top:212px">rise<span class="mk">✓ 对</span></div>
+    <div class="opt wrong" style="left:700px;top:288px">decrease<span class="mk">✗</span></div>
+    <div class="opt wrong" style="left:700px;top:364px">raise<span class="mk">✗</span></div>
+    <div class="opt wrong" style="left:700px;top:440px">arise<span class="mk">✗</span></div>
+
+    <div class="panel" style="left:150px;top:206px;width:520px;height:130px;border:3px solid #2f7d3a"></div>
+    <div class="plabel" style="left:178px;top:226px;color:#2f7d3a">ANSWER · 揭晓</div>
+    <div style="position:absolute;left:178px;top:252px;font:42px 'Space Grotesk',monospace;color:#2f7d3a">rise</div>
+    <div style="position:absolute;left:178px;top:308px;font-size:19px;color:#3f4145">上升；增长 —— 与 increase 同义，都指"数量变大"</div>
+
+    <div class="divider" style="left:150px;top:352px;width:980px"></div>
+    <div class="why" style="left:170px;top:370px;width:960px">
+      <b>三个干扰项为什么错 —— 这才是"辨析"真正值钱的地方</b><br>
+      <em>decrease</em> · 意思正好相反（减少）<br>
+      <em>raise</em> · 意思接近，但<b>必须带宾语</b>：<span class="k">raise the price</span> ✗ 不能单独用<br>
+      <em>arise</em> · 拼写像，意思差远了：指"（问题）出现"，不是"数量增长"
+    </div>
+    <div class="done">完成</div>
+  </div>
+
+  <!-- ==================== ③ 用法卡 · 出题态 ==================== -->
+  <div class="page">
+    <div class="tag">② 用法卡 · 出题态（四个搭配 ✓）</div>
+    <div class="title">不 期 而 遇</div>
+    <div class="status">目标生命 7    残页 12</div>
+    <div class="desc">遇见一件事，先看看是什么</div>
+    <div class="say">他在地上画了四个框，把一支笔递给你 —— 划掉不对的。</div>
+
+    <div class="panel" style="left:150px;top:206px;width:520px;height:268px;border:3px solid #9c8b7a"></div>
+    <div class="plabel" style="left:178px;top:228px;color:#9c8b7a">USAGE · 用法</div>
+    <div style="position:absolute;left:178px;top:262px;font:56px 'Space Grotesk',monospace;color:#0a0b0d">depend</div>
+    <div style="position:absolute;left:178px;top:336px;font-size:22px;color:#3f4145">依靠；取决于</div>
+    <div class="divider" style="left:178px;top:386px;width:464px"></div>
+    <div class="note" style="left:178px;top:404px">下面四条搭配，只有一条是<b>真的</b></div>
+    <div class="note" style="left:178px;top:432px;color:#9b9fa5">（点它 —— 然后告诉你另外三条错在哪）</div>
+
+    <div class="opt" style="left:700px;top:212px">depend of</div>
+    <div class="opt" style="left:700px;top:288px">depend on</div>
+    <div class="opt" style="left:700px;top:364px">depend to</div>
+    <div class="opt" style="left:700px;top:440px">depend for</div>
+
+    <div class="note" style="left:0;right:0;top:534px;text-align:center">
+      ★ 数据来源：奎隆三阶段那 <b>483 条介词搭配</b>（已含 keyword ＋ 释义 ＋ 正确介词）
+    </div>
+    <div class="done">完成</div>
+  </div>
+
+  <!-- ==================== ④ 用法卡 · 揭晓态 ==================== -->
+  <div class="page">
+    <div class="tag">② 用法卡 · 揭晓态（点一下看例句）</div>
+    <div class="title">不 期 而 遇</div>
+    <div class="status">目标生命 7    残页 12</div>
+    <div class="desc">遇见一件事，先看看是什么</div>
+    <div class="say">他把你划对的那条圈了起来。</div>
+
+    <div class="opt right" style="left:700px;top:206px">depend on<span class="mk">✓ 对</span></div>
+    <div class="ex" style="left:700px;top:272px">Its price <i>depends on</i> the season.　它的价格取决于季节。</div>
+    <div class="opt wrong" style="left:700px;top:306px">depend of<span class="mk">✗</span></div>
+    <div class="ex" style="left:700px;top:372px"><s>depend of</s> 是中式直译 —— of 表所属，不表依赖</div>
+    <div class="opt wrong" style="left:700px;top:406px">depend to<span class="mk">✗</span></div>
+    <div class="ex" style="left:700px;top:472px"><s>depend to</s> 不存在；"依赖某人做某事"要用 <i>depend on sb to do</i></div>
+    <div class="opt wrong" style="left:700px;top:506px">depend for<span class="mk">✗</span></div>
+    <div class="ex" style="left:700px;top:572px"><s>depend for</s> 不存在；想说"靠……生活"用 <i>depend on sb for sth</i></div>
+
+    <div class="panel" style="left:150px;top:206px;width:520px;height:170px;border:3px solid #9c8b7a"></div>
+    <div class="plabel" style="left:178px;top:226px;color:#9c8b7a">USAGE · 用法</div>
+    <div style="position:absolute;left:178px;top:252px;font:52px 'Space Grotesk',monospace;color:#0a0b0d">depend</div>
+    <div style="position:absolute;left:178px;top:322px;font-size:21px;color:#3f4145">依靠；取决于</div>
+    <div class="divider" style="left:178px;top:356px;width:464px"></div>
+    <div style="position:absolute;left:178px;top:342px;display:none"></div>
+    <div class="note" style="left:178px;top:336px"></div>
+    <div style="position:absolute;left:178px;top:352px;display:none"></div>
+    <div class="note" style="left:178px;top:336px;color:#2f7d3a;font-size:18px"></div>
+    <div style="position:absolute;left:178px;top:340px;font-size:15px;color:#6b6f76">它把「介词」这一件事讲透了 —— 同一动词换介词，意思全变。</div>
+
+    <div class="done">完成</div>
+  </div>
+
+</div></body></html>

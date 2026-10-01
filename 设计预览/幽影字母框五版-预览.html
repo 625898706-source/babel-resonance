@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>幽影 · 字母框界面五版（阶段一 / 阶段二）</title>
+<style>
+/* ============================================================================
+   幽影「静默回响」字母框界面 —— 五版方案 + 两个阶段
+   ----------------------------------------------------------------------------
+   阶段一：去重字母 + 4 个幽灵字母（乱序块）—— 上限 660px，可单行放下 13 块
+   阶段二：a–z 全字母盘（26 键，字母表序）—— 两行 × 13，宽 640
+   全部按游戏真实坐标搭建（1280×720，cx=640，cy=360）：
+     页眉 0~52 ／ 词卡 cardTop=145、下沿黑线 y=325 ／ 消散字母行 y=219
+     已拼方框 y=370（格 52）／ 提示语 y=448 ／ 字母块 y=510 ／ 藏品栏分隔 y=656
+     中栏纪律 cx±340 → 300~980；立绘牌 272×264，中心 cx±490，顶边 y=160
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Light.9981d6.woff2')format('woff2');font-weight:300}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 16px 80px}
+.head{width:100%;max-width:1340px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.head h1{font-size:17px;margin:0;font-weight:900;white-space:nowrap}
+.head p{margin:0;font-size:12px;color:#6f6f6f}
+.tabs{display:flex;gap:5px;flex-wrap:wrap}
+.tabs.grp{margin-left:auto}
+.tabs button{font-family:'HOS';font-weight:700;font-size:12px;padding:6px 11px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#111;color:#fff;border-color:#111}
+.tabs button.red.on{background:#e2231a;border-color:#e2231a}
+.viewport{position:relative;width:100%;max-width:1340px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 18px 50px rgba(0,0,0,.18);overflow:hidden;background:#fff;position:relative}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.85}
+.notes b{font-weight:700}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:#6f6f6f;align-items:center}
+.legend i{display:inline-block;width:14px;height:14px;border:1px solid #e6e6e6;background:#fff;vertical-align:-3px;margin-right:4px}
+
+/* ---------- 页面骨架（游戏真实位置） ---------- */
+.chrome{position:absolute;inset:0}
+.hud{position:absolute;left:0;top:0;width:1280px;height:52px;border-bottom:1px solid #111;display:flex;align-items:center;gap:14px;padding:0 20px}
+.hud .pill{width:84px;height:26px;background:#fff44f;border:1px solid #1f2024;display:flex;align-items:center;justify-content:center;font-family:'Grotesk';font-size:12px}
+.hud .nm{font-family:'Novecento';font-weight:600;font-size:11px;letter-spacing:.22em;color:#6f6f6f;text-transform:uppercase}
+.hud .right{margin-left:auto;display:flex;gap:22px;font-family:'Grotesk';font-size:15px}
+.hud .back{width:104px;height:34px;border:1px solid #e6e6e6;display:flex;align-items:center;justify-content:center;font-size:14px;color:#24252a}
+.plate{position:absolute;top:160px;width:272px;height:264px;background:#141519;border:1px solid #2a2b30}
+.plate.l{left:14px}.plate.r{left:994px}
+.plate .fold{position:absolute;left:0;top:0;width:16px;height:16px;background:#fff44f;clip-path:polygon(0 0,100% 0,0 100%)}
+.plate .who{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Gilroy';font-weight:300;color:#4a4b52;font-size:13px;letter-spacing:.1em}
+.plate .pname{position:absolute;left:50%;bottom:-46px;transform:translateX(-50%);font-family:'HOS';font-weight:700;font-size:17px;white-space:nowrap}
+.plate .pbar{position:absolute;left:0;bottom:-72px;width:272px;height:16px;background:#fff;border:1px solid #e6e6e6}
+.plate .pbar i{display:block;height:100%;background:#ff625d}
+.plate .pbar.l i{background:#5cc5e8}
+.plate .pnum{position:absolute;left:0;bottom:-96px;font-family:'Grotesk';font-size:20px}
+.plate .plab{position:absolute;right:0;bottom:-96px;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.18em;color:#6f6f6f}
+.cardrule{position:absolute;left:300px;top:325px;width:680px;height:1px;background:#111}
+.cardrule2{position:absolute;left:332px;top:271px;width:616px;height:1px;background:#e6e6e6}
+.cd{position:absolute;left:320px;top:307px;width:640px;height:12px;background:#ececec}
+.cd i{display:block;height:100%;width:62%;background:#f5a623}
+.cd.p2 i{background:#8b0d0b}
+.foot{position:absolute;left:80px;top:656px;width:1120px;height:1px;background:#e6e6e6}
+.foottxt{position:absolute;left:80px;top:668px;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.2em;color:#6f6f6f}
+.guide{position:absolute;border:1px dashed #b9d5ff;pointer-events:none;display:none}
+.guide.on{display:block}
+.guide span{position:absolute;left:0;top:-14px;font-family:'Grotesk';font-size:10px;color:#3b7ddd;white-space:nowrap}
+
+/* ---------- 消散字母行（共有；字距/字号按词长自适应，JS 设定） ---------- */
+.wordrow{position:absolute;left:0;top:219px;width:1280px;height:80px;display:flex;align-items:center;justify-content:center;gap:2px}
+.wordrow .wc{font-family:'Gilroy';font-weight:300;color:#111;line-height:1;transition:opacity .3s linear,color .3s linear}
+.wordrow .wc.gone{opacity:0}
+/* 阶段二：两端向内消散，中间先没 → 用虚线残影表示"已消失" */
+.wordrow .wc.ghost{opacity:.14;color:#6f6f6f}
+
+/* ---------- 已拼方框（共有，格 52） ---------- */
+.built{position:absolute;left:0;top:344px;width:1280px;height:52px;display:flex;justify-content:center;gap:0}
+.built .bc{width:52px;height:52px;display:flex;align-items:center;justify-content:center;
+  font-family:'HOS';font-weight:700;font-size:30px;color:#24252a}
+
+/* ---------- 提示语（共有，y=448） ---------- */
+.hint{position:absolute;left:0;top:440px;width:1280px;text-align:center;font-size:14px;color:#6f6f6f}
+.hint .st{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.2em;color:#e2231a;margin-right:8px}
+.tick{position:absolute;left:0;top:404px;width:1280px;text-align:center;font-family:'Grotesk';font-size:13px;color:#e2231a;opacity:0;transition:opacity .2s}
+.tick.on{opacity:1}
+.done{position:absolute;left:0;top:568px;width:1280px;text-align:center;font-family:'HOS';font-weight:700;font-size:15px;color:#2f7d3a;opacity:0;transition:opacity .25s}
+.done.on{opacity:1}
+
+/* ---------- 字母块（共有） ---------- */
+.tiles{position:absolute;left:0;width:1280px}
+.tile{position:absolute;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;
+  font-family:'Gilroy';font-weight:300;color:#111;transition:all .16s ease}
+.tile.wrong{animation:shakeit .3s}
+@keyframes shakeit{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.padnote{position:absolute;left:0;width:1280px;text-align:center;font-family:'Novecento';font-weight:600;font-size:9.5px;letter-spacing:.2em;color:#b9b9b9}
+
+/* ============================ A 发丝格律 ============================ */
+.v-a .tile{background:#fff;border:1px solid #e6e6e6}
+.v-a .tile:hover{border-color:#e2231a;color:#e2231a}
+.v-a .tile.done{background:#fbfbfb;border-style:dashed;border-color:#e6e6e6;color:#d8d8d8;cursor:default}
+.v-a .built .bc{border:1px solid #e6e6e6}
+.v-a .built .bc.on{border-color:#111;background:#fff}
+
+/* ============================ B 无框基线 ============================ */
+.v-b .tile{background:transparent;border:0;border-bottom:2px solid #e6e6e6}
+.v-b .tile:hover{border-bottom-color:#e2231a;color:#e2231a;transform:translateY(-3px)}
+.v-b .tile.done{border-bottom-style:dashed;border-bottom-color:#e6e6e6;color:#d8d8d8;cursor:default;transform:none}
+.v-b .built .bc{border-bottom:2px solid #e6e6e6}
+.v-b .built .bc.on{border-bottom-color:#111}
+
+/* ============================ C 展签编号 ============================ */
+.v-c .tile{background:#fff;border:1px solid #e6e6e6;align-items:flex-end;justify-content:center;padding-bottom:6px}
+.v-c .tile .idx{position:absolute;left:4px;top:3px;font-family:'Novecento';font-weight:600;font-size:8.5px;letter-spacing:.06em;color:#bdbdbd}
+.v-c .tile:hover{border-color:#e2231a;color:#e2231a}
+.v-c .tile:hover .idx{color:#e2231a}
+.v-c .tile.done{background:#fff;border-color:#f0f0f0;color:#d8d8d8;cursor:default}
+.v-c .tile.done .idx{color:#e8e8e8}
+.v-c .built .bc{border:1px solid #e6e6e6;position:relative}
+.v-c .built .bc .idx{position:absolute;left:3px;top:2px;font-family:'Novecento';font-weight:600;font-size:8px;color:#cfcfcf}
+.v-c .built .bc.on{border-color:#111}
+
+/* ============================ D 残响缺口 ============================ */
+.v-d .tile{background:#fff;border:1px solid #dcdcdc;clip-path:polygon(0 0,100% 0,100% 78%,88% 100%,0 100%)}
+.v-d .tile:hover{background:#fff8f7;border-color:#e2231a;color:#e2231a}
+.v-d .tile.done{background:#fff;border:1px dashed #ededed;color:#dedede;cursor:default}
+.v-d .built .bc{border:1px solid #e6e6e6;clip-path:polygon(0 0,100% 0,100% 78%,88% 100%,0 100%)}
+.v-d .built .bc.on{border-color:#111}
+.v-d .built .bc.empty{background:repeating-linear-gradient(135deg,#fafafa 0 4px,#fff 4px 8px)}
+
+/* ============================ E 双线墨框 ============================ */
+.v-e .tile{background:transparent;border-top:2px solid #111;border-bottom:1px solid #e6e6e6}
+.v-e .tile:hover{border-top-color:#e2231a;border-bottom-color:#111;color:#e2231a}
+.v-e .tile.done{border-top:2px solid #ececec;border-bottom:1px dashed #e6e6e6;color:#d8d8d8;cursor:default}
+.v-e .built .bc{border-top:2px solid #111;border-bottom:1px solid #e6e6e6}
+.v-e .built .bc.on{border-bottom-color:#111}
+
+/* 阶段二的键盘感：整体再压低一档（键更小、更密、更像仪器按键） */
+.p2 .hint .st{color:#8b0d0b}
+</style>
+</head>
+<body>
+
+<div class="desk">
+  <div class="head">
+    <h1>幽影 · 字母框界面（五版）</h1>
+    <p>静默回响：<b>阶段一</b> 去重字母＋4 幽灵字母 ／ <b>阶段二</b> a–z 全字母盘。可点、可重播消散。</p>
+    <div class="tabs grp" id="tabs">
+      <button data-v="a" class="on">A 发丝格律</button>
+      <button data-v="b">B 无框基线</button>
+      <button data-v="c">C 展签编号</button>
+      <button data-v="d">D 残响缺口</button>
+      <button data-v="e">E 双线墨框</button>
+    </div>
+  </div>
+  <div class="head">
+    <div class="tabs" id="phases">
+      <button data-p="1" class="on red">阶段一（HP &gt; 17）</button>
+      <button data-p="2" class="red">阶段二（HP ≤ 17）</button>
+    </div>
+    <div class="tabs" id="words">
+      <button data-w="memory" class="on">短词 memory</button>
+      <button data-w="silence">中词 silence</button>
+      <button data-w="achievement">长词 achievement</button>
+    </div>
+    <div class="tabs">
+      <button id="replay">▶ 重播消散</button>
+      <button id="gbtn">辅助线</button>
+    </div>
+    <div class="legend"><i></i>可点 &nbsp; <i style="border-style:dashed"></i>用尽(变灰) &nbsp; <span style="color:#e2231a">红=悬停/答错</span></div>
+  </div>
+  <div class="viewport"><div class="stage" id="stage"></div></div>
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+/* ------------------------------------------------------------------ 数据 ---- */
+const WORDS = { memory: 'memory', silence: 'silence', achievement: 'achievement' };
+const DISTINCT = w => Array.from(new Set(w.split('')));
+const ALPHA = Array.from({length: 26}, (_, i) => String.fromCharCode(97 + i));
+
+/* 幽灵字母：从 a–z 里排除该词字母后取 4 个（与游戏一致；固定取法让预览可复现） */
+function ghosts(w, n) {
+  const pool = ALPHA.filter(c => w.indexOf(c) < 0);
+  return pool.slice(0, n);
+}
+/* 稳定乱序（预览每次刷新顺序一致，方便对比；游戏里是真随机） */
+function stableShuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = (i * 7 + 3) % (i + 1);
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+/* 与游戏 _buildAnagramUI 同一套自适应公式 */
+function layout(count, gap) {
+  const laneW = 660;
+  const tileSize = Math.max(40, Math.min(68, Math.floor((laneW - (count - 1) * gap) / count)));
+  const maxPerRow = Math.max(1, Math.floor((laneW + gap) / (tileSize + gap)));
+  const cols = Math.min(count, maxPerRow);
+  const rows = Math.ceil(count / cols);
+  const rowW = cols * tileSize + (cols - 1) * gap;
+  return { tileSize, cols, rows, rowW, gap };
+}
+function fontSizeFor(word, maxW) {
+  /* 与游戏 _setupSilence 相同：按实测宽自适应，这里用 0.55 系数估算 */
+  let size = 80;
+  const w = t => t.length * 0.55 * size;
+  let total = word.split('').reduce((a, c) => a + w(c), 0);
+  if (total > maxW) { size = Math.max(30, size * (maxW / total)); }
+  total = word.split('').reduce((a, c) => a + w(c), 0);
+  if (total > maxW) { size = Math.max(22, size * (maxW / total)); }
+  return Math.round(size);
+}
+
+/* ------------------------------------------------------------ 渲染状态 ---- */
+const S = { v: 'a', phase: 1, word: 'achievement', built: [], remain: {}, exhausted: {}, timers: [], guide: false };
+const V_NAME = { a: 'A 发丝格律', b: 'B 无框基线', c: 'C 展签编号', d: 'D 残响缺口', e: 'E 双线墨框' };
+
+function tilesFor() {
+  const w = S.word;
+  if (S.phase === 2) return ALPHA.map(c => ({ ch: c, fake: false, pad: true }));
+  const real = DISTINCT(w);
+  const g = ghosts(w, 4);
+  return stableShuffle(real.concat(g)).map(c => ({ ch: c, fake: real.indexOf(c) < 0 }));
+}
+
+/* ------------------------------------------------------------------ 渲染 ---- */
+const stage = document.getElementById('stage');
+const notes = document.getElementById('notes');
+
+function render() {
+  S.timers.forEach(t => clearTimeout(t)); S.timers = [];
+  S.built = []; S.remain = {}; S.exhausted = {};
+  for (const c of S.word.split('')) S.remain[c] = (S.remain[c] || 0) + 1;
+
+  const word = S.word, tiles = tilesFor();
+  const L = layout(tiles.length, 10);
+  const fs = fontSizeFor(word, 600);
+  const cell = 52, builtW = word.length * cell;
+  const builtL = 640 - builtW / 2;
+  const tilesTop = 510;
+  const startX = 640 - L.rowW / 2;
+
+  stage.className = 'stage v-' + S.v + (S.phase === 2 ? ' p2' : '');
+
+  /* 桌面骨架（真实坐标，便于判断排版是否越界） */
+  let html = '<div class="chrome">'
+    + '<div class="hud"><span class="pill">B2 / 01</span>'
+    + '<span class="nm">// 回响层 · ' + (S.phase === 2 ? '静默回响 II' : '静默回响 I') + '</span>'
+    + '<span class="right"><span>残页 21</span><span>目标生命 8 / 15</span></span>'
+    + '<span class="back">返回</span></div>'
+    + '<div class="plate l"><span class="fold"></span><span class="who">LOGOS</span>'
+    + '<span class="pname">逻各斯</span><span class="pbar l"><i style="width:53%"></i></span>'
+    + '<span class="pnum">8 / 15</span><span class="plab">目标生命</span></div>'
+    + '<div class="plate r"><span class="fold"></span><span class="who">PHANTOM</span>'
+    + '<span class="pname" style="color:#ff625d">幽影</span><span class="pbar"><i style="width:' + (S.phase === 2 ? '35' : '72') + '%"></i></span>'
+    + '<span class="pnum">' + (S.phase === 2 ? '12 / 34' : '24.5 / 34') + '</span><span class="plab">ENEMY HP</span></div>'
+    + '<span class="cardrule2"></span><span class="cardrule"></span>'
+    + '<span class="cd' + (S.phase === 2 ? ' p2' : '') + '"><i></i></span>'
+    + '<span class="foot"></span><span class="foottxt">// 藏品 2 件</span>';
+
+  /* 辅助线：中栏上下限 / 立绘牌内缘 / 藏品栏 */
+  html += '<span class="guide' + (S.guide ? ' on' : '') + '" style="left:300px;top:100px;width:680px;height:520px"><span>中栏 cx±340 = 300~980</span></span>'
+    + '<span class="guide' + (S.guide ? ' on' : '') + '" style="left:994px;top:160px;width:272px;height:264px"><span>敌军立绘牌</span></span>'
+    + '<span class="guide' + (S.guide ? ' on' : '') + '" style="left:80px;top:656px;width:1120px;height:1px"><span>藏品栏分隔 y=656</span></span>'
+    + '</div>';
+
+  /* 消散字母行 */
+  const rowW = word.split('').reduce((a, c) => a + c.length * 0.55 * fs, 0) + 2 * (word.length - 1);
+  html += '<div class="wordrow" id="wordrow">' + word.split('').map((c, i) =>
+    '<span class="wc" data-i="' + i + '" style="font-size:' + fs + 'px">' + c + '</span>').join('') + '</div>';
+
+  /* 已拼方框 */
+  html += '<div class="built" style="left:' + builtL + 'px;width:' + builtW + 'px">'
+    + word.split('').map((_, i) => '<span class="bc' + (S.v === 'c' ? '' : '') + '" data-b="' + i + '">'
+      + (S.v === 'c' ? '<span class="idx">' + String(i + 1).padStart(2, '0') + '</span>' : '') + '</span>').join('') + '</div>';
+
+  /* 提示 + 反馈位 */
+  html += '<div class="hint"><span class="st">SILENT ECHO</span>'
+    + (S.phase === 2 ? '字母已被吞没 —— 用 a–z 全盘默写这个词' : '看一瞬 —— 字母正在消散，还要辨出哪些是假的')
+    + '</div><div class="tick" id="tick">拼写错误 −1 秒</div><div class="done" id="done">拼写完成 ✓</div>';
+
+  /* 字母块 */
+  html += '<div class="tiles" style="top:0">';
+  tiles.forEach((t, i) => {
+    const col = i % L.cols, row = Math.floor(i / L.cols);
+    const x = startX + col * (L.tileSize + L.gap);
+    const y = tilesTop + row * (L.tileSize + L.gap);
+    const fsT = Math.max(18, Math.round(L.tileSize * 0.62));
+    html += '<span class="tile" data-i="' + i + '" data-ch="' + t.ch + '"'
+      + ' style="left:' + x + 'px;top:' + y + 'px;width:' + L.tileSize + 'px;height:' + L.tileSize + 'px;font-size:' + fsT + 'px">'
+      + (S.v === 'c' ? '<span class="idx">' + String(i + 1).padStart(2, '0') + '</span>' : '')
+      + t.ch + '</span>';
+  });
+  html += '</div>';
+  if (S.phase === 2) {
+    html += '<div class="padnote" style="top:' + (tilesTop + L.rows * (L.tileSize + L.gap) + 6) + 'px">A – Z &nbsp;·&nbsp; 26 KEYS &nbsp;·&nbsp; 字母表序</div>';
+  }
+
+  stage.innerHTML = html;
+  bind(tiles);
+  playDissolve();
+}
+
+/* ---------------------------------------------------------------- 交互 ---- */
+function bind(tiles) {
+  stage.querySelectorAll('.tile').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = +el.dataset.i, ch = el.dataset.ch;
+      if (el.classList.contains('done')) return;
+      const need = S.word[S.built.length];
+      if (ch === need) {
+        S.built.push(ch);
+        // 与游戏一致：按"该字母还需要几次"消耗；用尽才变灰（幽灵字母永不禁用）
+        if (S.remain[ch] != null) {
+          S.remain[ch] = Math.max(0, S.remain[ch] - 1);
+          if (S.remain[ch] <= 0) {
+            stage.querySelectorAll('.tile[data-ch="' + ch + '"]').forEach(x => x.classList.add('done'));
+          }
+        }
+        const box = stage.querySelector('.bc[data-b="' + (S.built.length - 1) + '"]');
+        if (box) { box.textContent = ch; box.classList.add('on'); if (S.v === 'c') { box.innerHTML = '<span class="idx">' + String(S.built.length).padStart(2, '0') + '</span>' + ch; } }
+        if (S.built.length === S.word.length) document.getElementById('done').classList.add('on');
+      } else {
+        el.classList.add('wrong');
+        setTimeout(() => el.classList.remove('wrong'), 320);
+        const t = document.getElementById('tick');
+        t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 700);
+      }
+    });
+  });
+}
+
+/* 消散动画：阶段一 右→左；阶段二 两端→中间（与游戏一致） */
+function playDissolve() {
+  S.timers.forEach(t => clearTimeout(t)); S.timers = [];
+  const chars = Array.from(stage.querySelectorAll('#wordrow .wc'));
+  chars.forEach(c => c.classList.remove('gone', 'ghost'));
+  const n = chars.length;
+  const order = [];
+  if (S.phase === 2) { let lo = 0, hi = n - 1; while (lo <= hi) { order.push(hi); if (hi !== lo) order.push(lo); hi--; lo++; } }
+  else { for (let i = n - 1; i >= 0; i--) order.push(i); }
+  const show = S.phase === 2 ? 900 : 1200, per = S.phase === 2 ? 500 : 700;
+  order.forEach((idx, k) => {
+    S.timers.push(setTimeout(() => { if (chars[idx]) chars[idx].classList.add('gone'); }, show + k * per));
+  });
+}
+
+/* ------------------------------------------------------------------ 说明 ---- */
+const NOTES = {
+ a: '<b>A 发丝格律（现方案精修）</b>：块 = 纯白 + <b>1px 发丝边 #e6e6e6</b>，悬停<b>边框转红</b>；用尽的块<b>边框变虚线、字母退到 #d8d8d8</b>。'
+  + '已拼方框与块同语言（同尺寸发丝方框，填上后边框转墨）。<br><b>优点</b>：最贴 E3"细线分区"，和现有选项/抽屉条目完全同族；块与块之间留白清晰，13 块单行也不挤。'
+  + '<b>风险</b>：正方形发丝框在纸面上偏"表格"，个性最弱。<b>阶段二</b>：26 键同语言，两行 × 13，像仪器键面，干净。',
+ b: '<b>B 无框基线</b>：<b>完全不画框</b>，每个字母坐在一条 <b>2px 细线</b>上（与选项条目的"无框 + 细底线"同源）；悬停时<b>底线转红 + 字母上浮 3px</b>；用尽后底线变虚线、字母变淡。'
+  + '已拼方框也退化成底线格。<br><b>优点</b>：最"美术馆展签"、最轻，和本作选项区完全一致；没有格子的"仪表感"，更冷。<b>风险</b>：块的可点区域靠底线暗示，长词 13 个时"哪块是哪块"不如有框清楚；二阶段的 26 键会更像"一排排下划线"，密度高时略晃眼。',
+ c: '<b>C 展签编号</b>：每个块是一张<b>展签</b>——左上角 <b>Novecento 小号编号（01…13）</b>，字母居中偏下；悬停编号与边同时转红；用尽后编号淡到几乎不见。已拼方框也带编号，形成"01→02→…"的对应关系。'
+  + '<br><b>优点</b>：最有"藏品/登记"味道，编号让"去重 + 幽灵"这件事显得像<b>清点库存</b>，与"名字被吞掉、你在逐字登记"的气质相配；也天然说明"一共几块"。'
+  + '<b>风险</b>：编号会让人以为"顺序有意义"（其实没有）；块多时小字略碎，二阶段 26 键的编号会偏吵（可只在阶段一用）。',
+ d: '<b>D 残响缺口</b>：块是<b>被啃掉右下角</b>的方框（clip-path 缺角），悬停淡淡泛红；用尽的块只剩<b>虚线缺角轮廓</b>，像"被吃空的位"；已拼方框同样缺角，空格用<b>斜纹</b>表示"这里曾经有东西"。'
+  + '<br><b>优点</b>：唯一有"叙事"的一版——和"字母被黑暗逐个吃掉"直接呼应；空位斜纹很有"残页"感。<b>风险</b>：缺角+斜纹细节最多，缩小到手机或小窗口时会糊；斜纹若太多会显脏（已克制在"已拼框"上）。',
+ e: '<b>E 双线墨框</b>：不用四边框，只用<b>上边 2px 墨线 + 下边 1px 灰线</b>夹住字母（像展签的上下压线）；悬停<b>上墨线转红</b>、下灰线转墨；用尽后上墨线退成 #ececec、下灰线变虚线。已拼方框同一语言。'
+  + '<br><b>优点</b>：比 A 轻、比 B 稳——上下压线既给出"块"的边界，又完全不封闭，最像"印刷品上的字符位"；13 块单行时节奏感最强。'
+  + '<b>风险</b>：上下线在 26 键两行排布时会连成"横带"，需要靠列间距断开（当前 10px 间距足够）。',
+};
+notes.innerHTML = NOTES[S.v] || '';
+
+/* ------------------------------------------------------------------ 控制 ---- */
+const tabs = document.getElementById('tabs'), phases = document.getElementById('phases'), words = document.getElementById('words');
+function sync() {
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === S.v));
+  phases.querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.p === S.phase));
+  words.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.w === S.word));
+  notes.innerHTML = NOTES[S.v] || '';
+  /* 把当前选择写进 URL（可收藏/直接分享"某一版某阶段"） */
+  try { history.replaceState(null, '', '#' + S.v + '-' + S.phase + '-' + S.word); } catch (e) {}
+}
+/* URL 预设：…-预览.html#d-2-silence （版本-阶段-词） */
+(function preset() {
+  const m = (location.hash || '').replace('#', '').split('-');
+  if (m[0] && NOTES[m[0]]) S.v = m[0];
+  if (m[1] === '1' || m[1] === '2') S.phase = +m[1];
+  if (m[2] && WORDS[m[2]]) S.word = m[2];
+})();
+tabs.addEventListener('click', e => { if (e.target.dataset.v) { S.v = e.target.dataset.v; sync(); render(); } });
+phases.addEventListener('click', e => { if (e.target.dataset.p) { S.phase = +e.target.dataset.p; sync(); render(); } });
+words.addEventListener('click', e => { if (e.target.dataset.w) { S.word = e.target.dataset.w; sync(); render(); } });
+document.getElementById('replay').addEventListener('click', playDissolve);
+document.getElementById('gbtn').addEventListener('click', () => { S.guide = !S.guide; document.getElementById('gbtn').classList.toggle('on', S.guide); render(); });
+
+sync(); render();
+
+/* 自适应缩放（与其它预览稿一致） */
+const vp = document.querySelector('.viewport');
+function fit() {
+  const k = Math.min(vp.clientWidth / 1280, Math.max(.42, (window.innerHeight - 360) / 720));
+  stage.style.transform = 'scale(' + k + ')';
+  vp.style.height = (720 * k) + 'px';
+}
+window.addEventListener('resize', fit);
+document.fonts && document.fonts.ready.then(() => { fit(); render(); });
+fit();
+</script>
+</body>
+</html>

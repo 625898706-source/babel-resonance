@@ -1,0 +1,167 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒 · 三阶段「线会下垂」预览（1:1 · 可交互）</title>
+<style>
+/* ============================================================================
+   三阶段候选 · 「线会下垂」（2026-09-21 用户点名要看 ✓）
+   ★ 核心：连出来的线**不是直线** ✓ 而是**像绳子一样垂下来** ✗✓
+       · 垂度 = 两端距离 × 0.18 ✓✓ → **线越长，垂得越低** ✓
+       · 折线用 **16 段**模拟 ✓（游戏里就是 Graphics 逐段 lineBetween ✓✓ 现在就能做）
+   ★ 规则：垂下去的线**碰到别的框** → **当场断掉** ✗✓（那一对作废 ✓）
+       → 于是你要 ① 挑近的连 ✓ ② 避开下方的框 ✓✓
+   ★ 可交互 ✓：点一个框 → 拖到对面 → 再点一下成段 ✓（照游戏的点击式 ✓）
+       底下的三条"对比"用来一眼看出「越长越垂」✓✓
+   ============================================================================ */
+:root{--ink:#12232e;--muted:#6f7f8a;--slate:#54686a;--red:#e2231a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;color:#fff;font-family:'HarmonyOS Sans SC','Microsoft YaHei',sans-serif;padding:18px 0 40px}
+.lab{width:1280px;margin:0 auto 8px;font-size:13px;line-height:20px}
+.lab b{font-size:16px}.lab i{font-style:normal;color:#a9c6d6}.lab u{text-decoration:none;color:#ffd9a0}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto;overflow:hidden;background:#eaf2f7;cursor:crosshair}
+.stage .bg{position:absolute;inset:0;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.stage .veil{position:absolute;inset:0;background:#fff;opacity:.52}
+.stage .grid{position:absolute;inset:0;opacity:.13;
+  background-image:linear-gradient(#54686a 1px,transparent 1px),linear-gradient(90deg,#54686a 1px,transparent 1px);background-size:40px 40px}
+canvas{position:absolute;inset:0}
+.node{position:absolute;width:200px;height:64px;background:rgba(255,255,255,.5);border:1px solid var(--slate);
+      display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--ink);user-select:none;cursor:pointer}
+.node.en{font-family:'Space Grotesk',monospace;font-weight:700;font-size:26px}
+.node.sel{border-width:3px}
+.node.done{border-width:3px;background:rgba(255,255,255,.9)}
+.node.block{background:rgba(255,255,255,.32);border-style:dashed;cursor:default}
+.tip{position:absolute;left:24px;top:18px;font-size:14px;color:var(--slate);font-weight:700}
+.tip2{position:absolute;left:24px;top:42px;font-size:12px;color:var(--muted);line-height:18px}
+.state{position:absolute;right:24px;top:18px;font-size:12px;color:var(--muted);font-family:monospace}
+</style></head><body>
+
+<div class="lab"><b>三阶段 · 「线会下垂」</b>　<i>点一个框 → 拖到对面 → 再点一下成段 ✓</i>（照游戏的点击式 ✓）
+　<u>垂度 ＝ 距离 × 0.18</u> ✓ 越长越垂 ✓　<b>线碰到别的框就断</b> ✗✓（试试连一条跨过中间障碍框的 ✓）</div>
+
+<div class="stage" id="stage">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <canvas id="cv" width="1280" height="720"></canvas>
+
+  <div class="tip">三阶段 · 线会下垂</div>
+  <div class="tip2">点框开始连 ✓ 再点对面成段 ✓<br>线垂到别的框上 → 断 ✗</div>
+  <div class="state" id="st">拖动试试</div>
+
+  <!-- 左栏 3 个词（铺开 ✓ 近的远的都有 ✓）-->
+  <div class="node en" data-side="L" data-pair="suit"     style="left:120px;top:120px">suit</div>
+  <div class="node en" data-side="L" data-pair="fragile"  style="left:120px;top:330px">fragile</div>
+  <div class="node en" data-side="L" data-pair="company"  style="left:120px;top:560px">company</div>
+  <!-- 中间的障碍框（不可点 ✗ 专门用来"割断"下垂的线 ✓✓）-->
+  <div class="node block" data-block="1" style="left:520px;top:400px">障碍 · 不可点</div>
+  <div class="node block" data-block="1" style="left:760px;top:180px">障碍 · 不可点</div>
+  <!-- 右栏 3 个释义（同样铺开 ✓）-->
+  <div class="node" data-side="R" data-pair="fragile" style="left:960px;top:120px">易碎的</div>
+  <div class="node" data-side="R" data-pair="suit"    style="left:960px;top:330px">一套；适合</div>
+  <div class="node" data-side="R" data-pair="company" style="left:960px;top:620px">陪伴；同伴</div>
+</div>
+
+<script>
+/* 与游戏同一套逻辑 ✓：逐段折线 ＋ 抛物线下垂 ✓ Graphics 逐段 lineBetween 就能画 ✓✓ */
+(function () {
+  var stage = document.getElementById('stage');
+  var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  var st = document.getElementById('st');
+  var nodes = Array.prototype.slice.call(stage.querySelectorAll('.node'));
+  var play = nodes.filter(function (n) { return !n.dataset.block; });
+  var blocks = nodes.filter(function (n) { return n.dataset.block; });
+  var segs = [];        // 已连成的：{a,b,len,depth,ok}
+  var cur = null, mx = 0, my = 0;
+  var SEG = 16, K = 0.18;      // 段数 ✓ 垂度系数 ✓✓
+
+  function rect(n) {
+    var r = n.getBoundingClientRect(), s = stage.getBoundingClientRect();
+    return { x: r.left - s.left, y: r.top - s.top, w: r.width, h: r.height, cx: r.left - s.left + r.width / 2, cy: r.top - s.top + r.height / 2 };
+  }
+  function at(px, py) {
+    for (var i = 0; i < play.length; i++) { var r = rect(play[i]); if (px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h) return play[i]; }
+    return null;
+  }
+  function inRect(px, py, r) { return px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h; }
+
+  /* 画一条下垂的线 ✓ 返回它是否撞到了框 ✗ */
+  function sagLine(ax, ay, bx, by, color, width, alpha) {
+    var dx = bx - ax, dy = by - ay, len = Math.sqrt(dx * dx + dy * dy);
+    var depth = Math.min(len * K, 190);                  // 垂度 ＝ 距离 × 0.18 ✓ 封顶 190 ✓
+    var hit = null;
+    ctx.strokeStyle = color; ctx.lineWidth = width; ctx.globalAlpha = alpha; ctx.lineCap = 'round';
+    var prev = null;
+    for (var i = 0; i <= SEG; i++) {
+      var t = i / SEG, s = Math.sin(Math.PI * t) * depth;   // 两端 0 ✓ 中间最深 ✓✓
+      var px = ax + dx * t, py = ay + dy * t + s;
+      if (prev) { ctx.beginPath(); ctx.moveTo(prev[0], prev[1]); ctx.lineTo(px, py); ctx.stroke(); }
+      /* 撞框检测（对每个障碍框 ＋ 其它已连节点 ✓ 每段取几个采样点 ✓）*/
+      for (var b = 0; b < blocks.length; b++) {
+        var r = rect(blocks[b]);
+        if (inRect(px, py, r) || inRect((prev ? prev[0] + px : px) / 2, (prev ? prev[1] + py : py) / 2, r)) hit = blocks[b];
+      }
+      prev = [px, py];
+    }
+    ctx.globalAlpha = 1;
+    return { hit: hit, depth: depth, len: len };
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, 1280, 720);
+    segs.forEach(function (s) {
+      var a = rect(s.a), b = rect(s.b);
+      var r = sagLine(a.cx, a.cy, b.cx, b.cy, s.ok ? '#54686a' : '#e2231a', s.ok ? 4 : 4, s.ok ? .85 : .8);
+      /* 断口标记 ✓ */
+      if (!s.ok) {
+        var tt = .5, dx = b.cx - a.cx, dy = b.cy - a.cy;
+        var px = a.cx + dx * tt, py = a.cy + dy * tt + Math.sin(Math.PI * tt) * r.depth;
+        ctx.strokeStyle = '#e2231a'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(px - 12, py - 12); ctx.lineTo(px + 12, py + 12);
+        ctx.moveTo(px - 12, py + 12); ctx.lineTo(px + 12, py - 12); ctx.stroke();
+      }
+    });
+    /* 正在拖的那条（实时跟着鼠标 ✓ 也是垂的 ✓✓）*/
+    if (cur) {
+      var a = rect(cur);
+      var r2 = sagLine(a.cx, a.cy, mx, my, '#54686a', 3, .6);
+      var len = Math.round(r2.len), dep = Math.round(r2.depth);
+      st.textContent = '长度 ' + len + 'px　垂度 ' + dep + 'px' + (r2.hit ? '　✗ 会撞到框' : '');
+    }
+    requestAnimationFrame(draw);
+  }
+
+  stage.addEventListener('mousedown', function (e) {
+    var s = stage.getBoundingClientRect(), px = e.clientX - s.left, py = e.clientY - s.top;
+    var n = at(px, py);
+    if (!n) { if (cur) { cur.classList.remove('sel'); cur = null; } return; }
+    if (n.classList.contains('done')) return;
+    if (!cur) { cur = n; n.classList.add('sel'); return; }
+    if (n === cur) { cur.classList.remove('sel'); cur = null; return; }
+    if (n.dataset.side === cur.dataset.side) { cur.classList.remove('sel'); cur = n; n.classList.add('sel'); return; }
+    /* 成段 ✓ 判定：配对是否正确 ＋ 线有没有撞到框 ✓ */
+    var a = rect(cur), b = rect(n);
+    var probe = document.createElement('canvas').getContext('2d');
+    var res = (function () {                     // 用同一套 sagLine 算一遍（离屏）✗ → 直接算 ✓
+      var dx = b.cx - a.cx, dy = b.cy - a.cy, len = Math.sqrt(dx * dx + dy * dy);
+      var depth = Math.min(len * K, 190), hit = null;
+      var prev = null;
+      for (var i = 0; i <= SEG; i++) {
+        var t = i / SEG, s2 = Math.sin(Math.PI * t) * depth;
+        var px = a.cx + dx * t, py = a.cy + dy * t + s2;
+        for (var k = 0; k < blocks.length; k++) { var r = rect(blocks[k]); if (inRect(px, py, r)) hit = blocks[k]; }
+        prev = [px, py];
+      }
+      return { hit: hit, depth: depth, len: len };
+    })();
+    var okPair = (n.dataset.pair === cur.dataset.pair);
+    var ok = okPair && !res.hit;
+    segs.push({ a: cur, b: n, ok: ok, depth: res.depth, len: res.len });
+    if (ok) { cur.classList.add('done'); n.classList.add('done'); }
+    else {
+      cur.style.borderColor = '#e2231a'; n.style.borderColor = '#e2231a';
+      st.textContent = okPair ? ('✗ 线垂下去撞到了框（垂度 ' + Math.round(res.depth) + 'px）') : '✗ 配对错了';
+    }
+    cur.classList.remove('sel'); cur = null;
+  });
+  stage.addEventListener('mousemove', function (e) {
+    var s = stage.getBoundingClientRect(); mx = e.clientX - s.left; my = e.clientY - s.top;
+  });
+  draw();
+})();
+</script>
+</body></html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒皮肤 · 四按钮 · 三个激烈方案（位置照代码 · 1:1）</title>
+<style>
+/* ============================================================================
+   ★ 位置尺寸**照代码一字不改** ✓（四宫格 ✓ 320×84 ✓ x=468/812 ✓ y=436/536 ✓ 文字居中 ✓ 无键帽 ✓）
+   ★ 两侧图版也回到**真实坐标**：px = cx ∓ 490 ＝ 14 / 994 ✓
+     （上一版我放在 88/920 ✗ → 圣徒那栏压到右上格 ✓ 这就是"歪了"的原因 ✓）
+   ★ 这一版把"变化"放在**状态剧变**上（位置不能动 ✗ 那就让格子本身翻脸 ✓✓）
+       方案 Ⅰ 整格反白 —— hover 时整格变深青灰 ＋ 文字变白 ✓（像盖了一枚章 ✓）
+       方案 Ⅱ 粗线生长 —— hover 时一条 4px 粗线从左端**生长**到右端 ✓ ＋ 文字**逐字浮起** ✓
+       方案 Ⅲ 印章落下 —— hover 时右侧浮起一个**淡青方章**（描边方块 ＋ 一字 ✓）＋ 字距张开 ✓
+   ============================================================================ */
+:root{--deep:#12232e;--ice:#8fa8bd;--ice2:#5d7a91;--teal:#8fd0d4;--slate:#54686a}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.lab{width:1280px;margin:26px auto 8px;color:#fff;font-size:13px;line-height:21px}
+.lab b{font-size:16px}.lab i{color:#8fd0d4;font-style:normal}.lab u{text-decoration:none;color:#ffd9a0}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto 10px;overflow:hidden;background:#eaf2f7}
+.stage *{position:absolute;box-sizing:border-box}
+/* ---- 现状（一律不动 ✓ 只有图版回到真实坐标 ✓）---- */
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.veil{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:.52}
+.grain{left:0;top:0;width:1280px;height:720px;background:repeating-linear-gradient(0deg,rgba(143,168,189,.10) 0 1px,transparent 1px 4px);opacity:.5}
+.plate{top:160px;width:272px;height:264px;background:#141a20;border:1px solid #3d5a70}
+.plateL{left:14px}.plateR{left:994px}
+.sprL{left:49px;top:160px;width:202px;height:264px;background:url('../assets/img/logos-idle.png') 0 0/3030px 2640px no-repeat}
+.sprR{left:1020px;top:182px;width:220px;height:220px;background:url('../assets/img/saint-idle.png') 0 0/1760px 4840px no-repeat;transform:scaleX(-1)}
+.nmL{left:14px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.nmR{left:994px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.bar{top:488px;width:272px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.barL{left:14px}.barR{left:994px}
+.bar i{left:0;top:0;height:10px;display:block}
+.card{left:420px;top:150px;width:440px;height:180px;background:rgba(255,255,255,.82);border:1px solid var(--ice)}
+.cardtag{left:436px;top:161px;font-size:11px;color:var(--ice2);letter-spacing:.1em}
+.word{left:440px;top:200px;width:400px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:700;color:var(--deep)}
+.cdlab{left:420px;top:96px;font-size:13px;color:var(--deep)}
+.cd{left:420px;top:126px;width:440px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.cdfill{left:0;top:0;height:10px;width:62%;background:var(--slate)}
+.cdtxt{left:872px;top:120px;width:64px;text-align:right;font-size:16px;font-weight:700;color:var(--slate);font-family:'Space Grotesk',sans-serif}
+.hudr{right:44px;top:26px;font-size:14px;color:var(--deep)}
+/* ---- ★ 四个按钮：`Babel.UI.row` 的 (x,y) 是**格子中心** ✓（容器原点在中心 ✓ 文字 origin 0.5 ✓）
+        → 用 translate(-50%,-50%) 以中心定位 ✓ 尺寸 320×84 ✓ 底线在格底内侧（h/2−1）✓ ---- */
+.opt{width:320px;height:84px;transform:translate(-50%,-50%)}
+.a1{left:468px;top:436px}.a2{left:812px;top:436px}
+.a3{left:468px;top:536px}.a4{left:812px;top:536px}
+.opt .t{left:0;top:0;width:320px;height:84px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:20px;color:var(--deep);line-height:26px}
+.opt .ln{left:0;top:82px;width:320px;height:1px;background:var(--ice2);opacity:.5}
+
+/* ===== 方案 Ⅰ 整格反白（hover：整格深青灰 ＋ 白字 ✓✓ 像盖章 ✓）===== */
+.vI .opt .fill{left:0;top:0;width:320px;height:84px;background:var(--slate);opacity:0}
+.vI .opt.hov .fill{opacity:.92}
+.vI .opt.hov .t{color:#f2f7f9}
+.vI .opt.hov .ln{background:var(--teal);height:3px;top:81px;opacity:1}
+.vI .opt.sel .fill{opacity:1}
+.vI .opt.sel .t{color:#f2f7f9}
+.vI .opt.sel .ln{background:var(--teal);height:3px;top:81px;opacity:1}
+
+/* ===== 方案 Ⅱ 粗线生长 ＋ 逐字浮起 ===== */
+.vII .opt .grow{left:0;top:80px;width:0;height:4px;background:var(--teal)}
+.vII .opt.hov .grow{width:320px;transition:width .34s cubic-bezier(.2,.8,.2,1)}
+.vII .opt.hov .t span{display:inline-block;animation:rise .42s ease-out both}
+.vII .opt.hov .t span:nth-child(1){animation-delay:0s}
+.vII .opt.hov .t span:nth-child(2){animation-delay:.05s}
+.vII .opt.hov .t span:nth-child(3){animation-delay:.10s}
+.vII .opt.hov .t span:nth-child(4){animation-delay:.15s}
+.vII .opt.hov .t span:nth-child(5){animation-delay:.20s}
+.vII .opt.hov .t span:nth-child(6){animation-delay:.25s}
+@keyframes rise{from{transform:translateY(6px);opacity:.2}to{transform:translateY(-2px);opacity:1}}
+.vII .opt.sel .grow{width:320px}
+.vII .opt.sel .t{color:var(--slate)}
+
+/* ===== 方案 Ⅲ 印章落下（hover：右侧浮起淡青方章 ＋ 字距张开 ✓）===== */
+.vIII .opt .seal{left:262px;top:25px;width:34px;height:34px;border:1px solid var(--teal);opacity:0;transform:scale(1.6)}
+.vIII .opt .seal b{left:0;top:7px;width:32px;text-align:center;font-size:14px;font-weight:700;color:#2f6f74}
+.vIII .opt.hov .seal{opacity:1;transform:scale(1);transition:transform .22s cubic-bezier(.2,1.4,.4,1),opacity .18s}
+.vIII .opt.hov .t{letter-spacing:.14em}
+.vIII .opt.hov .ln{background:var(--teal);height:2px;top:81px;opacity:1}
+.vIII .opt.sel .seal{opacity:1;transform:scale(1);border-color:var(--slate)}
+.vIII .opt.sel .seal b{color:var(--slate)}
+.vIII .opt.sel .ln{background:var(--slate);height:2px;top:81px;opacity:1}
+</style></head><body>
+
+<div class="lab"><b>先说明"歪了"</b> ✗：上一版我把两侧图版放在 <b>88 / 920</b> ✗ —— 游戏里其实是 <b>cx ∓ 490 ＝ 14 / 994</b> ✓
+　→ 所以"圣徒"那栏的名字与血条**压到了右上格** ✓ 这一版已按真实坐标摆好 ✓（可对照：现在名字与格子不再重叠 ✓）</div>
+
+<div class="lab"><b>方案 Ⅰ 整格反白</b>　悬停时**整格变成深青灰、文字变白** ✓✓ 像在申请表上**盖了一枚章** ✓
+　（右上＝悬停态 ✓ 右下＝选中态 ✓）—— 在"位置尺寸不能动"的前提下 ✓ 这是**最强烈**的状态反转 ✓</div>
+<div class="stage vI">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:var(--ice);width:60%"></i></div><div class="bar barR"><i style="background:var(--slate);width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">majority</div>
+  <div class="opt a1"><div class="fill"></div><div class="t">多数；成年</div><div class="ln"></div></div>
+  <div class="opt a2 hov"><div class="fill"></div><div class="t">倾泻；流出</div><div class="ln"></div></div>
+  <div class="opt a3"><div class="fill"></div><div class="t">中东<br>包括亚洲西南部和非洲东北部</div><div class="ln"></div></div>
+  <div class="opt a4 sel"><div class="fill"></div><div class="t">装饰；布置</div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>方案 Ⅱ 粗线生长 ＋ 逐字浮起</b>　悬停时一条 <b>4px 淡青粗线从左端生长到右端</b> ✓ ＋ 文字**逐字依次浮起** ✓✓ 有节奏感 ✓</div>
+<div class="stage vII">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:var(--ice);width:60%"></i></div><div class="bar barR"><i style="background:var(--slate);width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">majority</div>
+  <div class="opt a1"><div class="t">多数；成年</div><div class="grow"></div><div class="ln"></div></div>
+  <div class="opt a2 hov"><div class="t"><span>倾</span><span>泻</span><span>；</span><span>流</span><span>出</span></div><div class="grow"></div><div class="ln"></div></div>
+  <div class="opt a3"><div class="t">中东<br>包括亚洲西南部和非洲东北部</div><div class="grow"></div><div class="ln"></div></div>
+  <div class="opt a4 sel"><div class="t">装饰；布置</div><div class="grow"></div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>方案 Ⅲ 印章落下</b>　悬停时格子右侧**浮起一个淡青方章**（描边方块 ＋ 一字 ✓ 像"已阅/存档"✓）＋ 文字**字距张开** ✓</div>
+<div class="stage vIII">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:var(--ice);width:60%"></i></div><div class="bar barR"><i style="background:var(--slate);width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">majority</div>
+  <div class="opt a1"><div class="t">多数；成年</div><div class="ln"></div></div>
+  <div class="opt a2 hov"><div class="t">倾泻；流出</div><div class="seal"><b>选</b></div><div class="ln"></div></div>
+  <div class="opt a3"><div class="t">中东<br>包括亚洲西南部和非洲东北部</div><div class="ln"></div></div>
+  <div class="opt a4 sel"><div class="t">装饰；布置</div><div class="seal"><b>选</b></div><div class="ln"></div></div>
+</div>
+
+<div class="lab" style="height:64px">
+<b>三案的版面完全一致</b> ✓（四宫格 320×84 ✓ 468/812 × 436/536 ✓ 文字居中 ✓）—— <b>只有状态变化不同</b> ✓<br>
+全部可复现 ✓：矩形 ＋ 1px 线 ＋ alpha ＋ 宽度/位移 tween（"逐字浮起"＝把每个字拆成一个文本对象分别 tween ✓ Phaser 常规做法 ✓）
+</div>
+</body></html>

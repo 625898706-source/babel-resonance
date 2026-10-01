@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒皮肤 · 四个选项的优化方案（各 1:1）</title>
+<style>
+/* E3 令牌 ✓（与项目 §4 一致） */
+:root{--paper:#ffffff;--ink:#111111;--muted:#6f6f6f;--line:#e6e6e6;--red:#e2231a;
+      --ice:#8fa8bd;--ice2:#5d7a91;--gold:#d8c9a3;--gold2:#b9a271;--deep:#12232e}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2') format('woff2');font-weight:700}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#6f7276;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.lab{width:1280px;margin:26px auto 8px;color:#fff;font-size:13px;line-height:20px}
+.lab b{font-size:15px}
+.lab i{color:#d8c9a3;font-style:normal}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto 8px;overflow:hidden;background:#eaf2f7}
+.stage *{position:absolute;box-sizing:border-box}
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.veil{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:.52}
+.grain{left:0;top:0;width:1280px;height:720px;background:repeating-linear-gradient(0deg,rgba(143,168,189,.10) 0 1px,transparent 1px 4px);opacity:.5}
+/* 词卡（皮肤口径 ✓ 只作背景参考 ✓） */
+.card{left:420px;top:150px;width:440px;height:180px;background:rgba(255,255,255,.82);border:1px solid var(--ice)}
+.cardtag{left:436px;top:160px;font-size:11px;color:var(--ice2);letter-spacing:.1em}
+.word{left:440px;top:196px;width:400px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:700;color:var(--deep)}
+.cdlab{left:420px;top:96px;font-size:13px;color:var(--deep)}
+.cd{left:420px;top:126px;width:440px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.cdfill{left:0;top:0;height:10px;width:62%;background:var(--gold)}
+.cdtxt{left:872px;top:120px;width:64px;text-align:right;font-size:16px;font-weight:700;color:var(--gold2);font-family:'Space Grotesk',sans-serif}
+/* 选项基本样式：文字 20px 深墨 ✓ 与游戏一致 ✓ */
+.opt{left:420px;width:440px;height:60px}
+.o1{top:360px}.o2{top:430px}.o3{top:500px}.o4{top:570px}
+.opt .t{left:16px;top:19px;font-size:20px;color:var(--deep)}
+.opt .k{left:376px;top:20px;width:56px;text-align:right;font-size:12px;color:var(--ice2)}
+.opt .ln{left:0;top:58px;width:440px;height:1px;background:var(--ice);opacity:.45}
+/* ---- 现状 ✗：无框，字直接压在照片上 ---- */
+.v0 .opt .t{left:0}
+/* ---- 方案 A ⭐ 展签纸：每行一张白纸片 ---- */
+.vA .opt{background:rgba(255,255,255,.86);border:1px solid rgba(143,168,189,.55)}
+.vA .opt .ln{display:none}
+.vA .opt.hov{background:#fff;border-color:var(--gold2);border-bottom-width:2px}
+.vA .opt.sel{background:#fff;border-color:var(--gold2)}
+.vA .opt.sel .ln{display:block;background:var(--gold2);opacity:1;top:57px;left:1px;width:438px}
+/* ---- 方案 B 整栏纸底：一张纸垫四行 ---- */
+.vB .pad{left:400px;top:340px;width:480px;height:310px;background:rgba(255,255,255,.88);border:1px solid rgba(143,168,189,.5)}
+.vB .opt{left:420px}
+/* ---- 方案 C 弱方案：只加一层白纱（保留无框） ---- */
+.vC .scrim{left:400px;top:340px;width:480px;height:310px;background:#fff;opacity:.55}
+/* 说明小卡（预览专用 ✓ 不在游戏里） */
+.note{left:920px;top:360px;width:316px;height:290px;background:rgba(255,255,255,.9);border:1px solid var(--ice);padding:14px;font-size:12px;line-height:19px;color:var(--deep)}
+.note b{color:var(--deep)}.note i{color:var(--gold2);font-style:normal;font-weight:700}
+.note hr{border:0;border-top:1px solid var(--ice);opacity:.5;margin:9px 0}
+</style></head><body>
+
+<div class="lab"><b>现状（✗ 问题所在）</b>　选项是 E3 的「无框＋下底线」✓ 这套手法**前提是纸白底** ✓
+现在底换成了照片拼贴 ✓ → 深墨字与细线**直接压在图上** ✓ 可读性崩了 ✓（就是你现在看到的）</div>
+<div class="stage v0">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">paint</div>
+  <div class="opt o1"><div class="t">奶油；乳脂</div><div class="k">A</div><div class="ln"></div></div>
+  <div class="opt o2"><div class="t">白色；洁白</div><div class="k">B</div><div class="ln"></div></div>
+  <div class="opt o3"><div class="t">自由；许可</div><div class="k">C</div><div class="ln"></div></div>
+  <div class="opt o4"><div class="t">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>方案 A ⭐ 展签纸</b>　<i>推荐</i> —— 每行给一张**半透明白纸片**（0.86）＋ 冰蓝发丝边 ✓
+　★ 这正是 E3 的本体隐喻：<i>美术馆的展签就是贴在墙上的一张纸</i> ✓✓
+　hover：纸变纯白 ＋ 边线转金 ✓　选中：金边 ＋ 金底线 ✓（不动结构 ✗ 不加阴影 ✗）</div>
+<div class="stage vA">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">paint</div>
+  <div class="opt o1"><div class="t" style="left:16px">奶油；乳脂</div><div class="k">A</div></div>
+  <div class="opt o2 hov"><div class="t" style="left:16px">白色；洁白</div><div class="k">B</div></div>
+  <div class="opt o3"><div class="t" style="left:16px">自由；许可</div><div class="k">C</div></div>
+  <div class="opt o4 sel"><div class="t" style="left:16px">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+  <div class="note"><b>方案 A · 展签纸</b><br>（第二行＝hover 态 ✓ 第四行＝选中态 ✓）<hr>
+    · 纸片：白 0.86 ✓ ＋ 冰蓝边 1px ✓（贴住文字 ✓ 找回"纸"的对比 ✓）<br>
+    · hover：纸变纯白 ✓ 边转金 ✓<br>
+    · 选中：金边 ＋ 金底线 ✓<br>
+    · <i>不动的</i>：字号 ✓ 行距 ✓ 位置 ✓ 结构（仍是"一行一条"✓）<hr>
+    <b>为什么它最合 E3</b><br>
+    E3 的展签本来就是**纸片** ✓ 之前用"无框＋底线"是因为底本身是纸 ✓
+    底换成照片之后 ✓ 正确做法是**把纸还回来** ✓ 而不是给文字描边 ✗</div>
+</div>
+
+<div class="lab"><b>方案 B 整栏纸底</b>　四行共用**一张纸垫** ✓ 每行仍保留冰蓝下底线 ✓
+　★ 最安静 ✓（只有一处边缘 ✓）但纸片面积大 ✓ 会盖掉较多背景 ✗</div>
+<div class="stage vB">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">paint</div>
+  <div class="pad"></div>
+  <div class="opt o1"><div class="t" style="left:16px">奶油；乳脂</div><div class="k">A</div><div class="ln" style="left:16px;width:408px"></div></div>
+  <div class="opt o2"><div class="t" style="left:16px">白色；洁白</div><div class="k">B</div><div class="ln" style="left:16px;width:408px"></div></div>
+  <div class="opt o3"><div class="t" style="left:16px">自由；许可</div><div class="k">C</div><div class="ln" style="left:16px;width:408px"></div></div>
+  <div class="opt o4"><div class="t" style="left:16px">宽度；广度</div><div class="k">D</div><div class="ln" style="left:16px;width:408px"></div></div>
+</div>
+
+<div class="lab"><b>方案 C 白纱加强</b>　不加纸片 ✗ 只在选项区加一层**平面白纱**（0.55 ✓ 无渐变 ✗）✓
+　★ 改动最小 ✓ 但可读性提升也最小 ✗（照片的白色几何块仍会与文字抢 ✓）</div>
+<div class="stage vC">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">paint</div>
+  <div class="scrim"></div>
+  <div class="opt o1"><div class="t">奶油；乳脂</div><div class="k">A</div><div class="ln"></div></div>
+  <div class="opt o2"><div class="t">白色；洁白</div><div class="k">B</div><div class="ln"></div></div>
+  <div class="opt o3"><div class="t">自由；许可</div><div class="k">C</div><div class="ln"></div></div>
+  <div class="opt o4"><div class="t">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+</div>
+
+<div class="lab" style="height:60px">
+<b>可复现性</b>（三案都成立 ✓）：只是<b>矩形 ＋ 1px 细线</b>的颜色与 alpha 变化 ✓ 没有模糊 ✗ 渐变 ✗ 阴影 ✗ SVG ✗ —— Phaser 里就是给每行的底板矩形改 fillAlpha 与 strokeStyle ✓ <i>零结构改动</i> ✓
+</div>
+</body></html>

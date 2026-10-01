@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒皮肤 · 只改四个按钮（6 种样式 · 各 1:1）</title>
+<style>
+/* ============================================================================
+   ★ 本次**只动四个选项按钮** ✗ —— 背景 / 词卡 / 顶栏 / 倒计时 / 立绘 全部保持现状 ✓
+   按钮用到的**真素材**：entry_bg.png（雾纹 ✓）／bird_left1.png ／ bird_right.png（白鸽 ✓）
+   按钮以外的部分与当前游戏一致 ✓（冰白底 ＋ bg.png ＋ 白纱 ＋ 冰蓝细横纹 ✓）
+   可复现 ✓：真 PNG ＋ 矩形 ＋ 1px 线 ＋ 位移/alpha tween ✓
+   ============================================================================ */
+:root{--deep:#12232e;--ice:#8fa8bd;--ice2:#5d7a91;--teal:#8fd0d4;--slate:#54686a}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.lab{width:1280px;margin:26px auto 8px;color:#fff;font-size:13px;line-height:21px}
+.lab b{font-size:16px}.lab i{color:#8fd0d4;font-style:normal}.lab u{text-decoration:none;color:#ffd9a0}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto 10px;overflow:hidden;background:#eaf2f7}
+.stage *{position:absolute;box-sizing:border-box}
+/* ---- 不变的背景与其它 UI（与当前游戏一致 ✓） ---- */
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.veil{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:.52}
+.grain{left:0;top:0;width:1280px;height:720px;background:repeating-linear-gradient(0deg,rgba(143,168,189,.10) 0 1px,transparent 1px 4px);opacity:.5}
+.card{left:420px;top:150px;width:440px;height:180px;background:rgba(255,255,255,.82);border:1px solid var(--ice)}
+.cardtag{left:436px;top:161px;font-size:11px;color:var(--ice2);letter-spacing:.1em}
+.word{left:440px;top:200px;width:400px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:700;color:var(--deep)}
+.cdlab{left:420px;top:96px;font-size:13px;color:var(--deep)}
+.cd{left:420px;top:126px;width:440px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.cdfill{left:0;top:0;height:10px;width:62%;background:var(--slate)}
+.cdtxt{left:872px;top:120px;width:64px;text-align:right;font-size:16px;font-weight:700;color:var(--slate);font-family:'Space Grotesk',sans-serif}
+.hudr{right:44px;top:26px;font-size:14px;color:var(--deep)}
+/* ---- 四个按钮的公共几何（与游戏一致 ✓ 440×60 @x420 ✓） ---- */
+.opt{left:420px;width:440px;height:60px}
+.o1{top:360px}.o2{top:430px}.o3{top:500px}.o4{top:570px}
+.opt .t{left:0;top:19px;font-size:20px;color:var(--deep)}
+.opt .k{left:392px;top:20px;width:40px;text-align:right;font-family:'Novecento Wide',sans-serif;font-size:11px;letter-spacing:.14em;color:var(--ice2)}
+.opt .ln{left:0;top:58px;width:440px;height:1px;background:var(--ice2);opacity:.55}
+.opt .mist{left:0;top:0;width:440px;height:60px;background:url('../素材/众生行记/entry_bg.png') center/cover no-repeat;opacity:.5}
+.opt .doveL,.opt .doveR{top:2px;width:52px;height:52px;background-position:center;background-size:contain;background-repeat:no-repeat;opacity:0}
+.opt .doveL{background-image:url('../素材/众生行记/bird_left1.png')}
+.opt .doveR{background-image:url('../素材/众生行记/bird_right.png')}
+
+/* ---- ① 雾纹底：只用 entry_bg 做极淡纸纹 ✓ 底线保留 ✓ ---- */
+.v1 .opt .mist{opacity:.55}
+/* ---- ② 雾纹纸片：白纸 .72 ＋ 雾纹 ＋ 1px 冰蓝框（无底线 ✗） ---- */
+.v2 .opt{background:rgba(255,255,255,.72);border:1px solid rgba(143,168,189,.6);overflow:hidden}
+.v2 .opt .ln{display:none}
+/* ---- ③ 左鸽：无底 ✓ 只留底线 ✓ hover 时一只白鸽从左侧掠入 ✓ ---- */
+.v3 .opt.hov .doveL{animation:flyL 1.1s ease-out infinite}
+@keyframes flyL{0%{left:-56px;opacity:0}15%{opacity:1}100%{left:450px;opacity:0}}
+/* ---- ④ 右鸽：同上但鸽子从右侧飞入（bird_right ✓） ---- */
+.v4 .opt.hov .doveR{animation:flyR 1.1s ease-out infinite}
+@keyframes flyR{0%{left:450px;opacity:0}15%{opacity:1}100%{left:-56px;opacity:0}}
+/* ---- ⑤ 双鸽：hover 时左右各一只相对飞过 ✓✓ ---- */
+.v5 .opt .mist{opacity:.4}
+.v5 .opt.hov .doveL{animation:flyL 1.1s ease-out infinite}
+.v5 .opt.hov .doveR{animation:flyR 1.1s ease-out infinite}
+/* ---- ⑥ 虚线框：四边 1px 虚线（图纸裁切感 ✓）＋ 极淡雾纹 ✓ ---- */
+.v6 .opt{border:1px dashed rgba(93,122,145,.8)}
+.v6 .opt .mist{opacity:.3}
+.v6 .opt .ln{display:none}
+/* ---- hover / 选中 的共通反馈（每版一致 ✓） ---- */
+.opt.hov .ln{background:var(--teal);opacity:1;height:2px;top:57px}
+.opt.sel .ln{background:var(--slate);opacity:1;height:2px;top:57px}
+.v2 .opt.hov{border-color:var(--teal);background:rgba(255,255,255,.9)}
+.v2 .opt.sel{border-color:var(--slate);background:#fff}
+.v6 .opt.hov{border-style:solid;border-color:var(--teal)}
+.v6 .opt.sel{border-style:solid;border-color:var(--slate)}
+</style></head><body>
+
+<div class="lab"><b>① 雾纹底</b>　按钮里铺一层极淡的<i>entry_bg 雾纹</i>（真素材 ✓ alpha .55 ✓）＋ 保留冰蓝下底线 ✓　<i>改动最小 ✓</i></div>
+<div class="stage v1">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">paint</div>
+  <div class="opt o1"><div class="mist"></div><div class="t">奶油；乳脂</div><div class="k">A</div><div class="ln"></div></div>
+  <div class="opt o2"><div class="mist"></div><div class="t">白色；洁白</div><div class="k">B</div><div class="ln"></div></div>
+  <div class="opt o3 hov"><div class="mist"></div><div class="t">自由；许可</div><div class="k">C</div><div class="ln"></div></div>
+  <div class="opt o4 sel"><div class="mist"></div><div class="t">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>② 雾纹纸片</b>　白纸 .72 ＋ <i>雾纹</i> ＋ 1px 冰蓝细框 ✓（不要底线 ✗）　对比度明显改善 ✓</div>
+<div class="stage v2">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">paint</div>
+  <div class="opt o1"><div class="mist"></div><div class="t" style="left:16px">奶油；乳脂</div><div class="k" style="left:376px">A</div></div>
+  <div class="opt o2"><div class="mist"></div><div class="t" style="left:16px">白色；洁白</div><div class="k" style="left:376px">B</div></div>
+  <div class="opt o3 hov"><div class="mist"></div><div class="t" style="left:16px">自由；许可</div><div class="k" style="left:376px">C</div></div>
+  <div class="opt o4 sel"><div class="mist"></div><div class="t" style="left:16px">宽度；广度</div><div class="k" style="left:376px">D</div></div>
+</div>
+
+<div class="lab"><b>③ 左鸽</b>　不加任何底色 ✓ 保留原样（无框＋底线 ✓）　<b>hover 时一只<i>白鸽</i>从左侧掠入该行</b> ✓（真素材 bird_left1 ✓）</div>
+<div class="stage v3">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">paint</div>
+  <div class="opt o1"><div class="t">奶油；乳脂</div><div class="k">A</div><div class="ln"></div></div>
+  <div class="opt o2 hov"><div class="doveL"></div><div class="t">白色；洁白</div><div class="k">B</div><div class="ln"></div></div>
+  <div class="opt o3"><div class="t">自由；许可</div><div class="k">C</div><div class="ln"></div></div>
+  <div class="opt o4 sel"><div class="t">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>④ 右鸽</b>　同上 ✓ 但鸽子从<b>右侧</b>掠入（真素材 bird_right ✓）　方向与"敌人从右边来"一致 ✓</div>
+<div class="stage v4">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">paint</div>
+  <div class="opt o1"><div class="t">奶油；乳脂</div><div class="k">A</div><div class="ln"></div></div>
+  <div class="opt o2 hov"><div class="doveR"></div><div class="t">白色；洁白</div><div class="k">B</div><div class="ln"></div></div>
+  <div class="opt o3"><div class="t">自由；许可</div><div class="k">C</div><div class="ln"></div></div>
+  <div class="opt o4 sel"><div class="t">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>⑤ 双鸽 ＋ 雾纹</b>　雾纹底 .4 ✓ ＋ hover 时<b>左右各一只白鸽相对飞过</b> ✓✓（两张鸽子素材都用上 ✓）</div>
+<div class="stage v5">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">paint</div>
+  <div class="opt o1"><div class="mist"></div><div class="t">奶油；乳脂</div><div class="k">A</div><div class="ln"></div></div>
+  <div class="opt o2 hov"><div class="mist"></div><div class="doveL"></div><div class="doveR"></div><div class="t">白色；洁白</div><div class="k">B</div><div class="ln"></div></div>
+  <div class="opt o3"><div class="mist"></div><div class="t">自由；许可</div><div class="k">C</div><div class="ln"></div></div>
+  <div class="opt o4 sel"><div class="mist"></div><div class="t">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>⑥ 虚线框</b>　四边 1px <b>虚线</b>（图纸裁切感 ✓）＋ 极淡雾纹 .3 ✓　hover 转实线淡青 ✓　选中转实线青灰 ✓</div>
+<div class="stage v6">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">paint</div>
+  <div class="opt o1"><div class="mist"></div><div class="t" style="left:16px">奶油；乳脂</div><div class="k" style="left:376px">A</div></div>
+  <div class="opt o2"><div class="mist"></div><div class="t" style="left:16px">白色；洁白</div><div class="k" style="left:376px">B</div></div>
+  <div class="opt o3 hov"><div class="mist"></div><div class="t" style="left:16px">自由；许可</div><div class="k" style="left:376px">C</div></div>
+  <div class="opt o4 sel"><div class="mist"></div><div class="t" style="left:16px">宽度；广度</div><div class="k" style="left:376px">D</div></div>
+</div>
+
+<div class="lab" style="height:60px">
+<b>六版都只改四个按钮</b> ✓ —— 背景 ✓ 词卡 ✓ 顶栏 ✓ 倒计时 ✓ 立绘 ✓ 一概没动 ✓<br>
+每版里：<u>第三行＝hover 态</u> ✓ <u>第四行＝选中态</u> ✓（前两版分别是普通态 ✓）　全部可复现 ✓：真 PNG ＋ 矩形 ＋ 1px 线 ＋ tween ✓
+</div>
+</body></html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒 · 鸽群四散（自答对格中心 · 1:1）</title>
+<style>
+/* ============================================================================
+   用户 2026-09-21 指定：
+     · 用「甲 · 鸽群四散」✓（朴素做法 ✓ 不加三波/景深/落羽 ✗ —— 那些是上一版被你回退的 ✗）
+     · **起点＝答对那一格（正确方框）的中心** ✓✓ 沿 360° 均匀四散往外飞 ✓
+   实现：12 只白鸽 · 每 30° 一只 · 距离 360~560 随机 ✓
+         朝向按方向决定（dx>0 用 bird_right ✓ dx<0 用 bird_left ✓ → 鸽子头永远朝飞行方向 ✓✓）
+         ＋ 起点一记闪光（flassh_3 ✓）
+   ★ 可复现 ✓：真 PNG 精灵 ＋ 位移/缩放/alpha tween ✓（直线径向 ✓ Phaser 原生 ✓）
+   ============================================================================ */
+:root{--deep:#12232e;--acc:#54686a;--ice:#8fa8bd}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.lab{width:1280px;margin:24px auto 8px;color:#fff;font-size:13px;line-height:21px}
+.lab b{font-size:16px}.lab i{font-style:normal;color:#a9c6d6}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto 10px;overflow:hidden;background:#eaf2f7}
+.stage *{position:absolute;box-sizing:border-box}
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.veil{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:.52}
+.grid{left:0;top:0;width:1280px;height:720px;background-image:linear-gradient(#54686a 1px,transparent 1px),linear-gradient(90deg,#54686a 1px,transparent 1px);background-size:40px 40px;opacity:.13}
+.plate{top:160px;width:272px;height:264px;background:#141a20;border:1px solid #3d5a70}
+.plateL{left:14px}.plateR{left:994px}
+.sprL{left:49px;top:160px;width:202px;height:264px;background:url('../assets/img/logos-idle.png') 0 0/3030px 2640px no-repeat}
+.sprR{left:1020px;top:182px;width:220px;height:220px;background:url('../assets/img/saint-idle.png') 0 0/1760px 4840px no-repeat;transform:scaleX(-1)}
+.nmL{left:14px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.nmR{left:994px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.bar{top:488px;width:272px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.barL{left:14px}.barR{left:994px}
+.bar i{left:0;top:0;height:10px;display:block}
+.card{left:420px;top:150px;width:440px;height:180px;background:rgba(255,255,255,.86);border:1px solid var(--ice)}
+.cardtag{left:436px;top:161px;font-family:'Novecento Wide',sans-serif;font-size:10px;letter-spacing:.18em;color:var(--acc)}
+.word{left:440px;top:200px;width:400px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:700;color:var(--deep)}
+.cdlab{left:420px;top:96px;font-size:13px;color:var(--deep)}
+.cd{left:420px;top:126px;width:440px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.cdfill{left:0;top:0;height:10px;width:62%;background:var(--acc)}
+.cdtxt{left:872px;top:120px;width:64px;text-align:right;font-size:16px;font-weight:700;color:var(--acc);font-family:'Space Grotesk',sans-serif}
+.hudr{right:44px;top:26px;font-size:14px;color:var(--deep)}
+.opt{width:320px;height:84px;transform:translate(-50%,-50%)}
+.a1{left:468px;top:436px}.a2{left:812px;top:436px}.a3{left:468px;top:536px}.a4{left:812px;top:536px}
+.opt .paper{left:0;top:0;width:320px;height:84px;background:#fff;opacity:.45}
+.opt .t{left:0;top:0;width:320px;height:84px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:20px;color:var(--deep);line-height:26px}
+.opt .fr{left:0;top:0;width:320px;height:84px;border:1px solid var(--acc);opacity:.9}
+.opt .tk{width:9px;height:9px;border:1px solid var(--acc)}
+.opt .tk1{left:-4.5px;top:-4.5px}.opt .tk2{left:315.5px;top:-4.5px}.opt .tk3{left:-4.5px;top:79.5px}.opt .tk4{left:315.5px;top:79.5px}
+.opt .id{left:8px;top:70px;font-family:'Novecento Wide',sans-serif;font-size:9px;letter-spacing:.16em;color:var(--acc)}
+/* 答对的那一格：外框加粗一瞬 ✓（B1 中心 (812,436) ✓ 就是鸽子群的起点 ✓）*/
+.opt.correct .fr{border-width:2px;opacity:1;animation:cf 2s ease-out infinite}
+@keyframes cf{0%{opacity:.9}8%{opacity:1}50%{opacity:1}100%{opacity:.9}}
+.cdot{left:812px;top:436px;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;background:var(--acc);opacity:0;animation:cd 2s ease-out infinite}
+@keyframes cd{0%{opacity:0;transform:scale(.4)}10%{opacity:1;transform:scale(1)}70%{opacity:1}100%{opacity:0}}
+.fx{left:0;top:0;width:1280px;height:720px;pointer-events:none}
+/* 起点闪光（弹点正中 ✓）*/
+.ofl{left:812px;top:436px;width:200px;height:200px;margin:-100px 0 0 -100px;
+     background:url('../素材/月行水上/flassh_3.png') center/contain no-repeat;opacity:0;animation:ofl 2s ease-out infinite}
+@keyframes ofl{0%{transform:scale(.3);opacity:0}7%{transform:scale(.55);opacity:.95}26%{transform:scale(1.1);opacity:0}100%{opacity:0}}
+/* 12 只白鸽：每 30° 一只 ✓ 从中心沿直线往外 ✓ 头朝飞行方向 ✓ */
+.dv{left:812px;top:436px;width:78px;height:78px;margin:-39px 0 0 -39px;
+    background-position:center;background-size:contain;background-repeat:no-repeat;opacity:0}
+.dL{background-image:url('../素材/众生行记/bird_left1.png')}
+.dR{background-image:url('../素材/众生行记/bird_right.png')}
+/* 每只：位移到极坐标端点 ✓ 距离 360~560 ✓ 顺带轻微放大与摆动 */
+.k1 {animation:k1  2s cubic-bezier(.2,.75,.3,1) infinite}
+.k2 {animation:k2  2s cubic-bezier(.2,.75,.3,1) infinite}
+.k3 {animation:k3  2s cubic-bezier(.2,.75,.3,1) infinite}
+.k4 {animation:k4  2s cubic-bezier(.2,.75,.3,1) infinite}
+.k5 {animation:k5  2s cubic-bezier(.2,.75,.3,1) infinite}
+.k6 {animation:k6  2s cubic-bezier(.2,.75,.3,1) infinite}
+.k7 {animation:k7  2s cubic-bezier(.2,.75,.3,1) infinite}
+.k8 {animation:k8  2s cubic-bezier(.2,.75,.3,1) infinite}
+.k9 {animation:k9  2s cubic-bezier(.2,.75,.3,1) infinite}
+.k10{animation:k10 2s cubic-bezier(.2,.75,.3,1) infinite}
+.k11{animation:k11 2s cubic-bezier(.2,.75,.3,1) infinite}
+.k12{animation:k12 2s cubic-bezier(.2,.75,.3,1) infinite}
+/* 端点＝中心 ＋ 距离·(cosθ, sinθ)：0°/30°/…/330° ✓ 距离 360~560 ✓ */
+@keyframes k1 {0%{transform:translate(0,0) scale(.5);opacity:0}10%{opacity:1}100%{transform:translate(560px,0) scale(1.15);opacity:0}}
+@keyframes k2 {0%{transform:translate(0,0) scale(.5);opacity:0}10%{opacity:1}100%{transform:translate(485px,280px) scale(1.1);opacity:0}}
+@keyframes k3 {0%{transform:translate(0,0) scale(.5);opacity:0}10%{opacity:1}100%{transform:translate(280px,485px) scale(1.05);opacity:0}}
+@keyframes k4 {0%{transform:translate(0,0) scale(.5);opacity:0}10%{opacity:1}100%{transform:translate(0,430px) scale(1);opacity:0}}
+@keyframes k5 {0%{transform:translate(0,0) scale(.5);opacity:0}10%{opacity:1}100%{transform:translate(-300px,520px) scale(1.1);opacity:0}}
+@keyframes k6 {0%{transform:translate(0,0) scale(.5);opacity:0}10%{opacity:1}100%{transform:translate(-540px,290px) scale(1.15);opacity:0}}
+@keyframes k7 {0%{transform:translate(0,0) scale(.5);opacity:0}10%{opacity:1}100%{transform:translate(-560px,0) scale(1.15);opacity:0}}
+@keyframes k8 {0%{transform:translate(0,0) scale(.5);opacity:0}10%{opacity:1}100%{transform:translate(-480px,-275px) scale(1.1);opacity:0}}
+@keyframes k9 {0%{transform:translate(0,0) scale(.5);opacity:0}10%{opacity:1}100%{transform:translate(-275px,-480px) scale(1.05);opacity:0}}
+@keyframes k10{0%{transform:translate(0,0) scale(.5);opacity:0}10%{opacity:1}100%{transform:translate(30px,-545px) scale(1.1);opacity:0}}
+@keyframes k11{0%{transform:translate(0,0) scale(.5);opacity:0}10%{opacity:1}100%{transform:translate(300px,-530px) scale(1.15);opacity:0}}
+@keyframes k12{0%{transform:translate(0,0) scale(.5);opacity:0}10%{opacity:1}100%{transform:translate(520px,-300px) scale(1.1);opacity:0}}
+.ruler{left:44px;top:676px;width:1192px;height:22px;font-size:11px;color:var(--acc);font-family:'Novecento Wide',sans-serif;letter-spacing:.14em}
+</style></head><body>
+
+<div class="lab"><b>甲 · 鸽群四散（起点＝答对那一格的中心）</b>　素材：<i>bird_left1 / bird_right（众生行记 ✓）＋ flassh_3（月行水上 ✓ 起点闪光）</i>
+　★ 答对的那格＝<b>B1（中心 812,436 ✓）</b>→ 12 只白鸽 <b>沿 360° 每 30° 一只</b>从**该格中心**往外飞 ✓ 鸽子头始终朝飞行方向 ✓（左半用 bird_left ✓ 右半用 bird_right ✓）</div>
+<div class="stage">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#8fa8bd;width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN</div><div class="word">suit</div>
+  <div class="opt a1"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A1</div><div class="t">诉讼；恳求</div></div>
+  <div class="opt a2 correct"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B1</div><div class="t">快乐；希望</div></div>
+  <div class="opt a3"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A2</div><div class="t">月亮；月球</div></div>
+  <div class="opt a4"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B2</div><div class="t">除了；要不是</div></div>
+  <div class="fx">
+    <div class="cdot"></div>
+    <div class="ofl"></div>
+    <div class="dv dR k1"></div><div class="dv dR k2"></div><div class="dv dR k3"></div><div class="dv dR k4"></div>
+    <div class="dv dL k5"></div><div class="dv dL k6"></div><div class="dv dL k7"></div><div class="dv dL k8"></div>
+    <div class="dv dL k9"></div><div class="dv dL k10"></div><div class="dv dR k11"></div><div class="dv dR k12"></div>
+  </div>
+  <div class="ruler">0.00 中心一记闪光 ＋ 格心取点方块亮起　0.20-2.0s 十二只白鸽沿 360° 均匀四散（距离 430~560 ✓）　被答对那格外框加粗 2px</div>
+</div>
+
+<div class="lab" style="height:78px">
+<b>要点</b>：① 起点是**答对那一格的中心** ✓（换题、换正确项时自动跟着走 ✓ 游戏里就是 <code>optionButtons[correctIndex].x / .y</code> ✓✓ 现成可用 ✓）
+　② **360° 均匀**（每 30° ✓）不是随机乱飞 ✓ 有"炸开"的秩序感 ✓
+　③ **鸽子头朝飞行方向**（dx&gt;0 用右向图 ✓ dx&lt;0 用左向图 ✓✓）—— 素材两张正好一左一右 ✓ 这点用对了 ✓
+　④ 距离与大小略微错开（430~560 ✓ 0.5→1.15 倍 ✓）避免像印章 ✗<br>
+<b>可复现性</b> ✓：真 PNG 精灵 ＋ 位移/缩放/alpha tween ✓（直线径向 ✓ Phaser 原生 ✓）零模糊 ✗ 零渐变 ✗
+</div>
+</body></html>

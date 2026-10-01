@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>巴别残响 · 革命性方向四方案</title>
+<style>
+/* ============================================================================
+   跳出舟味框架 · 四个革命性方向（几何锁死 = 当前游戏数值，落地零布局改动）
+     D · 声波仪器   —— 界面＝一台测语言的示波器（频谱/波形/磷光）
+     E · 活字压印   —— 界面＝铅字与粗纸（压凹/朱印/墨渍）
+     F · 拆解排版   —— 界面＝打样稿（超粗黑框/裁切标记/色彩标注条）
+     G · 深海残响   —— 界面＝深潜器视窗（玻璃/生物荧光/水波折射）
+   几何基准：页眉52 | 立绘牌272×264 顶边160(左14/右994) | 名字带432 血条464 数值486
+             词卡 300~980 × 145~325 | 机制槽位 y=518 | 选项320×84 中心(468/812,436/536)
+             底栏 分隔线656 内容668
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2')format('woff2');font-weight:900}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#d9d7d1;font-family:'HOS',sans-serif;-webkit-font-smoothing:antialiased}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:16px;padding:20px 16px 80px}
+.head{width:100%;max-width:1360px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.head h1{font-size:19px;margin:0;font-weight:900}
+.head p{margin:0;color:#6b6f76;font-size:12.5px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.tabs button{font-family:'HOS';font-weight:700;font-size:12.5px;padding:8px 14px;border-radius:3px;cursor:pointer;border:1px solid #b9b6ad;background:#fff;color:#24252a}
+.tabs button.on{background:#101214;color:#fff;border-color:#101214}
+.viewport{position:relative;width:100%;max-width:1360px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 22px 60px rgba(0,0,0,.22);overflow:hidden}
+.notes{width:100%;max-width:1360px;font-size:12.5px;line-height:1.8;border-radius:4px;padding:14px 16px}
+
+/* ================= 令牌：现状 + 四个方向 ================= */
+body.s-now{--bg:#f1f0ec;--panel:#fffdf9;--ink:#1f2024;--muted:#6b6f76;--line:#c9c6bd;--line-ink:#1f2024;
+  --accent:#fff44f;--on-accent:#1f2024;--plate:#141519;--plate-line:#2a2b30;--radius:4px;
+  --shadow:3px 3px 0 rgba(31,32,36,.13);--wordFont:'Grotesk';--wordWeight:600;--wordSpacing:-.01em;--wordSize:52px;
+  --typeShadow:none;--screenBgExtra:none}
+/* —— D 声波仪器 —— */
+body.s-d{--bg:#080b0d;--panel:#0e1417;--ink:#daf7f2;--muted:#6d8c8a;--line:#1c2b2d;--line-ink:#3ce0b4;
+  --accent:#3ce0b4;--on-accent:#04211a;--plate:#05090a;--plate-line:#1a3a35;--radius:2px;
+  --shadow:0 0 22px rgba(60,224,180,.14);--wordFont:'Grotesk';--wordWeight:600;--wordSpacing:.02em;--wordSize:52px;
+  --typeShadow:0 0 18px rgba(60,224,180,.35);--screenBgExtra:radial-gradient(120% 80% at 50% 45%,#0d171a 0%,#070b0c 70%)}
+/* —— E 活字压印 —— */
+body.s-e{--bg:#e6dfd0;--panel:#f2ecdd;--ink:#2b2620;--muted:#7a7060;--line:#c3b8a2;--line-ink:#2b2620;
+  --accent:#b4341f;--on-accent:#f6efe1;--plate:#241f19;--plate-line:#4a4136;--radius:0px;
+  --shadow:inset 0 1px 0 #fff,inset 0 -2px 0 rgba(43,38,32,.10),2px 3px 0 rgba(43,38,32,.14);
+  --wordFont:'Novecento';--wordWeight:700;--wordSpacing:.01em;--wordSize:50px;
+  --typeShadow:0 1px 0 rgba(255,255,255,.75),0 0 1px rgba(43,38,32,.9);--screenBgExtra:none}
+/* —— F 拆解排版 —— */
+body.s-f{--bg:#f4f2e8;--panel:#ffffff;--ink:#000000;--muted:#5a5a5a;--line:#000000;--line-ink:#000000;
+  --accent:#ff3b00;--on-accent:#ffffff;--plate:#000000;--plate-line:#000000;--radius:0px;
+  --shadow:none;--wordFont:'Novecento';--wordWeight:700;--wordSpacing:-.035em;--wordSize:64px;
+  --typeShadow:none;--screenBgExtra:none}
+/* —— G 深海残响 —— */
+body.s-g{--bg:#04121a;--panel:rgba(255,255,255,.07);--ink:#eafaff;--muted:#8fb8c4;--line:rgba(255,255,255,.16);--line-ink:#63f5d8;
+  --accent:#63f5d8;--on-accent:#032026;--plate:rgba(255,255,255,.05);--plate-line:rgba(255,255,255,.20);--radius:22px;
+  --shadow:0 18px 50px rgba(0,0,0,.45),0 0 40px rgba(99,245,216,.10),inset 0 1px 0 rgba(255,255,255,.18);
+  --wordFont:'Grotesk';--wordWeight:600;--wordSpacing:.01em;--wordSize:54px;
+  --typeShadow:1.5px 0 rgba(255,0,90,.30),-1.5px 0 rgba(0,190,255,.30);--screenBgExtra:radial-gradient(110% 75% at 50% 30%,#0b2c3a 0%,#04121a 65%)}
+
+/* ================= 画面 ================= */
+.screen{position:relative;width:1280px;height:720px;background:var(--bg);background-image:var(--screenBgExtra);color:var(--ink);overflow:hidden}
+body.s-g .screen{backdrop-filter:blur(0)}
+.deco{position:absolute;inset:0;pointer-events:none;z-index:6}
+.deco>div{position:absolute;inset:0;display:none}
+/* D：示波器网格 + 浮点 */
+body.s-d .d-grid{display:block;background-image:
+  repeating-linear-gradient(0deg,rgba(60,224,180,.10) 0 1px,transparent 1px 40px),
+  repeating-linear-gradient(90deg,rgba(60,224,180,.10) 0 1px,transparent 1px 40px)}
+body.s-d .d-scan{display:block;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px)}
+/* E：粗纸纤维 + 墨渍 */
+body.s-e .e-paper{display:block;opacity:.5;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/></filter><rect width='180' height='180' filter='url(%23p)' opacity='0.55'/></svg>")}
+/* F：裁切标记 + 色彩标注条 */
+body.s-f .f-marks{display:block}
+body.s-f .f-marks span{position:absolute;width:22px;height:22px;border:0 solid #000}
+body.s-f .f-marks .m1{left:14px;top:66px;border-left-width:2px;border-top-width:2px}
+body.s-f .f-marks .m2{right:14px;top:66px;border-right-width:2px;border-top-width:2px}
+body.s-f .f-marks .m3{left:14px;bottom:14px;border-left-width:2px;border-bottom-width:2px}
+body.s-f .f-marks .m4{right:14px;bottom:14px;border-right-width:2px;border-bottom-width:2px}
+/* G：浮游颗粒 */
+body.s-g .g-particles{display:block;background-image:
+  radial-gradient(rgba(255,255,255,.55) .8px,transparent 1.2px),
+  radial-gradient(rgba(99,245,216,.45) .7px,transparent 1.1px);
+  background-size:120px 120px,74px 74px;background-position:0 0,30px 45px;opacity:.5}
+
+/* 页眉 */
+.hud{position:absolute;left:0;top:0;width:1280px;height:52px;display:flex;align-items:center;gap:12px;padding:0 24px;z-index:5;
+  background:var(--panel);border-bottom:1px solid var(--line-ink)}
+body.s-f .hud{border-bottom-width:4px}
+body.s-g .hud{border-bottom-color:var(--line);background:rgba(255,255,255,.05)}
+.pill{font-family:'Novecento';font-weight:600;font-size:12px;letter-spacing:.05em;background:var(--accent);color:var(--on-accent);padding:4px 10px;border-radius:var(--radius)}
+body.s-e .pill{border:1px solid #7d2416;box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+body.s-f .pill{border-radius:0;font-size:13px;padding:5px 12px}
+.floor{font-family:'Novecento';font-weight:600;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.floor b{font-family:'HOS';font-weight:700;font-size:14px;color:var(--ink)}
+.spacer{flex:1}
+.stat{font-family:'Grotesk';font-size:15px;letter-spacing:.02em}
+.stat i{font-style:normal;color:var(--muted);font-family:'HOS';font-size:12px}
+.btn-ghost{font-family:'HOS';font-weight:700;font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:7px 18px;cursor:pointer}
+body.s-f .btn-ghost{border-width:2px}
+
+/* 立绘牌 */
+.plate{position:absolute;top:160px;width:272px;height:264px;background:var(--plate);border:1px solid var(--plate-line);
+  border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;z-index:2}
+.plate.left{left:14px}.plate.right{left:994px}
+body.s-g .plate{backdrop-filter:blur(6px)}
+.plate .art{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background-repeat:no-repeat;background-position:0 0}
+.plate.left .art{width:150px;height:196px;background-image:url('../assets/img/logos-idle.png');background-size:2250px 1960px}
+.plate.right .art{width:190px;height:202px;background-image:url('../assets/img/andoain-idle.png');background-size:1900px 2020px;transform:translate(-50%,-50%) scaleX(-1)}
+body.s-d .plate .art{filter:saturate(.55) contrast(1.15) brightness(1.02)}
+body.s-e .plate{background:#241f19;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+body.s-e .plate .art{filter:grayscale(.35) contrast(1.08) sepia(.12)}
+body.s-f .plate{border-width:4px}
+body.s-f .plate .art{filter:grayscale(1) contrast(1.3)}
+body.s-g .plate .art{filter:saturate(1.1) brightness(.95)}
+
+.nameband{position:absolute;top:432px;width:272px;display:flex;align-items:baseline;z-index:3}
+.nameband.left{left:14px}.nameband.right{left:994px}
+.nameband .nm{font-weight:700;font-size:17px;color:var(--ink);text-shadow:var(--typeShadow)}
+body.s-f .nameband .nm{font-weight:900;font-size:19px;letter-spacing:-.02em}
+.hp{position:absolute;top:464px;width:272px;height:16px;border:1px solid var(--line-ink);background:var(--panel);overflow:hidden;z-index:3}
+.hp.left{left:14px}.hp.right{left:994px}
+body.s-f .hp{border-width:3px;height:20px;top:462px}
+body.s-g .hp{border-radius:8px}
+.hp i{position:absolute;inset:0;transform-origin:left center}
+.hp i.p{background:#5cc5e8}.hp i.e{background:#ff625d}
+body.s-d .hp i.p{background:#3ce0b4}body.s-d .hp i.e{background:#ff7a6b}
+body.s-e .hp i.p{background:#3f6f7a}body.s-e .hp i.e{background:#b4341f}
+body.s-f .hp i.p{background:#000}body.s-f .hp i.e{background:#ff3b00}
+body.s-g .hp i.p{background:linear-gradient(90deg,#63f5d8,#8fe6ff)}body.s-g .hp i.e{background:linear-gradient(90deg,#ff6b8b,#b07cff)}
+.hp .ticks{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent 0 30px,rgba(0,0,0,.28) 30px 31px)}
+body.s-d .hp .ticks,body.s-g .hp .ticks,body.s-e .hp .ticks{background-image:repeating-linear-gradient(90deg,transparent 0 30px,rgba(255,255,255,.18) 30px 31px)}
+body.s-f .hp .ticks{background-image:repeating-linear-gradient(90deg,transparent 0 30px,rgba(255,255,255,.9) 30px 32px)}
+.numrow{position:absolute;top:486px;width:272px;display:flex;align-items:baseline;z-index:3}
+.numrow.left{left:14px}.numrow.right{left:994px}
+.numrow .n{font-family:'Grotesk';font-weight:600;font-size:20px;color:var(--ink);text-shadow:var(--typeShadow)}
+body.s-f .numrow .n{font-size:26px;font-weight:700}
+.numrow .l{margin-left:auto;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.16em;color:var(--muted)}
+
+/* 词卡 */
+.card{position:absolute;left:300px;top:145px;width:680px;height:180px;background:var(--panel);border:1px solid var(--line-ink);
+  border-radius:var(--radius);box-shadow:var(--shadow);z-index:4}
+body.s-g .card{backdrop-filter:blur(10px)}
+body.s-f .card{border-width:4px}
+/* D：卡片像仪器读数窗（右上 REC + 刻度） */
+.card .rec{position:absolute;right:22px;top:20px;display:none;align-items:center;gap:7px;font-family:'Grotesk';font-size:11px;letter-spacing:.18em;color:var(--accent)}
+.card .rec i{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:blink 1.4s infinite}
+@keyframes blink{0%,60%{opacity:1}61%,100%{opacity:.15}}
+body.s-d .card .rec{display:flex}
+.card .combo{position:absolute;right:22px;top:22px;font-family:'Grotesk';font-weight:600;font-size:15px;color:var(--muted)}
+body.s-d .card .combo{display:none}
+.card .word{position:absolute;left:40px;right:40px;top:78px;transform:translateY(-50%);text-align:center;
+  font-family:var(--wordFont);font-weight:var(--wordWeight);font-size:var(--wordSize);letter-spacing:var(--wordSpacing);
+  color:var(--ink);text-shadow:var(--typeShadow)}
+body.s-f .card .word{text-transform:uppercase;left:24px;right:24px}
+body.s-e .card .word{-webkit-text-stroke:.4px rgba(43,38,32,.5)}
+body.s-g .card .word{letter-spacing:.03em}
+.card .rule{position:absolute;left:24px;right:24px;top:112px;height:1px;background:var(--line)}
+body.s-f .card .rule{height:3px;background:#000}
+.card .hint{position:absolute;left:22px;top:134px;transform:translateY(-50%);font-size:13px;color:var(--muted)}
+body.s-f .card .hint{font-weight:700;letter-spacing:.02em;color:#000}
+body.s-e .card .hint{font-weight:500}
+.card .sec{position:absolute;right:22px;top:134px;transform:translateY(-50%);font-family:'Grotesk';font-weight:600;font-size:22px;color:var(--ink)}
+body.s-e .card .sec{color:var(--accent)}
+body.s-f .card .sec{font-size:28px;font-weight:700}
+/* 计时条：D 换成频谱柱，G 换成胶囊水压计，E 换成压印槽，F 换成粗黑条 */
+.card .timer{position:absolute;left:20px;right:20px;bottom:12px;height:6px;background:rgba(127,127,127,.26);overflow:hidden}
+.card .timer i{position:absolute;left:0;top:0;bottom:0;width:61%;background:var(--accent)}
+body.s-d .card .timer{height:16px;background:transparent;display:flex;align-items:flex-end;gap:2px}
+body.s-d .card .timer i{display:none}
+body.s-d .card .spectrum{position:absolute;left:0;right:0;bottom:0;height:16px;display:flex;align-items:flex-end;gap:2px}
+body.s-d .card .spectrum b{flex:1;background:linear-gradient(180deg,var(--accent),rgba(60,224,180,.35));opacity:.9}
+body.s-e .card .timer{height:8px;background:#d8cfba;box-shadow:inset 0 2px 3px rgba(43,38,32,.35)}
+body.s-f .card .timer{height:12px;background:#e2e0d5;border:2px solid #000}
+body.s-f .card .timer i{background:#ff3b00}
+body.s-g .card .timer{height:10px;border-radius:6px;background:rgba(255,255,255,.12)}
+body.s-g .card .timer i{border-radius:6px;background:linear-gradient(90deg,#63f5d8,#8fe6ff);box-shadow:0 0 14px rgba(99,245,216,.6)}
+/* E：朱印 */
+.card .stamp{position:absolute;right:48px;top:56px;display:none;width:78px;height:78px;border:4px solid var(--accent);border-radius:4px;
+  color:var(--accent);font-weight:900;font-size:22px;line-height:1.05;text-align:center;padding-top:9px;transform:rotate(-13deg);opacity:.86;
+  box-shadow:inset 0 0 0 1px rgba(180,52,31,.4);letter-spacing:.04em}
+body.s-e .card .stamp{display:block}
+/* F：色彩标注条 */
+.card .colorbar{position:absolute;left:24px;top:-26px;display:none;gap:0}
+body.s-f .card .colorbar{display:flex}
+.card .colorbar b{width:26px;height:14px;display:block}
+.f-tagline{position:absolute;left:300px;top:338px;display:none;font-family:'Novecento';font-weight:700;font-size:11px;letter-spacing:.22em;color:#000}
+body.s-f .f-tagline{display:block}
+
+/* 机制槽位 */
+.mech{position:absolute;left:994px;top:518px;display:flex;align-items:center;gap:10px;z-index:4}
+.chip{display:inline-flex;align-items:center;height:28px;padding:0 10px;gap:6px;background:var(--panel);border:1px solid var(--line-ink);
+  border-radius:var(--radius);font-family:'Grotesk';font-weight:600;font-size:13px;color:var(--ink);text-shadow:var(--typeShadow)}
+body.s-f .chip{border-width:2px;height:30px}
+.pips{display:flex;gap:6px}
+.pip{width:18px;height:18px;border-radius:var(--radius);border:1px solid var(--line-ink);background:var(--panel)}
+body.s-g .pip{border-radius:50%}
+.pip.on{background:var(--accent);box-shadow:0 0 10px var(--accent)}
+
+/* 选项 */
+.opt{position:absolute;width:320px;height:84px;display:flex;align-items:center;justify-content:center;background:var(--panel);
+  border:1px solid var(--line);border-radius:var(--radius);font-weight:500;font-size:25px;color:var(--ink);z-index:4;
+  text-shadow:var(--typeShadow);transition:transform .16s cubic-bezier(.2,.7,.3,1),box-shadow .16s,border-color .16s}
+.opt.a{left:308px;top:394px}.opt.b{left:652px;top:394px}.opt.c{left:308px;top:494px}.opt.d{left:652px;top:494px}
+body.s-d .opt:hover{border-color:var(--accent);box-shadow:0 0 20px rgba(60,224,180,.22);background:rgba(60,224,180,.06)}
+body.s-e .opt{box-shadow:inset 0 1px 0 #fff,inset 0 -2px 0 rgba(43,38,32,.10),2px 3px 0 rgba(43,38,32,.14)}
+body.s-e .opt:hover{transform:translate(1px,1px);box-shadow:inset 0 2px 3px rgba(43,38,32,.25)}
+body.s-f .opt{border-width:4px;font-weight:700;justify-content:flex-start;padding-left:26px}
+body.s-f .opt:hover{background:#ff3b00;color:#fff;transform:none}
+body.s-g .opt{backdrop-filter:blur(8px);box-shadow:0 10px 26px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.18)}
+body.s-g .opt:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(0,0,0,.45),0 0 24px rgba(99,245,216,.25)}
+
+/* 底部藏品栏 */
+.foot{position:absolute;left:300px;top:656px;width:680px;height:1px;background:var(--line);z-index:3}
+body.s-f .foot{height:3px;background:#000}
+.footrow{position:absolute;left:300px;top:668px;width:680px;display:flex;align-items:center;gap:8px;z-index:3}
+.footrow .lab{font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.16em;color:var(--muted);margin-right:6px}
+.footrow .c{display:inline-flex;align-items:center;height:24px;padding:0 9px;background:var(--panel);color:var(--ink);
+  border:1px solid var(--line);border-radius:var(--radius);font-size:12px}
+body.s-g .footrow .c{backdrop-filter:blur(6px);border-radius:12px}
+body.s-f .footrow .c{border-width:2px;font-weight:700}
+
+/* 方向说明卡 */
+.notes{background:#fff;border:1px solid #d9d8d3;color:#24252a}
+.notes b{font-weight:900}
+.notes code{font-family:'Grotesk';font-size:12px}
+.sw{display:inline-flex;align-items:center;gap:6px;margin-right:14px}
+.sw i{width:16px;height:16px;border-radius:2px;border:1px solid rgba(0,0,0,.25)}
+</style>
+</head>
+<body class="s-d">
+
+<div class="desk">
+  <div class="head">
+    <h1>跳出舟味框架 · 四个革命性方向</h1>
+    <p>几何锁死（与游戏一致）· 材质 / 隐喻 / 字形 / 装饰全部重做</p>
+    <div class="tabs" id="tabs">
+      <button data-s="s-now">现状</button>
+      <button data-s="s-d" class="on">D · 声波仪器</button>
+      <button data-s="s-e">E · 活字压印</button>
+      <button data-s="s-f">F · 拆解排版</button>
+      <button data-s="s-g">G · 深海残响</button>
+    </div>
+  </div>
+
+  <div class="viewport"><div class="stage" id="stage">
+    <div class="screen">
+      <!-- 方案专属装饰层 -->
+      <div class="deco">
+        <div class="d-grid"></div><div class="d-scan"></div>
+        <div class="e-paper"></div>
+        <div class="f-marks"><span class="m1"></span><span class="m2"></span><span class="m3"></span><span class="m4"></span></div>
+        <div class="g-particles"></div>
+      </div>
+
+      <!-- 页眉 -->
+      <div class="hud">
+        <span class="pill">B1 / 01</span>
+        <span class="floor">// FLOOR · <b>回声层</b> · BOSS</span>
+        <span class="spacer"></span>
+        <span class="stat"><i>残页</i> 27</span>
+        <span class="stat"><i>目标生命</i> 12 / 15</span>
+        <button class="btn-ghost">返回</button>
+      </div>
+
+      <!-- 立绘牌 -->
+      <div class="plate left"><div class="art"></div></div>
+      <div class="nameband left"><span class="nm">逻各斯</span></div>
+      <div class="hp left"><i class="p" style="transform:scaleX(.8)"></i><span class="ticks"></span></div>
+      <div class="numrow left"><span class="n">12 / 15</span><span class="l">目标生命</span></div>
+
+      <div class="plate right"><div class="art"></div></div>
+      <div class="nameband right"><span class="nm">殉道者 · 安多恩</span></div>
+      <div class="hp right"><i class="e" style="transform:scaleX(1)"></i><span class="ticks"></span></div>
+      <div class="numrow right"><span class="n">12 / 12</span><span class="l">ENEMY HP</span></div>
+
+      <!-- 机制槽位 -->
+      <div class="mech">
+        <span class="chip">圣环 2/3</span>
+        <span class="pips"><i class="pip on"></i><i class="pip on"></i><i class="pip"></i></span>
+      </div>
+
+      <!-- 词卡 -->
+      <div class="card">
+        <div class="colorbar"><b style="background:#00b7c2"></b><b style="background:#e5007d"></b><b style="background:#ffe800"></b><b style="background:#000000"></b></div>
+        <div class="rec"><i></i>REC</div>
+        <div class="combo">连击 ×2</div>
+        <div class="word">attitude</div>
+        <div class="rule"></div>
+        <div class="hint">连续答对题目以击碎圣环</div>
+        <div class="sec">11</div>
+        <div class="timer"><i></i><span class="spectrum"></span></div>
+        <div class="stamp">正确</div>
+      </div>
+      <div class="f-tagline">PROOF · 03 / TYPO SHEET B</div>
+
+      <!-- 选项 -->
+      <div class="opt a">重要的；重大的</div>
+      <div class="opt b">日落；傍晚</div>
+      <div class="opt c">栖息地；产地</div>
+      <div class="opt d">态度；看法</div>
+
+      <!-- 底栏 -->
+      <div class="foot"></div>
+      <div class="footrow">
+        <span class="lab">藏品</span>
+        <span class="c">破环之诫</span><span class="c">迅捷之羽</span><span class="c">凝视之瞳</span>
+      </div>
+    </div>
+  </div></div>
+
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+/* 频谱柱（D 方案）*/
+(function(){
+  const sp = document.querySelector('.spectrum');
+  if (!sp) return;
+  const H = [6,11,8,14,9,16,7,12,10,15,8,13,6,11,9,14,7,12,10,8,13,6,9,11];
+  H.forEach(h => { const b = document.createElement('b'); b.style.height = h + 'px'; sp.appendChild(b); });
+})();
+
+const NOTES = {
+  's-now': '<b>现状（对照组）</b>：浅色纸张 + 黄描边 + 圆角 4 + 硬阴影。用于与四个新方向对比。',
+  's-d': '<b>D · 声波仪器</b> —— 隐喻"语言＝可测量的信号"。<br>深墨底 + 示波器网格 + 荧光青绿；词卡变成<b>仪器读数窗</b>（右上 REC 呼吸灯）；底部计时器改成<b>频谱柱</b>；连击改为峰值读数；立绘降饱和处理成"被观测对象"。<code>--accent #3ce0b4</code>',
+  's-e': '<b>E · 活字压印</b> —— 隐喻"单词＝铅字，答题＝印刷"。<br>粗纸纤维底 + <b>压凹浮雕</b>（inset 高光/暗边，无投影）；词条用 Novecento 宽体并加<b>墨迹扩散</b>（text-stroke + 微阴影）；答对盖上<b>朱红印章</b>（旋转 13°、半透明、内描边模拟印泥不均）；计时槽改成<b>压印凹槽</b>。立绘做旧（去饱和+棕调）。<code>--accent #b4341f</code>',
+  's-f': '<b>F · 拆解排版</b> —— 隐喻"界面＝印刷打样稿"。<br>纯黑白 + 信号橙；<b>4px 超粗黑框</b>、无圆角无阴影；四角<b>裁切标记</b>；卡片上方<b>色彩标注条</b>（CMYK）；词条<b>全大写 + 极紧字距 64px</b>；选项左对齐、悬停整块变橙；立绘转<b>黑白高对比</b>；页面角标 PROOF 编号。<code>--accent #ff3b00</code>',
+  's-g': '<b>G · 深海残响</b> —— 隐喻"巴别塔沉入深海，词句在水下回响"。<br>深靛蓝径向渐变 + <b>玻璃卡</b>（backdrop-blur + 内高光 + 大圆角 22px）；<b>浮游颗粒</b>纹理；文字带<b>色差（chromatic aberration）</b>；血条/计时条改<b>荧光渐变胶囊</b>并发光；选项悬停上浮发光。<code>--accent #63f5d8</code>'
+};
+const tabs = document.getElementById('tabs'), notes = document.getElementById('notes');
+function setScheme(s){
+  document.body.className = s;
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.s === s));
+  notes.innerHTML = NOTES[s] || '';
+}
+tabs.addEventListener('click', e => { if (e.target.dataset.s) setScheme(e.target.dataset.s); });
+setScheme('s-d');
+
+const stage = document.getElementById('stage'), vp = document.querySelector('.viewport');
+function fit(){
+  const k = Math.min(vp.clientWidth / 1280, Math.max(.42, (window.innerHeight - 330) / 720));
+  stage.style.transform = 'scale(' + k + ')';
+  vp.style.height = (720 * k) + 'px';
+}
+window.addEventListener('resize', fit);
+document.fonts && document.fonts.ready.then(fit);
+fit();
+</script>
+</body>
+</html>

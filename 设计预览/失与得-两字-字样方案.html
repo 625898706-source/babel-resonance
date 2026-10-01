@@ -1,0 +1,60 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>失与得 · 「失 / 得」字样方案</title>
+<style>
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-Medium.748604.woff2') format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Light.9981d6.woff2') format('woff2');font-weight:300}*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f4f4f2;color:#111;font-family:'HarmonyOS Sans SC',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1360px;margin:0 auto;padding:40px 30px 80px}
+.kicker{font-family:'Novecento Wide',sans-serif;font-size:12px;letter-spacing:.22em;color:#9b9fa5;text-transform:uppercase}
+h1{font-family:'Gilroy','HarmonyOS Sans SC',sans-serif;font-weight:300;font-size:38px;margin:8px 0 6px}
+.lead{font-size:14px;color:#6f6f6f;line-height:1.75;max-width:980px}
+.how{margin-top:12px;font-size:12.5px;color:#6f6f6f;line-height:1.85;border-left:2px solid #e6e6e6;padding-left:12px}
+.card{margin-top:26px;border:1px solid #e6e6e6;background:#fff}
+.cap{font-family:'Novecento Wide',sans-serif;font-size:11px;letter-spacing:.18em;color:#9b9fa5;padding:14px 18px 0}
+.name{font-size:16px;font-weight:500;padding:2px 18px 0}
+.impl{font-size:12px;color:#8a8a86;padding:6px 18px 14px;line-height:1.7}
+.stage{position:relative;width:1280px;height:360px;background:#fff;overflow:hidden;margin:0 18px 18px;border:1px solid #f0f0ee}
+.stage *{position:absolute}
+.title{left:0;right:0;top:34px;text-align:center;font-size:30px;font-weight:500;color:#111}
+.spine{left:640px;top:0;width:1px;height:360px;background:#cfcfcb}
+.fs{font-weight:500;color:#111}
+.hair{background:#e6e6e6}
+.lbl{font-family:'Novecento Wide',sans-serif;color:#9b9fa5}
+.box{border:1px solid #c9c9c6}
+.ink{background:#0a0b0d;color:#fff}</style></head><body><div class="wrap">
+<div class="kicker">Babel Resonance · Layout Study · 失与得</div>
+<h1>「失 / 得」两个字 · 8 个美化方案</h1>
+<div class="lead">现状是 <b>11×s 的浅灰小字</b>（Novecento）—— 几乎看不见，也不好看。下面 8 个方案<b>都画在真实界面片段里</b>：标题与中缝按游戏真实坐标，字的位置就是游戏里的位置（<code>cx ∓ 300×s, cy − 300×s</code> ＝ 1280×720 下的 (340,60) / (940,60)）。</div>
+<div class="how"><b>可行性（全部可 100% 复现）</b>：文字＝项目自带字体（HarmonyOS / Novecento Wide）✓ 细线＝<b>1×s 矩形</b>✓ 方框＝矩形描边 ✓ 墨底＝实心矩形 + 白字（E3 里唯一允许的深色图版手法）✓ 红＝唯一红 #e2231a ✓。<b>没有使用任何我实现不了的效果</b>（无阴影模糊、无渐变边框、无图标字体、无 SVG 装饰）✓</div>
+<div class="card"><div class="cap">VARIANT A</div><div class="name">方案 A · 大字 + 一条细线</div>
+  <div class="impl"><b>实现方式</b>：文字 30×s 粗 + 1×s 发丝线（56×s 宽）→ 零风险</div>
+  <div class="stage"><div class="title">失与得</div><div class="spine"></div><div class="fs" style="left:340px;top:60px;transform:translate(-50%,-50%);font-size:30px;">失</div><div class="hair" style="left:312px;top:86px;width:56px;height:1px;"></div>
+     <div class="fs" style="left:940px;top:60px;transform:translate(-50%,-50%);font-size:30px;">得</div><div class="hair" style="left:912px;top:86px;width:56px;height:1px;"></div></div></div><div class="card"><div class="cap">VARIANT B</div><div class="name">方案 B · 方框（印章感）</div>
+  <div class="impl"><b>实现方式</b>：1×s 描边矩形（46×s）+ 居中文字 24×s → 零风险</div>
+  <div class="stage"><div class="title">失与得</div><div class="spine"></div><div class="box" style="left:317px;top:37px;width:46px;height:46px;"></div><div class="fs" style="left:340px;top:60px;transform:translate(-50%,-50%);font-size:24px;">失</div>
+     <div class="box" style="left:917px;top:37px;width:46px;height:46px;"></div><div class="fs" style="left:940px;top:60px;transform:translate(-50%,-50%);font-size:24px;">得</div></div></div><div class="card"><div class="cap">VARIANT C</div><div class="name">方案 C · 墨底反白（最显眼）</div>
+  <div class="impl"><b>实现方式</b>：实心墨色矩形 46×s（0x0a0b0d）+ 白字 24×s → 零风险（E3 允许的深色图版）</div>
+  <div class="stage"><div class="title">失与得</div><div class="spine"></div><div class="ink" style="left:317px;top:37px;width:46px;height:46px;"></div><div class="fs" style="left:340px;top:60px;transform:translate(-50%,-50%);font-size:24px;">失</div>
+     <div class="ink" style="left:917px;top:37px;width:46px;height:46px;"></div><div class="fs" style="left:940px;top:60px;transform:translate(-50%,-50%);font-size:24px;">得</div></div></div><div class="card"><div class="cap">VARIANT D</div><div class="name">方案 D · 大字 + 英文小注（展签感）</div>
+  <div class="impl"><b>实现方式</b>：中文 30×s 粗 + 下面 Novecento 小注 9.5×s（LOSE / GAIN）→ 零风险</div>
+  <div class="stage"><div class="title">失与得</div><div class="spine"></div><div class="fs" style="left:340px;top:52px;transform:translate(-50%,-50%);font-size:30px;">失</div>
+     <div class="lbl" style="left:340px;top:84px;transform:translate(-50%,-50%);font-size:9.5px;letter-spacing:.28em;">LOSE</div>
+     <div class="fs" style="left:940px;top:52px;transform:translate(-50%,-50%);font-size:30px;">得</div>
+     <div class="lbl" style="left:940px;top:84px;transform:translate(-50%,-50%);font-size:9.5px;letter-spacing:.28em;">GAIN</div></div></div><div class="card"><div class="cap">VARIANT E</div><div class="name">方案 E · 上下夹线（引号感）</div>
+  <div class="impl"><b>实现方式</b>：文字 30×s + 上下各 1×s 发丝线（各 56×s）→ 零风险</div>
+  <div class="stage"><div class="title">失与得</div><div class="spine"></div><div class="hair" style="left:312px;top:34px;width:56px;height:1px;"></div><div class="fs" style="left:340px;top:60px;transform:translate(-50%,-50%);font-size:30px;">失</div><div class="hair" style="left:312px;top:90px;width:56px;height:1px;"></div>
+     <div class="hair" style="left:912px;top:34px;width:56px;height:1px;"></div><div class="fs" style="left:940px;top:60px;transform:translate(-50%,-50%);font-size:30px;">得</div><div class="hair" style="left:912px;top:90px;width:56px;height:1px;"></div></div></div><div class="card"><div class="cap">VARIANT F</div><div class="name">方案 F · 一个字 + 唯一红（最省事）</div>
+  <div class="impl"><b>实现方式</b>：文字 34×s 粗 + 唯一红 #e2231a → 零风险</div>
+  <div class="stage"><div class="title">失与得</div><div class="spine"></div><div class="fs" style="left:340px;top:60px;transform:translate(-50%,-50%);font-size:34px;color:#e2231a;">失</div><div class="fs" style="left:940px;top:60px;transform:translate(-50%,-50%);font-size:34px;color:#e2231a;">得</div></div></div><div class="card"><div class="cap">VARIANT G</div><div class="name">方案 G · 大字 + 中缝刻度（最"对开"）</div>
+  <div class="impl"><b>实现方式</b>：文字 30×s + 自中缝伸出的 1×s 短线（各 40×s）→ 零风险</div>
+  <div class="stage"><div class="title">失与得</div><div class="spine"></div><div class="hair" style="left:600px;top:60px;width:40px;height:1px;"></div><div class="fs" style="left:340px;top:60px;transform:translate(-50%,-50%);font-size:30px;">失</div>
+     <div class="hair" style="left:640px;top:60px;width:40px;height:1px;"></div><div class="fs" style="left:940px;top:60px;transform:translate(-50%,-50%);font-size:30px;">得</div></div></div><div class="card"><div class="cap">VARIANT H</div><div class="name">方案 H · 大字 + 中缝刻度 + 英文小注（G+D 合体 ⭐）</div>
+  <div class="impl"><b>实现方式</b>：G 的刻度线 + D 的英文小注 + 30×s 粗字 → 零风险</div>
+  <div class="stage"><div class="title">失与得</div><div class="spine"></div><div class="hair" style="left:600px;top:56px;width:40px;height:1px;"></div>
+     <div class="fs" style="left:340px;top:52px;transform:translate(-50%,-50%);font-size:30px;">失</div>
+     <div class="lbl" style="left:340px;top:84px;transform:translate(-50%,-50%);font-size:9.5px;letter-spacing:.28em;">LOSE</div>
+     <div class="hair" style="left:640px;top:56px;width:40px;height:1px;"></div>
+     <div class="fs" style="left:940px;top:52px;transform:translate(-50%,-50%);font-size:30px;">得</div>
+     <div class="lbl" style="left:940px;top:84px;transform:translate(-50%,-50%);font-size:9.5px;letter-spacing:.28em;">GAIN</div></div></div>
+</div></body></html>

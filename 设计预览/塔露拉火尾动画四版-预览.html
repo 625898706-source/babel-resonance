@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>塔露拉 · 火尾动画四版</title>
+<style>
+/* ============================================================================
+   塔露拉二阶段「火尾动画」四版 —— 字母从右往左传（塔露拉 → 逻各斯）
+   ★ 方向修正：拖尾必须【拖在字母右侧】（来路），且【贴字母处最亮、向后渐隐】
+   A 单层抖焰 / B 三层焰（外焰·中焰·芯）/ C 火尾 + 余烬粒子 / D 速度线 + 浮沉
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 16px 80px}
+.head{width:100%;max-width:1340px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.head h1{font-size:18px;margin:0;font-weight:900}
+.head p{margin:0;font-size:12.5px;color:#6f6f6f}
+.tabs{display:flex;gap:5px;margin-left:auto}
+.tabs button{font-weight:700;font-size:12px;padding:6px 11px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#111;color:#fff;border-color:#111}
+.viewport{position:relative;width:100%;max-width:1340px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 18px 50px rgba(0,0,0,.18);overflow:hidden}
+.screen{position:absolute;inset:0;width:1280px;height:720px;display:none;background:#fff}
+.screen.on{display:block}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.8}
+
+/* 轨道（5 条：y = 245/297/349/401/453，上下线 ±22） */
+.rail{position:absolute;left:300px;width:680px;height:44px}
+.rail .ln{position:absolute;left:0;right:0;height:1px;background:#dcdcdc}
+.rail .ln.t{top:0}.rail .ln.b{bottom:0}
+/* 飞行体：容器随 x 平移；字母 + 尾巴都在里面 */
+.flyer{position:absolute;top:50%;transform:translateY(-50%);left:0;animation:fly 2.6s linear infinite}
+@keyframes fly{from{left:calc(100% - 30px)}to{left:-10px}}
+.ch{position:relative;z-index:3;font-weight:900;font-size:44px;color:#e2231a;display:block;line-height:1}
+/* 尾巴：贴字母处最亮，向右（来路）渐隐 */
+.tail{position:absolute;top:50%;left:26px;transform:translateY(-50%);border-radius:99px;
+  background:linear-gradient(90deg,rgba(255,190,90,.95),rgba(255,120,40,.35) 45%,rgba(226,35,26,0));}
+
+/* ============ A 单层抖焰 ============ */
+#a .tail{width:180px;height:8px;animation:flick 0.5s ease-in-out infinite alternate}
+@keyframes flick{from{opacity:.75;width:150px;filter:blur(1.2px)}to{opacity:1;width:195px;filter:blur(2px)}}
+/* ============ B 三层焰（外焰 / 中焰 / 芯） ============ */
+#b .tail1{width:210px;height:14px;background:linear-gradient(90deg,rgba(255,140,60,.45),rgba(226,35,26,0));filter:blur(4px);animation:flickB 0.7s ease-in-out infinite alternate}
+#b .tail2{width:150px;height:8px;background:linear-gradient(90deg,rgba(255,170,70,.85),rgba(226,35,26,0));filter:blur(1.6px);animation:flickB 0.45s ease-in-out infinite alternate-reverse}
+#b .tail3{width:80px;height:3px;background:linear-gradient(90deg,rgba(255,235,180,1),rgba(255,150,60,0));animation:flickB 0.3s ease-in-out infinite alternate}
+@keyframes flickB{from{opacity:.55;transform:translateY(-50%) scaleX(.86)}to{opacity:1;transform:translateY(-50%) scaleX(1.08)}}
+#b .ch{text-shadow:0 0 12px rgba(255,150,60,.75)}
+/* ============ C 火尾 + 余烬粒子 ============ */
+#c .tail{width:170px;height:7px;animation:flick 0.55s ease-in-out infinite alternate}
+#c .ember{position:absolute;top:50%;width:4px;height:4px;border-radius:50%;background:rgba(255,150,60,.9);
+  animation:ember 1.1s linear infinite}
+@keyframes ember{from{transform:translate(0,-50%) scale(1);opacity:.9}to{transform:translate(120px,-50%) scale(.35);opacity:0}}
+/* ============ D 速度线 + 浮沉 ============ */
+#d .ch{animation:bob 0.9s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(-3px)}to{transform:translateY(3px)}}
+#d .tail{width:190px;height:4px;background:repeating-linear-gradient(90deg,rgba(226,35,26,.75) 0 14px,transparent 14px 26px);
+  animation:speed .35s linear infinite}
+@keyframes speed{from{background-position-x:0}to{background-position-x:-26px}}
+#d .core{position:absolute;top:50%;left:22px;width:60px;height:6px;transform:translateY(-50%);border-radius:99px;
+  background:linear-gradient(90deg,rgba(255,200,110,.95),rgba(226,35,26,0))}
+</style>
+</head>
+<body>
+
+<div class="desk">
+  <div class="head">
+    <h1>塔露拉 · 火尾动画四版（方向已修正）</h1>
+    <p>字母从右往左传 · 尾巴拖在<b>右侧（来路）</b>、贴字母处最亮 · 四版都有循环动画</p>
+    <div class="tabs" id="tabs">
+      <button data-s="a" class="on">A 单层抖焰</button>
+      <button data-s="b">B 三层焰</button>
+      <button data-s="c">C 火尾+余烬</button>
+      <button data-s="d">D 速度线+浮沉</button>
+    </div>
+  </div>
+  <div class="viewport"><div class="stage" id="stage"></div></div>
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+const RAIL_Y = [245, 297, 349, 401, 453];
+const CHS = ['l', 'd', 'r', 'k', 'w'];
+/* 每条轨的动画错开，避免五条同时闪（更有"乱火"感） */
+function railHTML(i, kind) {
+  const delay = (i * 0.27).toFixed(2);
+  const embers = kind === 'c' ? [0, 1, 2].map(j =>
+    `<span class="ember" style="left:${20 + j * 30}px;animation-delay:${(i * 0.2 + j * 0.35).toFixed(2)}s"></span>`).join('') : '';
+  const tails = kind === 'b'
+    ? `<span class="tail tail1"></span><span class="tail tail2"></span><span class="tail tail3"></span>`
+    : (kind === 'd' ? `<span class="core"></span><span class="tail"></span>` : `<span class="tail"></span>`);
+  return `<div class="rail" style="top:${RAIL_Y[i] - 22}px">
+      <span class="ln t"></span><span class="ln b"></span>
+      <div class="flyer" style="animation-delay:-${delay}s">
+        <span class="ch">${CHS[i]}</span>${tails}${embers}
+      </div>
+    </div>`;
+}
+
+function build(kind) {
+  return RAIL_Y.map((_, i) => railHTML(i, kind)).join('') +
+    `<div style="position:absolute;left:0;top:0;width:1280px;height:52px;display:flex;align-items:center;gap:16px;padding:0 30px;border-bottom:1px solid #e6e6e6">
+       <span style="font-family:'Novecento';font-weight:600;font-size:11.5px;color:#e2231a;border:1px solid #e2231a;padding:3px 8px">B2 / 01</span>
+       <span style="font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.24em;color:#6f6f6f">// BOSS · 塔露拉</span>
+     </div>
+     <div style="position:absolute;left:50%;transform:translateX(-50%);top:508px;font-weight:700;font-size:30px">十字路口；杂交</div>
+     <div style="position:absolute;left:50%;transform:translateX(-50%);top:566px;display:flex;gap:6px">
+       ${Array.from({length:6}).map((_,i)=>`<i style="width:46px;height:46px;background:${i<1?'#fff':'#f4f4f4'};border:1px solid ${i<1?'#111':'#cfcfcf'};display:block"></i>`).join('')}
+     </div>`;
+}
+['a','b','c','d'].forEach(id => {
+  const d = document.createElement('div');
+  d.className = 'screen' + (id === 'a' ? ' on' : '');
+  d.id = id; d.innerHTML = build(id);
+  document.querySelector('.stage').appendChild(d);
+});
+
+const NOTES = {
+ a:'<b>A 单层抖焰</b>：一条 150→195px 的橙黄尾巴，<b>长度与亮度来回抖动</b>（0.5s 交替）＋轻微模糊。最省、最稳，动感来自"火焰呼吸"。五条轨的相位错开，看起来像一排乱窜的火舌。',
+ b:'<b>B 三层焰</b>：<b>外焰</b>（210px、模糊 4px、低透明）＋<b>中焰</b>（150px）＋<b>芯</b>（80px、近白），三层以不同频率抖动 → 真正的"火焰"层次；字母加橙色外发光。最好看、也最像火。',
+ c:'<b>C 火尾 + 余烬</b>：在 A 的基础上加 <b>3 颗余烬</b>：从字母后方生成、向右飘散并缩小淡出（1.1s 循环），尾巴随之呼吸。火在"掉渣"，动态信息最丰富。',
+ d:'<b>D 速度线 + 浮沉</b>：尾巴改成 <b>断续速度线</b>（横向滚动，0.35s 一循环）＋字母<b>上下轻微浮沉</b>，前段另有一小截亮核。不是"火"而是"高速划过"的感觉，最锐利、最不糊。',
+};
+const tabs = document.getElementById('tabs'), notes = document.getElementById('notes');
+function setV(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.s === id));
+  notes.innerHTML = NOTES[id] || '';
+}
+tabs.addEventListener('click', e => { if (e.target.dataset.s) setV(e.target.dataset.s); });
+setV('a');
+const stage = document.getElementById('stage'), vp = document.querySelector('.viewport');
+function fit(){const k=Math.min(vp.clientWidth/1280,Math.max(.42,(window.innerHeight-320)/720));
+  stage.style.transform='scale('+k+')';vp.style.height=(720*k)+'px';}
+window.addEventListener('resize',fit);document.fonts&&document.fonts.ready.then(fit);fit();
+</script>
+</body>
+</html>

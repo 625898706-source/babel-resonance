@@ -1,0 +1,26 @@
+# 统一换行符：文本入库一律 LF，检出时由各平台自行决定
+* text=auto eol=lf
+
+# 明确标记为二进制（避免 git 尝试做行尾转换 / 生成无意义的文本 diff）
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.gif   binary
+*.ico   binary
+*.mp3   binary
+*.wav   binary
+*.ogg   binary
+*.flac  binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.zip   binary
+*.7z    binary
+*.exe   binary
+*.dll   binary
+*.asar  binary
+
+# 锁文件不要参与 diff 统计（体积噪音大）
+package-lock.json -diff linguist-generated

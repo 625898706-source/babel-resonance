@@ -1,0 +1,121 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+<title>得偿所愿 · 拆句许愿（三档预览）</title>
+<style>
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-Medium.748604.woff2') format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Light.9981d6.woff2') format('woff2');font-weight:300}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2')}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f4f4f2;color:#111;font-family:'HarmonyOS Sans SC',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1340px;margin:0 auto;padding:40px 28px 90px}
+.kicker{font-family:'Novecento Wide',sans-serif;font-size:12px;letter-spacing:.22em;color:#9b9fa5;text-transform:uppercase}
+h1{font-family:'Gilroy','HarmonyOS Sans SC',sans-serif;font-weight:300;font-size:38px;margin:8px 0 6px}
+.lead{font-size:14px;color:#6f6f6f;line-height:1.75;max-width:1000px}
+.how{margin-top:12px;font-size:12.5px;color:#6f6f6f;line-height:1.85;border-left:2px solid #e6e6e6;padding-left:12px}
+.card{margin-top:26px;border:1px solid #dcdcda;background:#fff}
+.cap{font-family:'Novecento Wide',sans-serif;font-size:11px;letter-spacing:.18em;color:#9b9fa5;padding:14px 18px 0}
+.name{font-size:17px;font-weight:500;padding:2px 18px 0}
+.why{font-size:13px;color:#3f4145;padding:6px 18px 0;line-height:1.7}
+.impl{font-size:12px;color:#6f6f6f;padding:4px 18px 12px;line-height:1.7}
+.impl code{font-family:Consolas,monospace;font-size:11.5px;color:#111;background:#f4f4f2;padding:0 3px}
+/* 1:1 全屏舞台 */
+.stage{position:relative;width:1280px;height:720px;background:#fff;overflow:hidden;margin:0 18px 18px;border:1px solid #e6e6e6}
+.stage *{position:absolute}
+.title{left:0;right:0;top:34px;text-align:center;font-size:30px;font-weight:500;color:#111}
+.status{left:0;right:0;top:80px;text-align:center;font-size:14px;color:#6f6f6f}
+.label{left:0;right:0;text-align:center;font-family:'Novecento Wide',sans-serif;font-size:11px;letter-spacing:.18em;color:#9b9fa5}
+/* 句子：三段文字，中段加粗并带下方红线（＝游戏里 _exSay 手法的真实效果） */
+.sent{left:0;right:0;text-align:center;font-family:'Space Grotesk','HarmonyOS Sans SC',sans-serif;color:#111}
+/* ★ 关键：.stage * { position:absolute } 会把句子里的 <b> 也变成绝对定位 ✗
+   → 它脱离文字流、和后面的词叠在一起（就是截图里 walked/slowly 重叠的原因 ✗）
+   所以这里必须把 <b> 拉回正常流 ✓ 红线用 border-bottom（宽度自动＝该词宽度 ✓） */
+.sent b{position:static;font-weight:600;border-bottom:2px solid #e2231a;padding-bottom:3px}
+.rule{display:none}
+/* 选项：与失与得同款（竖直四行 + 发丝线 + 悬停变红由运行时接） */
+.opt{left:0;right:0;text-align:center;font-size:26px;color:#111}
+.sep{left:420px;width:440px;height:1px;background:#e6e6e6}
+.tier{left:0;right:0;text-align:center;font-family:'Novecento Wide',sans-serif;font-size:11px;letter-spacing:.2em;color:#b9b9b5}
+</style></head><body><div class="wrap">
+<div class="kicker">Babel Resonance · 得偿所愿 · 拆句许愿</div>
+<h1>得偿所愿 · 「拆句许愿」三档预览</h1>
+<div class="lead">玩法：先许愿（小／中／大三档 ✓ 愿望越大、句子越绕 ✓）→ 判断**划线部分在句中作什么成分**（固定 7 个标签 ✓ 每题从中抽 4 个做选项 ✓）→ 判对＝全额兑现 ✓ 判错＝降一档兑现 ✓</div>
+<div class="how"><b>三档只差句子结构</b>：小份＝简单句 ✓ 中份＝简单主从复合句（划线＝一个从句 ✓ 但答案仍是那 7 个之一 ✓）✓ 大份＝复杂主从复合句（要穿过嵌套才判得出 ✓）<br>
+<b>可行性（全部可 100% 复现）</b>：句子＝项目字体文字 ✓ 划线加粗＝把句子拆成**三段文字**（前段／划线／后段 ✓ 先建后量宽再整行居中 ✓ 与失与得里“它”红字同一手法 ✓）✓ 下方红线＝<code>2×s</code> 矩形 ✓ 选项＝文字 + <code>1×s</code> 发丝线 ✓ 悬停变红＝自绘线的 <code>setFillStyle</code> ✓ —— <b>没有用任何实现不了的效果</b> ✗<br>
+<b>硬约束</b>：句子必须**排在一行**（折行后跨行划线做不出来 ✗）→ 故大份词数上限 24 词 ✓ 字号按长度自适应（20~26×s ✓）</div>
+
+<!-- ===== 小份 ===== -->
+<div class="card"><div class="cap">TIER 1</div>
+<div class="name">小份 · 简单句（+2 残页）</div>
+<div class="why">简单句、划线一个词。答案＝<b>谓语</b>（<code>walked</code>）。干扰项从同一套 7 个里抽。</div>
+<div class="impl">实现：三段文字（<code>The old man</code> / <b>walked</b> / <code>slowly along the river.</code>）＋中段下方 <code>2×s</code> 红线（宽度＝中段 <code>.width</code> ✓ 自动）</div>
+<div class="stage">
+  <div class="title">得偿所愿</div>
+  <div class="status">目标生命 10　残页 15</div>
+  <div class="tier" style="top:120px;">SIMPLE SENTENCE</div>
+  <div class="sent" style="top:170px;font-size:30px;font-weight:400;">The old man <b>walked</b> slowly along the river.</div>
+  <div class="rule" style="left:492px;top:196px;width:108px;"></div>
+  <div class="label" style="top:250px;">划线部分在句中作什么成分？</div>
+  <div class="opt" style="top:330px;">主语　Subject</div><div class="sep" style="top:360px;"></div>
+  <div class="opt" style="top:396px;color:#e2231a;">谓语　Predicate</div><div class="sep" style="top:426px;"></div>
+  <div class="opt" style="top:462px;">宾语　Object</div><div class="sep" style="top:492px;"></div>
+  <div class="opt" style="top:528px;">状语　Adverbial</div><div class="sep" style="top:558px;"></div>
+</div></div>
+
+<!-- ===== 中份 ===== -->
+<div class="card"><div class="cap">TIER 2</div>
+<div class="name">中份 · 简单主从复合句（+1 生命上限，并回复 1）</div>
+<div class="why">整句只有一个从句、划线就是这个从句。答案＝<b>主语</b>（<code>What she said</code>）—— 注意：**不引入“主语从句”这类标签** ✗ 仍旧只用那 7 个 ✓</div>
+<div class="impl">实现：同款三段文字 ✓ 中段较长（整个从句 ✓）红线宽度自动跟随 ✓</div>
+<div class="stage">
+  <div class="title">得偿所愿</div>
+  <div class="status">目标生命 10　残页 15</div>
+  <div class="tier" style="top:120px;">ONE SUBORDINATE CLAUSE</div>
+  <div class="sent" style="top:170px;font-size:28px;font-weight:400;"><b>What she said</b> surprised everyone in the room.</div>
+  <div class="rule" style="left:392px;top:196px;width:196px;"></div>
+  <div class="label" style="top:250px;">划线部分在句中作什么成分？</div>
+  <div class="opt" style="top:330px;color:#e2231a;">主语　Subject</div><div class="sep" style="top:360px;"></div>
+  <div class="opt" style="top:396px;">宾语　Object</div><div class="sep" style="top:426px;"></div>
+  <div class="opt" style="top:462px;">表语　Predicative</div><div class="sep" style="top:492px;"></div>
+  <div class="opt" style="top:528px;">状语　Adverbial</div><div class="sep" style="top:558px;"></div>
+</div></div>
+
+<!-- ===== 大份 ===== -->
+<div class="card"><div class="cap">TIER 3</div>
+<div class="name">大份 · 复杂主从复合句（随机藏品）</div>
+<div class="why">句中有**两个**从句、划线是外层那个。要先把外层切出来才判得出 ✓ 答案＝<b>定语</b>（<code>that you lent me last week</code>）✓ 这正是"复杂"的难点所在 ✓</div>
+<div class="impl">实现：同款三段文字 ✓ 24 词上限内排一行 ✓ 字号降到 22×s ✓</div>
+<div class="stage">
+  <div class="title">得偿所愿</div>
+  <div class="status">目标生命 10　残页 15</div>
+  <div class="tier" style="top:120px;">NESTED CLAUSES</div>
+  <div class="sent" style="top:170px;font-size:22px;font-weight:400;">The book <b>that you lent me last week</b> is the one that I like most.</div>
+  <div class="rule" style="left:452px;top:192px;width:376px;"></div>
+  <div class="label" style="top:250px;">划线部分在句中作什么成分？</div>
+  <div class="opt" style="top:330px;">主语　Subject</div><div class="sep" style="top:360px;"></div>
+  <div class="opt" style="top:396px;color:#e2231a;">定语　Attributive</div><div class="sep" style="top:426px;"></div>
+  <div class="opt" style="top:462px;">宾语　Object</div><div class="sep" style="top:492px;"></div>
+  <div class="opt" style="top:528px;">状语　Adverbial</div><div class="sep" style="top:558px;"></div>
+</div></div>
+
+<!-- ===== 另外两屏（文字说明） ===== -->
+<div class="card"><div class="cap">OTHER SCREENS</div>
+<div class="name">① 许愿屏 ／ ③ 兑现屏（沿用失与得的对开排版 ✓）</div>
+<div class="why">
+<b>① 许愿屏</b>：三档愿望竖排（每张：愿望中文大字 ✓ 代价小字「判对一个简单句的成分」✓ 发丝线 ✓）＋ 首屏一句旁白「<b>你想要什么，说出来 —— 用它的语言。</b>」<br>
+<b>③ 兑现屏</b>：左＝你许的愿（红 ✓）／ 右＝你判的成分与正确答案（灰 ✓）＋ 中间一句"它"的叙述：<br>
+　· 判对：「你把这句话拆开了。“它”看懂了 —— 愿望成了。」<br>
+　· 判错：「你拆错了。“它”只肯给你一半。」<br>
+　· 小份判错：「“它”把东西收了回去。你没损失什么。」
+</div>
+<div class="impl">两屏都用已实装的对开结构（中缝 + 左右栏 + 栏内居中 ✓ 见 skill §28/§29 ✓）→ 实装成本低 ✓</div>
+</div>
+
+<div class="card"><div class="cap">DATA</div>
+<div class="name">要产的数据（这是唯一的新内容 ✓）</div>
+<div class="why">每条：<code>{ sentence, markStart, markEnd, role, distractors:[×3] }</code> —— 句子 ✓ 划线起止词 ✓ 正确成分 ✓ 三个干扰成分 ✓<br>
+每档 ~20 条（共 ~60 条 ✓）✓ 小份可大量复用现有例句 ✓ 中/大份需新写（嵌套结构必须专门写 ✓）<br>
+★ <b>语法标注错了是致命的</b> ✗ → 我会逐条人工抽查 ✓ 不交给子代理一交了事 ✗</div>
+</div>
+
+</div></body></html>

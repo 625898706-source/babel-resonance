@@ -1,0 +1,154 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>巴别残响 · 圣徒专属皮肤（1:1 预览 · 修正构图与动画）</title>
+<style>
+/* ============================================================================
+   圣徒 · 专属战斗皮肤 —— 1:1 预览（1280×720）
+   ★ 本版两处修正（用户指出 ✗）：
+     ① 构图还原游戏真实排布：**逻各斯在左 ✓ 圣徒在右（面向左 ✓ 镜像 ✓）**，词卡居中 ✓
+        （游戏里敌人 px = cx + 490·s ✓ 玩家 px = cx − 490·s ✓）
+     ② 圣徒**会动** ✓ —— 用 JS 逐帧步进精灵图（8 列 × 22 行 ✓ 175 帧全量 ✓）
+        游戏里的等价做法就是 `sprite.play('saint-idle-anim')` ✓✓
+   设计语言取自「众生行记」：冰白／雾蓝高调拼贴 ✓ 白色几何碎块 ✓ 细弧线 ✓
+   强调色：淡金 #d8c9a3 ✓ ／ 词语仍用深墨 #12232e ✓（可读性保底 ✓）
+   ★ 可复现性：真 PNG ＋ 矩形 ＋ 1px 线 ＋ 多边形 ＋ 圆弧 ＋ 位移/旋转/alpha ✓
+     没有 CSS 模糊 ✗ 渐变边框 ✗ 图标字体 ✗ SVG ✗ backdrop-filter ✗
+   ============================================================================ */
+:root{--ice:#eaf2f7;--blue:#8fa8bd;--blue2:#5d7a91;--ink:#12232e;--gold:#d8c9a3;--gold2:#b9a271;--paper:rgba(255,255,255,.82)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#6f7276;font-family:'HarmonyOS Sans SC',sans-serif;color:var(--ink)}
+#bar{width:1280px;margin:14px auto 0;font-size:12px;color:#fff;display:flex;gap:12px}
+#stage{position:relative;width:1280px;height:720px;margin:10px auto 24px;overflow:hidden;background:var(--ice)}
+#stage *{position:absolute;box-sizing:border-box}
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.veil{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:.52}
+.grain{left:0;top:0;width:1280px;height:720px;background:repeating-linear-gradient(0deg,rgba(143,168,189,.10) 0 1px,transparent 1px 4px);opacity:.5}
+.sweep{left:-240px;top:-120px;width:150px;height:1000px;background:#fff;opacity:.34;transform:rotate(18deg);animation:sweep 6.5s ease-in-out infinite}
+@keyframes sweep{0%{left:-240px;opacity:0}25%{opacity:.34}100%{left:1180px;opacity:0}}
+
+.hdr{left:44px;top:20px;font-size:11px;letter-spacing:.14em;color:var(--blue2);font-family:'Novecento Wide',sans-serif}
+.hdrline{left:44px;top:44px;width:1192px;height:1px;background:var(--blue);opacity:.55}
+.floorpill{left:44px;top:60px;width:104px;height:24px;border:1px solid var(--gold2);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--gold2);background:rgba(255,255,255,.6)}
+.floorname{left:162px;top:56px;font-size:20px;font-weight:700;color:var(--ink)}
+.hud{right:44px;top:60px;font-size:14px;color:var(--blue2)}
+
+/* 左右两栏图版（同宽同高 ✓ 与游戏一致 ✓）*/
+/* ★ 深冰蓝图版（2026-09-18 改）：白图版会让带黑底的立绘露馅 ✗ 见文件顶部说明 ✓ */
+.plate{top:160px;width:272px;height:264px;background:#141a20;border:1px solid #3d5a70}
+.plateL{left:88px}
+.plateR{left:920px}
+.flag{left:0;top:0;width:0;height:0;border-top:18px solid var(--gold);border-right:18px solid transparent}
+/* 精灵：拼图 8 列 × 22 行 ✓ 单帧 180 ✓ 由 JS 步进 background-position ✓ */
+.spr{top:182px;width:220px;height:220px;background-repeat:no-repeat;background-size:1760px 4840px}
+.sprL{left:114px;background-image:url('../assets/img/logos-idle.png')}
+.sprR{left:946px;background-image:url('../assets/img/saint-idle.png');transform:scaleX(-1)}   /* 220×220 ✓ 单帧 180 正方 ✓ 比例不变 ✓ */
+/* 光环：虚线圆弧旋转（Phaser: 圆弧描边 + rotation tween ✓）*/
+.halo{left:982px;top:196px;width:148px;height:148px;border:1px solid var(--gold);border-radius:50%;border-style:dashed;opacity:.9;animation:spin 9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* 羽毛：白色小矩形 + 旋转 + 下落 tween（循环 ✓）*/
+.feather{width:5px;height:16px;background:#fff;opacity:.9}
+.f1{animation:fall1 6s linear infinite}
+.f2{animation:fall2 8s linear infinite}
+.f3{animation:fall3 7s linear infinite}
+@keyframes fall1{0%{left:1130px;top:140px;opacity:0;transform:rotate(18deg)}15%{opacity:.9}100%{left:1030px;top:430px;opacity:0;transform:rotate(54deg)}}
+@keyframes fall2{0%{left:1080px;top:120px;opacity:0;transform:rotate(-12deg)}20%{opacity:.85}100%{left:1000px;top:440px;opacity:0;transform:rotate(-46deg)}}
+@keyframes fall3{0%{left:1160px;top:200px;opacity:0;transform:rotate(34deg)}10%{opacity:.8}100%{left:1100px;top:450px;opacity:0;transform:rotate(70deg)}}
+.nmL{left:88px;top:436px;font-size:19px;font-weight:700;color:var(--ink)}
+.nmR{left:920px;top:436px;font-size:19px;font-weight:700;color:var(--ink)}
+.sub{top:462px;font-size:11px;color:var(--blue2);letter-spacing:.06em}
+.bar{top:488px;width:272px;height:16px;border:1px solid var(--blue);background:rgba(255,255,255,.7)}
+.bar i{left:0;top:0;height:14px;display:block}
+.hptxt{top:510px;font-size:12px;color:var(--blue2)}
+
+/* 中栏词卡（冰白卡 ＋ 细边 ＋ 深墨大字 ✓ 可读性保底 ✓）*/
+.card{left:420px;top:150px;width:440px;height:180px;background:var(--paper);border:1px solid var(--blue)}
+.cardtag{left:436px;top:160px;font-size:11px;color:var(--blue2);letter-spacing:.1em}
+.word{left:440px;top:196px;width:400px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:700;color:var(--ink)}
+.opt{left:420px;width:440px;height:52px}
+.o1{top:376px}.o2{top:436px}.o3{top:496px}.o4{top:556px}
+.opt .t{left:0;top:16px;font-size:20px;color:var(--ink)}
+.opt .k{left:352px;top:17px;width:88px;text-align:right;font-size:12px;color:var(--blue2)}
+.opt .ln{left:0;top:50px;width:440px;height:1px;background:var(--blue);opacity:.45}
+.opt.gold .ln{background:var(--gold2);opacity:1}
+/* ★ 倒计时：挪到词卡下沿 ✓ 加粗到 12px ✓ 左侧加标签 ✓（2026-09-18 用户要求）
+   游戏里的位置就是 cardBottom − 18·s ✓ 粗细 12·s ✓ —— 预览与游戏一致 ✓ */
+.cdlab{left:420px;top:96px;font-size:13px;color:var(--ink);letter-spacing:.04em}
+.cd{left:420px;top:126px;width:440px;height:12px;background:rgba(143,168,189,.28);border:1px solid var(--blue)}
+.cdfill{left:0;top:0;height:10px;width:62%;background:linear-gradient(90deg,var(--gold2),var(--gold))}
+.cdtxt{left:872px;top:122px;width:64px;text-align:right;font-size:16px;font-weight:700;color:var(--gold2);font-family:'Space Grotesk',sans-serif}
+
+/* 底部一行说明（原来那张大说明卡挡住构图 ✗ 收成一行 ✓）*/
+.foot{left:44px;top:692px;width:1192px;font-size:11px;color:var(--blue2)}
+.foot b{color:var(--gold2)}
+</style></head><body>
+<div id="bar"><b>预览（1:1 · 1280×720）：</b><span>逻各斯在左 ✓ <b>圣徒在右并会动</b> ✓（175 帧全量步进 ✓ 镜像面向左 ✓）背景＝真素材 bg.png ✓</span></div>
+<div id="stage">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div><div class="sweep"></div>
+
+  <div class="hdr">BABEL RESONANCE · 回声层 / 战斗</div>
+  <div class="hdrline"></div>
+  <div class="floorpill">B1 / 01</div>
+  <div class="floorname">回声层</div>
+  <div class="hud">目标生命 6 / 10　　残页 38</div>
+
+  <!-- 左：逻各斯（玩家） -->
+  <div class="plate plateL"><div class="flag"></div></div>
+  <div class="spr sprL" id="sprL"></div>
+  <div class="nmL">逻各斯</div>
+  <div class="sub" style="left:88px">DOCTOR · 你</div>
+  <div class="bar" style="left:88px"><i style="background:#8fa8bd;width:60%"></i></div>
+  <div class="hptxt" style="left:88px">6 / 10</div>
+
+  <!-- 右：圣徒（敌人 ✓ 会动 ✓ 镜像 ✓） -->
+  <div class="plate plateR"><div class="flag"></div></div>
+  <div class="spr sprR" id="sprR"></div>
+  <div class="halo"></div>
+  <div class="feather f1"></div><div class="feather f2"></div><div class="feather f3"></div>
+  <div class="nmR">圣徒</div>
+  <div class="sub" style="left:920px">SAINT · 待定</div>
+  <div class="bar" style="left:920px"><i style="background:linear-gradient(90deg,#b9a271,#d8c9a3);width:100%"></i></div>
+  <div class="hptxt" style="left:920px">30 / 30</div>
+
+  <!-- 中：词卡与选项 -->
+  <div class="card"></div>
+  <div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div>
+  <div class="word">abandon</div>
+  <div class="opt o1 gold"><div class="t">放任；狂热</div><div class="k">A</div><div class="ln"></div></div>
+  <div class="opt o2"><div class="t">能力；能耐</div><div class="k">B</div><div class="ln"></div></div>
+  <div class="opt o3"><div class="t">荒诞；荒诞作品</div><div class="k">C</div><div class="ln"></div></div>
+  <div class="opt o4"><div class="t">丰富的；充裕的</div><div class="k">D</div><div class="ln"></div></div>
+  <div class="cdlab">剩余时间</div>
+  <div class="cd"><div class="cdfill"></div></div>
+  <div class="cdtxt">11</div>
+
+  <div class="foot">
+    <b>可复现性</b>：真 PNG ＋ 矩形 ＋ 1px 线 ＋ 多边形 ＋ 圆弧 ＋ 位移/旋转/alpha ✓（无 CSS 模糊 ✗ 渐变边框 ✗ 图标字体 ✗ SVG ✗ backdrop-filter ✗）　
+    <b>图版</b>：深冰蓝 #141a20 ＋ 冰蓝细边 #3d5a70 ＋ 金折角 ✓（白图版会让带黑底的立绘露馅 ✗）　<b>落地</b>：新建 skins/saint.js（只在本场生效 ✓）　<b>动效</b>：光环旋转 ✓ 羽毛下落 ✓ 圣光横扫 ✓ —— 全是 tween ✓
+  </div>
+</div>
+<script>
+/* 精灵逐帧步进（＝游戏里的 sprite.play ✓）
+   拼图：8 列 × 22 行，单帧 180×180 → 整图 1440×3960
+   预览里用 background-size 放大到 1760×4840（单帧 220 ✓ 与显示尺寸一致 ✓）
+   逻各斯用 logos-idle.png（原图尺寸未知 → 用整张当一帧 ✓ 只作占位 ✓）*/
+(function () {
+  var COLS = 8, ROWS = 22, FW = 220, FH = 220, TOTAL = 175;
+  var el = document.getElementById('sprR');
+  var i = 0;
+  setInterval(function () {
+    var col = i % COLS, row = Math.floor(i / COLS);
+    el.style.backgroundPosition = (-col * FW) + 'px ' + (-row * FH) + 'px';
+    i = (i + 1) % TOTAL;
+  }, 1000 / 30);                                  // 30 fps ✓ 与游戏 anim 的 frameRate 一致 ✓
+  /* 逻各斯：单帧占位（原图是 6 列网格 → 这里只显示左上角一帧 ✓）*/
+  var L = document.getElementById('sprL');
+  /* ★ 按真实规格显示**单帧**（2026-09-18 修 ✗ 原来用瞎猜尺寸 → 一格里挤进多帧 ✓）
+     logos-idle.png 实际 3900×3400 ✓ 单帧 260×340 ✓ → 15 列 × 10 行
+     整图缩放到「单帧＝200×262」→ background-size 3000×2620 ✓ position 0 0 ✓ */
+  /* ★ 按**原始单帧比例**完整放入（260×340 ✓）→ 高适配 264 → 202×264 ✓ 居中 ✓ 不拉伸 ✓ */
+  L.style.backgroundSize = '3030px 2640px';   // 整图 15 列×10 行 → 单帧 202×264 ✓
+  L.style.backgroundPosition = '0 0';
+  L.style.width = '202px';
+  L.style.height = '264px';
+  L.style.left = '123px';
+  L.style.top = '160px';
+})();
+</script></body></html>

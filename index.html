@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>巴别残响</title>
+  <style>
+    /* 页面基础样式：深色工业底，铺满全屏 */
+    html, body { margin: 0; padding: 0; height: 100%; background: #090b0d; overflow: hidden; }
+    #app { width: 100vw; height: 100vh; }
+    canvas { display: block; margin: auto; }
+    body { font-family: 'HarmonyOS Sans SC', sans-serif; color: #f6f7f3; }
+
+    /* 本地字体（复用 Research Workbench / Industrial Field 素材，已下载到 assets/fonts/） */
+    @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2') format('woff2'); font-weight: 900; font-display: swap; }
+    @font-face { font-family: 'Novecento Wide'; src: url('assets/fonts/Novecentosanswide-Medium.748604.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Novecento Wide'; src: url('assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Novecento Wide'; src: url('assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'Gilroy'; src: url('assets/fonts/Gilroy-Light.9981d6.woff2') format('woff2'); font-weight: 300; font-display: swap; }
+    @font-face { font-family: 'Gilroy'; src: url('assets/fonts/Gilroy-Medium.376b06.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Space Grotesk'; src: url('assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2'); font-weight: 400 700; font-display: swap; }
+    @font-face { font-family: 'Roboto Endfield'; src: url('assets/fonts/Roboto-Regular.978751.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    /* NIGHT CITY 皮肤专用（只亚当重锤那一场引用；其它战斗不引用 → 等于不存在） */
+    @font-face { font-family: 'Orbitron'; src: url('assets/fonts/Orbitron-700-900.woff2') format('woff2'); font-weight: 700 900; font-display: swap; }
+    @font-face { font-family: 'Rajdhani'; src: url('assets/fonts/Rajdhani-500.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'Rajdhani'; src: url('assets/fonts/Rajdhani-600.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Rajdhani'; src: url('assets/fonts/Rajdhani-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    /* NIGHT CITY 皮肤的**中文**字体：得意黑（OFL 免费商用，天生斜体、字面紧凑、速度感强）
+       只在该战斗的中文文本上引用；其它战斗不引用 */
+    @font-face { font-family: 'Smiley Sans'; src: url('assets/fonts/SmileySans-Oblique.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+  </style>
+</head>
+<body>
+  <!-- Phaser 游戏画布挂载点 -->
+  <div id="app"></div>
+
+  <!-- ① 游戏引擎（经典脚本，须在模块前，Phaser 挂到全局） -->
+  <script src="libs/phaser.min.js"></script>
+
+  <!-- ② 游戏入口（ES Module，Vite 会按依赖顺序打包 src/ 下的模块） -->
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

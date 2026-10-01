@@ -1,0 +1,150 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒皮肤 · 按钮线色调 5 案（各 1:1）</title>
+<style>
+/* ============================================================================
+   目的：电光蓝 #2b7fe0 在冰白色调里太跳 ✗ → 给 5 个更"融"的色调 ✓
+   ★ 版面与几何**照游戏代码**，一个字不改 ✓
+       四格中心 (468,436) (812,436) (468,536) (812,536) ✓ 320×84 ✓ 用 translate(-50%,-50%) 以中心定位 ✓
+       文字居中 ✓ 无键帽 ✓ 图版真实坐标 cx∓490 → 14 / 994 ✓
+   ★ 每案的差别只有一处：**线色变量 --acc** ✓（边框 / 四角刻度 / 坐标标注 / 蓝图网格 都用它 ✓）
+   ★ 全部可复现 ✓：矩形 ＋ 1px 线 ＋ Graphics ✓
+   ============================================================================ */
+:root{--deep:#12232e;--ice:#8fa8bd;--slate:#54686a}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.lab{width:1280px;margin:24px auto 8px;color:#fff;font-size:13px;line-height:21px}
+.lab b{font-size:16px}.lab i{font-style:normal;font-weight:700}
+.lab code{font-family:'Space Grotesk',monospace;font-size:12px}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto 10px;overflow:hidden;background:#eaf2f7}
+.stage *{position:absolute;box-sizing:border-box}
+/* 每个方案只改这个变量 ✓ */
+.A{--acc:#2b7fe0;--accA:0.16}   /* 现状：电光蓝（太跳 ✗）*/
+.B{--acc:#54686a;--accA:0.13}   /* 深青灰 —— 与倒计时条同色 ✓ 最融 ✓ */
+.C{--acc:#5d7a91;--accA:0.13}   /* 冷灰蓝 —— 项目自带的次要色 ✓ 淡雅 ✓ */
+.D{--acc:#33383e;--accA:0.10}   /* 石墨 —— 接近墨线 ✓ 印刷感 ✓ */
+.E{--acc:#8a7f6b;--accA:0.13}   /* 暖灰褐 —— 旧图纸感 ✓ 给一个暖选项 ✓ */
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.veil{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:.52}
+.grid{left:0;top:0;width:1280px;height:720px;opacity:1;
+      background-image:linear-gradient(var(--acc) 1px,transparent 1px),linear-gradient(90deg,var(--acc) 1px,transparent 1px);
+      background-size:40px 40px;opacity:var(--accA)}
+.plate{top:160px;width:272px;height:264px;background:#141a20;border:1px solid #3d5a70}
+.plateL{left:14px}.plateR{left:994px}
+.sprL{left:49px;top:160px;width:202px;height:264px;background:url('../assets/img/logos-idle.png') 0 0/3030px 2640px no-repeat}
+.sprR{left:1020px;top:182px;width:220px;height:220px;background:url('../assets/img/saint-idle.png') 0 0/1760px 4840px no-repeat;transform:scaleX(-1)}
+.nmL{left:14px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.nmR{left:994px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.bar{top:488px;width:272px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.barL{left:14px}.barR{left:994px}
+.bar i{left:0;top:0;height:10px;display:block}
+.card{left:420px;top:150px;width:440px;height:180px;background:rgba(255,255,255,.86);border:1px solid var(--ice)}
+.cardtag{left:436px;top:161px;font-family:'Novecento Wide',sans-serif;font-size:10px;letter-spacing:.18em;color:var(--acc)}
+.word{left:440px;top:200px;width:400px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:700;color:var(--deep)}
+.cdlab{left:420px;top:96px;font-size:13px;color:var(--deep)}
+.cd{left:420px;top:126px;width:440px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.cdfill{left:0;top:0;height:10px;width:62%;background:var(--slate)}
+.cdtxt{left:872px;top:120px;width:64px;text-align:right;font-size:16px;font-weight:700;color:var(--slate);font-family:'Space Grotesk',sans-serif}
+.hudr{right:44px;top:26px;font-size:14px;color:var(--deep)}
+/* 四格：照代码 ✓ 中心定位 ✓ */
+.opt{width:320px;height:84px;transform:translate(-50%,-50%)}
+.a1{left:468px;top:436px}.a2{left:812px;top:436px}
+.a3{left:468px;top:536px}.a4{left:812px;top:536px}
+.opt .paper{left:0;top:0;width:320px;height:84px;background:#fff;opacity:.45}
+.opt .t{left:0;top:0;width:320px;height:84px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:20px;color:var(--deep);line-height:26px}
+.opt .fr{left:0;top:0;width:320px;height:84px;border:1px solid var(--acc);opacity:.9}
+.opt .tk{width:9px;height:9px;border:1px solid var(--acc)}
+.opt .tk1{left:-4.5px;top:-4.5px}.opt .tk2{left:315.5px;top:-4.5px}
+.opt .tk3{left:-4.5px;top:79.5px}.opt .tk4{left:315.5px;top:79.5px}
+.opt .id{left:8px;top:70px;font-family:'Novecento Wide',sans-serif;font-size:9px;letter-spacing:.16em;color:var(--acc)}
+.opt .hov-t{color:var(--acc)}   /* 悬停时的字色（示意 ✓）*/
+.sw{width:1280px;margin:0 auto 20px;color:#fff;font-size:12px;display:flex;gap:26px}
+.sw b{font-size:13px}
+.sw span{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-right:6px;border:1px solid #fff6}
+</style></head><body>
+
+<div class="lab"><b>先看现状（A 电光蓝）</b>　<i style="color:#7fb6ff">#2b7fe0</i> —— 你说太突兀的就是它 ✓ 在冰白背景上饱和度过高 ✓ 与图版的深青蓝、倒计时的青灰都不搭 ✗</div>
+<div class="stage A">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#8fa8bd;width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN</div><div class="word">suit</div>
+  <div class="opt a1"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A1</div><div class="t">诉讼；恳求</div></div>
+  <div class="opt a2"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B1</div><div class="t">快乐；希望</div></div>
+  <div class="opt a3"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A2</div><div class="t">月亮；月球</div></div>
+  <div class="opt a4"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B2</div><div class="t">除了；要不是</div></div>
+</div>
+
+<div class="lab"><b>B 深青灰</b>　<i style="color:#54686a">#54686a</i> —— <b>与倒计时条、圣徒血条同色</b> ✓✓ 最"融"的一案 ✓ 整套界面像同一种油墨印的 ✓</div>
+<div class="stage B">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#8fa8bd;width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN</div><div class="word">suit</div>
+  <div class="opt a1"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A1</div><div class="t">诉讼；恳求</div></div>
+  <div class="opt a2"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B1</div><div class="t">快乐；希望</div></div>
+  <div class="opt a3"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A2</div><div class="t">月亮；月球</div></div>
+  <div class="opt a4"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B2</div><div class="t">除了；要不是</div></div>
+</div>
+
+<div class="lab"><b>C 冷灰蓝</b>　<i style="color:#5d7a91">#5d7a91</i> —— 项目里本就有的次要色 ✓ 比 B 略"蓝"一点 ✓ 淡雅但不跳 ✓</div>
+<div class="stage C">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#8fa8bd;width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN</div><div class="word">suit</div>
+  <div class="opt a1"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A1</div><div class="t">诉讼；恳求</div></div>
+  <div class="opt a2"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B1</div><div class="t">快乐；希望</div></div>
+  <div class="opt a3"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A2</div><div class="t">月亮；月球</div></div>
+  <div class="opt a4"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B2</div><div class="t">除了；要不是</div></div>
+</div>
+
+<div class="lab"><b>D 石墨</b>　<i style="color:#33383e">#33383e</i> —— 接近墨线的中性深灰 ✓ 印刷感最强 ✓ 与深墨文字最统一 ✓ 几乎"没有颜色" ✓</div>
+<div class="stage D">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#8fa8bd;width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN</div><div class="word">suit</div>
+  <div class="opt a1"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A1</div><div class="t">诉讼；恳求</div></div>
+  <div class="opt a2"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B1</div><div class="t">快乐；希望</div></div>
+  <div class="opt a3"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A2</div><div class="t">月亮；月球</div></div>
+  <div class="opt a4"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B2</div><div class="t">除了；要不是</div></div>
+</div>
+
+<div class="lab"><b>E 暖灰褐</b>　<i style="color:#8a7f6b">#8a7f6b</i> —— 唯一偏暖的一案 ✓ 像旧图纸/牛皮纸上的铅笔线 ✓ 与冰白背景形成"旧纸＋新纸"的层次 ✓</div>
+<div class="stage E">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#8fa8bd;width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN</div><div class="word">suit</div>
+  <div class="opt a1"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A1</div><div class="t">诉讼；恳求</div></div>
+  <div class="opt a2"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B1</div><div class="t">快乐；希望</div></div>
+  <div class="opt a3"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A2</div><div class="t">月亮；月球</div></div>
+  <div class="opt a4"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B2</div><div class="t">除了；要不是</div></div>
+</div>
+
+<div class="sw">
+  <span><b>A</b> <span style="background:#2b7fe0"></span>#2b7fe0 电光蓝（现状）</span>
+  <span><b>B</b> <span style="background:#54686a"></span>#54686a 深青灰（与倒计时条同色 ✓）</span>
+  <span><b>C</b> <span style="background:#5d7a91"></span>#5d7a91 冷灰蓝（项目次要色）</span>
+  <span><b>D</b> <span style="background:#33383e"></span>#33383e 石墨（近墨线）</span>
+  <span><b>E</b> <span style="background:#8a7f6b"></span>#8a7f6b 暖灰褐（旧图纸）</span>
+</div>
+</body></html>

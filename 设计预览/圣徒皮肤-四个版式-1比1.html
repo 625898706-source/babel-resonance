@@ -1,0 +1,174 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒皮肤 · 四个不同版式（各 1:1）</title>
+<style>
+/* ============================================================================
+   诊断 ✗：背景 bg.png 是一张**很密的照片拼贴** ✓ → UI 压上去必然打架 ✓✓
+   参考素材的本质是**海报** ✓ 海报的版面逻辑＝「**一大片平静纸面 ＋ 图在边上**」✓✓
+   → 四个版式都按这个逻辑重做 ✓ 不再"在拼贴上摆小控件" ✗
+   全部可复现 ✓：真 PNG ＋ 矩形 ＋ 1px 线 ＋ tween ✓
+   ============================================================================ */
+:root{--deep:#12232e;--ice:#8fa8bd;--ice2:#5d7a91;--teal:#8fd0d4;--slate:#54686a;--slate2:#364243;--paper:#fff}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.lab{width:1280px;margin:28px auto 8px;color:#fff;font-size:13px;line-height:21px}
+.lab b{font-size:16px}.lab i{color:#8fd0d4;font-style:normal}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto 10px;overflow:hidden;background:#eaf2f7}
+.stage *{position:absolute;box-sizing:border-box}
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.grain{left:0;top:0;width:1280px;height:720px;background:repeating-linear-gradient(0deg,rgba(143,168,189,.10) 0 1px,transparent 1px 4px);opacity:.5}
+.title{background:url('../素材/众生行记/event-title-full.png') center/contain no-repeat}
+/* 通用文字块 */
+.tag{font-size:11px;letter-spacing:.12em;color:var(--ice2)}
+.word{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--deep);text-align:center}
+.opt .t{font-size:20px;color:var(--deep)}
+.opt .k{font-family:'Novecento Wide',sans-serif;font-size:11px;letter-spacing:.14em;color:var(--ice2);text-align:right}
+.hudr{font-size:13px;color:var(--deep);text-align:right}
+
+/* ───────── V1 档案页：一张大白纸居中 ✓ 拼贴只在四周当"装裱" ✓ ───────── */
+.v1 .sheet{left:150px;top:70px;width:980px;height:580px;background:#fff;border:1px solid rgba(84,104,106,.45)}
+.v1 .mat{left:150px;top:70px;width:980px;height:580px;border:1px solid rgba(255,255,255,.6)}
+.v1 .title{left:186px;top:96px;width:132px;height:106px}
+.v1 .hudr{right:186px;top:110px;width:300px}
+.v1 .cdlab{left:186px;top:236px;font-size:13px;color:var(--deep)}
+.v1 .cd{left:186px;top:264px;width:908px;height:10px;background:#eef3f6;border:1px solid var(--ice)}
+.v1 .cdfill{left:0;top:0;height:8px;width:62%;background:var(--slate)}
+.v1 .cdtxt{right:186px;top:258px;width:60px;font-size:15px;font-weight:700;color:var(--slate);text-align:right;font-family:'Space Grotesk',sans-serif}
+.v1 .word{left:186px;top:300px;width:908px;font-size:62px}
+.v1 .hr{left:186px;top:392px;width:908px;height:1px;background:#e6e6e6}
+.v1 .opt{left:186px;width:908px;height:56px}
+.v1 .o1{top:410px}.v1 .o2{top:466px}.v1 .o3{top:522px}.v1 .o4{top:578px}
+.v1 .opt .t{left:0;top:16px}
+.v1 .opt .k{left:868px;top:17px;width:40px}
+.v1 .opt .ln{left:0;top:54px;width:908px;height:1px;background:#e6e6e6}
+.v1 .opt.hov .ln{background:var(--teal);height:2px;top:53px}
+.v1 .opt.sel .ln{background:var(--slate);height:2px;top:53px}
+.v1 .foot{left:186px;top:614px;width:908px;height:1px;background:#e6e6e6}
+.v1 .foottag{left:186px;top:624px;font-size:11px;color:var(--ice2)}
+.v1 .sent{left:780px;top:624px;width:314px;font-size:11px;color:var(--ice2);text-align:right;background:url('../素材/众生行记/bird_right.png') right center/22px 22px no-repeat;padding-right:28px;line-height:14px}
+
+/* ───────── V2 上下分幅：上图下文 ✓ 杂志式 ✓ ───────── */
+.v2 .toppanel{left:0;top:0;width:1280px;height:300px;overflow:hidden}
+.v2 .toppanel .bg{left:0;top:-40px;width:1280px;height:400px}
+.v2 .toppanel .fade{left:0;top:0;width:1280px;height:300px;background:#fff;opacity:.30}
+.v2 .title{left:60px;top:36px;width:150px;height:120px}
+.v2 .hudr{right:60px;top:52px;width:340px;color:#243238}
+.v2 .bottom{left:0;top:300px;width:1280px;height:420px;background:#fff;border-top:1px solid rgba(84,104,106,.5)}
+.v2 .cdlab{left:120px;top:330px;font-size:13px;color:var(--deep)}
+.v2 .cd{left:120px;top:358px;width:1040px;height:10px;background:#eef3f6;border:1px solid var(--ice)}
+.v2 .cdfill{left:0;top:0;height:8px;width:62%;background:var(--slate)}
+.v2 .cdtxt{right:120px;top:352px;width:60px;font-size:15px;font-weight:700;color:var(--slate);text-align:right;font-family:'Space Grotesk',sans-serif}
+.v2 .word{left:120px;top:392px;width:1040px;font-size:66px}
+.v2 .opt{left:120px;width:480px;height:64px}
+.v2 .o1{top:496px}.v2 .o2{top:496px;left:680px}
+.v2 .o3{top:574px}.v2 .o4{top:574px;left:680px}
+.v2 .opt .t{left:0;top:20px}
+.v2 .opt .k{left:440px;top:21px;width:40px}
+.v2 .opt .ln{left:0;top:62px;width:480px;height:1px;background:#e6e6e6}
+.v2 .opt.hov .ln{background:var(--teal);height:2px;top:61px}
+.v2 .opt.sel .ln{background:var(--slate);height:2px;top:61px}
+
+/* ───────── V3 深色压暗：整屏压成深青灰 ✓ 白字 ✓（标题卡的手法 ✓） ───────── */
+.v3 .dark{left:0;top:0;width:1280px;height:720px;background:#1d2529;opacity:.80}
+.v3 .bg{opacity:.55}
+.v3 .title{left:44px;top:30px;width:150px;height:120px}
+.v3 .hudr{right:44px;top:46px;width:340px;color:#dfe9ec}
+.v3 .cdlab{left:340px;top:120px;font-size:13px;color:#dfe9ec}
+.v3 .cd{left:340px;top:148px;width:600px;height:10px;background:#2b3a40;border:1px solid #4d6b74}
+.v3 .cdfill{left:0;top:0;height:8px;width:62%;background:var(--teal)}
+.v3 .cdtxt{right:340px;top:142px;width:60px;font-size:15px;font-weight:700;color:var(--teal);text-align:right;font-family:'Space Grotesk',sans-serif}
+.v3 .word{left:340px;top:180px;width:600px;font-size:72px;color:#f2f7f9}
+.v3 .opt{left:340px;width:600px;height:64px}
+.v3 .o1{top:300px}.v3 .o2{top:376px}.v3 .o3{top:452px}.v3 .o4{top:528px}
+.v3 .opt .t{left:0;top:20px;color:#eef4f6}
+.v3 .opt .k{left:560px;top:21px;width:40px;color:#8fb4bb}
+.v3 .opt .ln{left:0;top:62px;width:600px;height:1px;background:rgba(143,208,212,.35)}
+.v3 .opt.hov .ln{background:var(--teal);height:2px;top:61px}
+.v3 .opt.sel .ln{background:#dfe9ec;height:2px;top:61px}
+.v3 .saint{left:960px;top:180px;width:240px;height:240px;background:url('../assets/img/saint-idle.png') no-repeat;background-size:1920px 5280px;background-position:0 0;transform:scaleX(-1)}
+
+/* ───────── V4 对开：左图右纸 ✓ 像书的对开页 ✓（与游戏"对开"语言一致 ✓） ───────── */
+.v4 .left{left:0;top:0;width:560px;height:720px;overflow:hidden}
+.v4 .left .bg{left:0;top:0;width:560px;height:720px;background-size:cover}
+.v4 .right{left:560px;top:0;width:720px;height:720px;background:#fff;border-left:1px solid rgba(84,104,106,.5)}
+.v4 .title{left:88px;top:60px;width:170px;height:136px}
+.v4 .hudr{right:60px;top:70px;width:300px;color:var(--deep)}
+.v4 .cdlab{left:620px;top:96px;font-size:13px;color:var(--deep)}
+.v4 .cd{left:620px;top:124px;width:600px;height:10px;background:#eef3f6;border:1px solid var(--ice)}
+.v4 .cdfill{left:0;top:0;height:8px;width:62%;background:var(--slate)}
+.v4 .cdtxt{right:60px;top:118px;width:60px;font-size:15px;font-weight:700;color:var(--slate);text-align:right;font-family:'Space Grotesk',sans-serif}
+.v4 .word{left:620px;top:170px;width:600px;font-size:68px}
+.v4 .hr{left:620px;top:280px;width:600px;height:1px;background:#e6e6e6}
+.v4 .opt{left:620px;width:600px;height:76px}
+.v4 .o1{top:300px}.v4 .o2{top:376px}.v4 .o3{top:452px}.v4 .o4{top:528px}
+.v4 .opt .t{left:0;top:24px}
+.v4 .opt .k{left:560px;top:25px;width:40px}
+.v4 .opt .ln{left:0;top:74px;width:600px;height:1px;background:#e6e6e6}
+.v4 .opt.hov{background:#f7fafb}
+.v4 .opt.hov .ln{background:var(--teal);height:2px;top:73px}
+.v4 .opt.sel{background:#f2f6f8}
+.v4 .opt.sel .ln{background:var(--slate);height:2px;top:73px}
+.note{left:620px;top:624px;width:600px;font-size:11px;color:var(--ice2);line-height:15px}
+</style></head><body>
+
+<div class="lab"><b>V1 档案页</b>　<i>一张大白纸居中</i> ✓ 拼贴只在四周当"装裱" ✓ —— 参考素材本质是海报 ✓ 海报就是"大片纸面 ＋ 图在边上" ✓✓</div>
+<div class="stage v1">
+  <div class="bg"></div><div class="grain"></div>
+  <div class="sheet"></div><div class="mat"></div>
+  <div class="title"></div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="word">paint</div><div class="hr"></div>
+  <div class="opt o1"><div class="t">奶油；乳脂</div><div class="k">A</div><div class="ln"></div></div>
+  <div class="opt o2 hov"><div class="t">白色；洁白</div><div class="k">B</div><div class="ln"></div></div>
+  <div class="opt o3"><div class="t">自由；许可</div><div class="k">C</div><div class="ln"></div></div>
+  <div class="opt o4 sel"><div class="t">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+  <div class="foot"></div><div class="foottag">LEXICAL DOMAIN · 请选出正确释义</div>
+  <div class="sent">白色；洁白 = 正确</div>
+</div>
+
+<div class="lab"><b>V2 上下分幅</b>　<i>上图下文</i> ✓ 杂志式 ✓（上半留出 300 高给画面 ✓ 下半是干净的纸面 ✓）</div>
+<div class="stage v2">
+  <div class="toppanel"><div class="bg"></div><div class="fade"></div></div>
+  <div class="title"></div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="bottom"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="word">paint</div>
+  <div class="opt o1"><div class="t">奶油；乳脂</div><div class="k">A</div><div class="ln"></div></div>
+  <div class="opt o2 sel"><div class="t">白色；洁白</div><div class="k">B</div><div class="ln"></div></div>
+  <div class="opt o3"><div class="t">自由；许可</div><div class="k">C</div><div class="ln"></div></div>
+  <div class="opt o4 hov"><div class="t">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>V3 深色压暗</b>　整屏压成<i>深青灰</i>（80% ✓）＋ 白字 ✓ —— 这正是标题卡的手法（深底压白字 ✓✓）＋ 淡青线 ✓</div>
+<div class="stage v3">
+  <div class="bg"></div><div class="dark"></div><div class="grain"></div>
+  <div class="title"></div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="saint"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="word">paint</div>
+  <div class="opt o1"><div class="t">奶油；乳脂</div><div class="k">A</div><div class="ln"></div></div>
+  <div class="opt o2 hov"><div class="t">白色；洁白</div><div class="k">B</div><div class="ln"></div></div>
+  <div class="opt o3"><div class="t">自由；许可</div><div class="k">C</div><div class="ln"></div></div>
+  <div class="opt o4 sel"><div class="t">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>V4 对开</b>　<i>左图右纸</i> ✓ 像书的对开页 ✓ —— 与游戏里"失与得/得偿所愿"的对开语言一致 ✓ 左边留给拼贴 ✓ 右边全是干净纸面 ✓</div>
+<div class="stage v4">
+  <div class="left"><div class="bg"></div></div>
+  <div class="right"></div>
+  <div class="title"></div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="word">paint</div><div class="hr"></div>
+  <div class="opt o1"><div class="t">奶油；乳脂</div><div class="k">A</div><div class="ln"></div></div>
+  <div class="opt o2 hov"><div class="t">白色；洁白</div><div class="k">B</div><div class="ln"></div></div>
+  <div class="opt o3"><div class="t">自由；许可</div><div class="k">C</div><div class="ln"></div></div>
+  <div class="opt o4 sel"><div class="t">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+  <div class="note">四案都只用：真 PNG ✓ 矩形 ✓ 1px 线 ✓ 位移/alpha tween ✓ —— 全部 Phaser 一比一可复现 ✓</div>
+</div>
+</body></html>

@@ -1,0 +1,496 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>亚当重锤 · 二阶段机制预览（① 追击真词识别 / ② 闪现默写）</title>
+<style>
+/* ============================================================================
+   亚当重锤「斯安威斯坦」二阶段 —— 两种全新作答机制预览（带滑杆调参）
+   ① 追击·真词识别：三条时间轨上各有一个词高速掠过（带残影），只有一个是**真词**，点中它才命中
+   ② 闪现默写：词条只闪现一次（满残影 + 抽帧），随后清空 → 你要凭记忆把字母拼出来
+   ----------------------------------------------------------------------------
+   残影实现与 素材/sandevistan-text.html 同源：
+     · 位置轨迹 = 历史缓冲（模式①取 t − i×delay 的历史位置）
+     · 姿态回退 = 每层残影角度/偏移不同
+     · alpha = falloff^i，颜色 = HSL 插值(色A → 色B)
+     · 主体＝色散双绘（±dx 红/青，lighter）+ 白热核心
+     · 爆冲脉冲：速度 ×N、抖动、背景几乎停住
+   （落地到 Phaser 时改用 RenderTexture 自衰减缓冲，保证"只有一个文字对象"，不会重影）
+   ========================================================================== */
+@font-face{font-family:'Orbitron';src:url('../assets/fonts/Orbitron-700-900.woff2')format('woff2');font-weight:700 900}
+@font-face{font-family:'Smiley Sans';src:url('../assets/fonts/SmileySans-Oblique.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111}
+.desk{min-height:100vh;padding:14px 14px 60px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.head{width:100%;max-width:1340px}
+.head h1{font-size:17px;font-weight:900;margin-bottom:3px}
+.head p{font-size:12.5px;color:#6f6f6f;line-height:1.7}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.tabs button{font-family:'HOS';font-weight:700;font-size:13px;padding:7px 14px;border-radius:3px;cursor:pointer;
+  border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#04121a;color:#7df9ff;border-color:#0d3b46}
+.wrap{width:100%;max-width:1340px;display:flex;gap:12px;align-items:flex-start}
+.stageBox{position:relative;flex:1 1 auto}
+canvas#stage{width:1280px;height:720px;display:block;background:#04070c;transform-origin:top left}
+.panel{flex:0 0 300px;background:#fff;border:1px solid #e2e0dc;border-radius:6px;padding:12px 14px;font-size:12px}
+.panel h3{font-size:12px;letter-spacing:.14em;color:#9aa1a8;font-weight:700;margin:10px 0 6px;border-top:1px solid #eee;padding-top:9px}
+.panel h3:first-child{margin-top:0;border-top:none;padding-top:0}
+.row{display:grid;grid-template-columns:1fr auto;gap:4px 8px;align-items:center;margin-bottom:7px}
+.row label{color:#3b4148}.row b{color:#0b6f86;font-variant-numeric:tabular-nums}
+input[type=range]{grid-column:1/-1;width:100%;height:16px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:linear-gradient(90deg,#7df9ff55,#ff2bd655)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;margin-top:-5px;border-radius:50%;background:#fff;border:2px solid #0b6f86}
+.btns{display:flex;gap:6px;margin:8px 0 4px}
+.btns button{flex:1;padding:7px 0;border-radius:6px;border:1px solid #c9c6bd;background:#fff;cursor:pointer;font-family:'HOS';font-size:12px}
+.btns button:hover{border-color:#0b6f86;color:#0b6f86}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:6px;padding:12px 14px;font-size:12.5px;line-height:1.8}
+.notes b{font-weight:700}.notes code{font-family:Consolas,monospace;font-size:12px;background:#f5f4f1;padding:1px 4px;border-radius:2px}
+</style>
+</head>
+<body>
+<div class="desk">
+  <div class="head">
+    <h1>亚当重锤 · 二阶段机制预览（斯安威斯坦）</h1>
+    <p>两个候选机制可切换；右边滑杆和 <code>sandevistan-text.html</code> 同源。左边画面就是最终观感（1280×720，与游戏一致）。</p>
+    <div class="tabs" id="modes">
+      <button data-m="1" class="on">① 追击 · 真词识别</button>
+      <button data-m="2">② 闪现默写</button>
+      <button id="burst">▶ 强制爆冲（B）</button>
+      <button id="restart">↻ 重开（R）</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="stageBox"><canvas id="stage" width="1280" height="720"></canvas></div>
+    <div class="panel">
+      <h3>字 形</h3>
+      <div class="row"><label>字号</label><b id="v-size">96 px</b><input id="size" type="range" min="48" max="150" step="2" value="96"></div>
+      <div class="row"><label>字距</label><b id="v-track">6 px</b><input id="track" type="range" min="-6" max="40" step="1" value="6"></div>
+
+      <h3>残 影</h3>
+      <div class="row"><label>层数</label><b id="v-layers">22</b><input id="layers" type="range" min="1" max="44" step="1" value="22"></div>
+      <div class="row"><label>间隔</label><b id="v-gap">28 px</b><input id="gap" type="range" min="2" max="110" step="1" value="28"></div>
+      <div class="row"><label>衰减</label><b id="v-fall">0.90</b><input id="fall" type="range" min="50" max="97" step="1" value="90"></div>
+      <div class="row"><label>色散</label><b id="v-ab">8</b><input id="ab" type="range" min="0" max="24" step="1" value="8"></div>
+
+      <h3>斯 安 威 斯 坦</h3>
+      <div class="row"><label>爆冲强度</label><b id="v-boost">2.6×</b><input id="boost" type="range" min="0" max="450" step="10" value="260"></div>
+      <div class="row"><label>爆冲间隔</label><b id="v-int">5.5 s</b><input id="interval" type="range" min="15" max="120" step="5" value="55"></div>
+      <div class="row"><label>抽帧</label><b id="v-fps">关</b><input id="fps" type="range" min="0" max="30" step="2" value="0"></div>
+
+      <h3>① 追击 专用</h3>
+      <div class="row"><label>掠过速度</label><b id="v-speed">1.00×</b><input id="speed" type="range" min="15" max="320" step="5" value="100"></div>
+
+      <h3>② 默写 专用</h3>
+      <div class="row"><label>闪现时长</label><b id="v-flash">500 ms</b><input id="flash" type="range" min="200" max="1600" step="50" value="500"></div>
+      <div class="row"><label>回溯次数</label><b id="v-peek">1</b><input id="peek" type="range" min="0" max="3" step="1" value="1"></div>
+
+      <h3>颜 色</h3>
+      <div class="row"><label>色A（头）</label><b></b><input id="colA" type="color" value="#7fc8f0"></div>
+      <div class="row"><label>色B（尾）</label><b></b><input id="colB" type="color" value="#7ff2e0"></div>
+
+      <div class="btns"><button id="again">再出一题</button></div>
+    </div>
+  </div>
+  <div class="notes" id="notes"></div>
+</div>
+
+<script src="../src/data/gaokaoWords.js"></script>
+<script>
+(function () {
+  'use strict';
+  const B = window.Babel;
+  const BANK = (B && B.GAOKAO_WORDS) ? B.GAOKAO_WORDS.filter(w => /^[a-zA-Z]{4,11}$/.test(w[0])) : [['become', '变成'], ['window', '窗户'], ['picture', '图片']];
+  const REAL = new Set(BANK.map(w => String(w[0]).toLowerCase()));
+
+  const P = {
+    mode: 1, size: 96, track: 6, layers: 22, gap: 28, fall: 0.90, ab: 8,
+    boost: 2.6, interval: 5.5, fps: 0, speed: 1, flashMs: 500, peek: 1,
+    colA: '#7fc8f0', colB: '#7ff2e0',
+  };
+  const cvs = document.getElementById('stage');
+  const ctx = cvs.getContext('2d', { alpha: false });
+  const W = cvs.width, H = cvs.height;
+
+  /* ============ 颜色（HSL 插值，与参考文件一致） ============ */
+  const hex2rgb = h => { h = h.replace('#', ''); if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2]; const n = parseInt(h, 16); return [(n>>16)&255, (n>>8)&255, n&255]; };
+  const rgb2hsl = (r,g,b) => { r/=255;g/=255;b/=255; const mx=Math.max(r,g,b), mn=Math.min(r,g,b); let h=0,s=0; const l=(mx+mn)/2, d=mx-mn;
+    if(d!==0){ s = l>0.5 ? d/(2-mx-mn) : d/(mx+mn); if(mx===r) h=(g-b)/d+(g<b?6:0); else if(mx===g) h=(b-r)/d+2; else h=(r-g)/d+4; h/=6; } return [h,s,l]; };
+  const hsl2rgb = (h,s,l) => { h=((h%1)+1)%1; if(s===0){const v=l*255;return [v,v,v];}
+    const f=(p,q,t)=>{ if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; };
+    const q = l<0.5 ? l*(1+s) : l+s-l*s, p = 2*l-q; return [f(p,q,h+1/3)*255, f(p,q,h)*255, f(p,q,h-1/3)*255]; };
+  let hslA = rgb2hsl(127,200,240), hslB = rgb2hsl(127,242,224);
+  function syncColors(){ const a=hex2rgb(P.colA), b=hex2rgb(P.colB); hslA=rgb2hsl(a[0],a[1],a[2]); hslB=rgb2hsl(b[0],b[1],b[2]); }
+  function grad(t, alpha){
+    let dh = hslB[0]-hslA[0]; if(dh>0.5)dh-=1; if(dh<-0.5)dh+=1;
+    const c = hsl2rgb(hslA[0]+dh*t, hslA[1]+(hslB[1]-hslA[1])*t, hslA[2]+(hslB[2]-hslA[2])*t);
+    return 'rgba('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+','+(alpha===undefined?1:alpha)+')';
+  }
+
+  /* ============ 字体与排版 ============ */
+  const fontStr = () => '900 ' + P.size + 'px "Smiley Sans","PingFang SC","Microsoft YaHei",Impact,sans-serif';
+  const fakeFont = () => '900 ' + P.size + 'px "PingFang SC","Microsoft YaHei","HarmonyOS Sans SC",sans-serif';
+  function measure(txt, useFake){
+    ctx.save(); ctx.font = useFake ? fakeFont() : fontStr();
+    const w = ctx.measureText(txt).width; ctx.restore(); return w;
+  }
+  function glyphsOf(txt){
+    ctx.font = fontStr();
+    const chars = Array.from(txt);
+    const ws = chars.map(c => ctx.measureText(c).width);
+    const total = ws.reduce((a,b)=>a+b,0) + P.track*(chars.length-1);
+    let cur = -total/2; const out = [];
+    for (let i=0;i<chars.length;i++){ out.push({ ch: chars[i], w: ws[i], off: cur + ws[i]/2 }); cur += ws[i]+P.track; }
+    return { glyphs: out, wordW: total };
+  }
+  /* 画一串字：中心 (cx,cy)，rotation、alpha、色、是否色散、是否光晕 */
+  function drawWord(txt, cx, cy, rot, color, alpha, chroma, glow){
+    if (alpha <= 0.008) return;
+    const { glyphs } = glyphsOf(txt);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    if (glow){ ctx.shadowColor = color; ctx.shadowBlur = 16; }
+    for (const g of glyphs){
+      let x = cx, y = cy;
+      if (chroma){ const d = chroma; x += d * (g.off>0?1:-1); }
+      ctx.save(); ctx.translate(x + g.off, y); ctx.rotate(rot);
+      ctx.fillText(g.ch, 0, 0); ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  /* ============ 背景 ============ */
+  let scan = null;
+  (function makeScan(){
+    const p = document.createElement('canvas'); p.width=1; p.height=4;
+    const g = p.getContext('2d');
+    g.fillStyle='rgba(0,0,0,0.55)'; g.fillRect(0,0,1,1);
+    g.fillStyle='rgba(130,220,255,0.05)'; g.fillRect(0,2,1,1);
+    scan = ctx.createPattern(p,'repeat');
+  })();
+  const parts = []; for (let i=0;i<70;i++) parts.push({x:Math.random(),y:Math.random(),r:Math.random()*1.4+0.3,v:Math.random()*0.05+0.012,o:Math.random()*0.4+0.1,b:Math.random()});
+  function drawBg(dt, b){
+    const bg = ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'#04060e'); bg.addColorStop(0.5, b>0.02?'#0a1326':'#080e1c'); bg.addColorStop(1,'#03050c');
+    ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+    ctx.save(); ctx.globalCompositeOperation='lighter';
+    const vpX=W*0.5, vpY=H*0.53;
+    const hz = ctx.createLinearGradient(0,vpY-55,0,vpY+55);
+    hz.addColorStop(0,'rgba(125,249,255,0)'); hz.addColorStop(0.5,'rgba(125,249,255,'+(0.12+b*0.3)+')');
+    hz.addColorStop(0.53,'rgba(255,43,214,'+(0.08+b*0.22)+')'); hz.addColorStop(1,'rgba(255,43,214,0)');
+    ctx.fillStyle = hz; ctx.fillRect(0,vpY-55,W,110);
+    ctx.lineWidth = 1;
+    for (let i=0;i<=14;i++){ const f=i/14; const y=vpY+(H-vpY)*Math.pow(f,2.3);
+      ctx.strokeStyle='rgba(90,200,255,'+(0.035+f*0.06+b*0.05)+')'; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+    for (let k=-13;k<=13;k++){ ctx.strokeStyle='rgba(90,200,255,0.04)'; ctx.beginPath(); ctx.moveTo(vpX,vpY); ctx.lineTo(vpX+k*(W/9),H); ctx.stroke(); }
+    for (const pt of parts){ pt.x -= pt.v*dt*(1+b*4); if(pt.x<-0.02){pt.x=1.02;pt.y=Math.random();}
+      ctx.globalAlpha = pt.o*(0.5+b*0.5); ctx.fillStyle = pt.b>0.66?'#ff7ad0':'#7df9ff';
+      ctx.beginPath(); ctx.arc(pt.x*W, pt.y*H, pt.r*(1+b*0.8), 0, Math.PI*2); ctx.fill(); }
+    ctx.globalAlpha=1; ctx.restore();
+    if (scan){ ctx.save(); ctx.globalAlpha=0.28; ctx.fillStyle=scan; ctx.fillRect(0,0,W,H); ctx.restore(); }
+  }
+
+  /* ============ 爆冲脉冲 ============ */
+  let forced = 0;
+  function boostAmt(t){
+    const dur = 1.25, l = ((t % P.interval)+P.interval)%P.interval;
+    const base = l>dur ? 0 : Math.pow(Math.sin(Math.PI*(l/dur)), 0.75);
+    return forced>0 ? Math.max(base, forced) : base;
+  }
+
+  /* ============ 模式① 追击·真词识别 ============ */
+  const LANES = [200, 360, 520];
+  let m1 = null;
+  function scrambleWord(w){
+    const a = w.split('');
+    for (let i=a.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; const t=a[i];a[i]=a[j];a[j]=t; }
+    let s = a.join('');
+    if (s === w) s = a.reverse().join('');
+    return s;
+  }
+  function fakeWord(real){
+    // 形近假词：打乱字母；若恰好是真词就再打乱 / 换一个字母
+    for (let t=0;t<40;t++){
+      const s = scrambleWord(real);
+      if (!REAL.has(s.toLowerCase()) && s.toLowerCase() !== real.toLowerCase()) return s;
+    }
+    const i = 1 + ((Math.random()*(real.length-2))|0);
+    const c = String.fromCharCode(97 + ((Math.random()*26)|0));
+    const s = real.slice(0,i) + c + real.slice(i+1);
+    return REAL.has(s.toLowerCase()) ? real.toUpperCase().split('').reverse().join('') : s;
+  }
+  function newRound1(){
+    const pick = BANK[(Math.random()*BANK.length)|0];
+    const real = String(pick[0]).toUpperCase();
+    const laneReal = (Math.random()*3)|0;
+    // 起手就把三条词摆在屏幕内（以前从 -400 起步 → 开局几秒看不到东西）
+    m1 = { real, zh: pick[1], laneReal, done: false,
+      items: LANES.map((y,i) => ({ y, text: i===laneReal ? real : fakeWord(real).toUpperCase(),
+        x: 170 + i*370 + Math.random()*70, hist: [], hit: 0, wrong: 0 })) };
+    log('① 新题：真词「' + real + '」（' + pick[1] + '）在第 ' + (laneReal+1) + ' 轨');
+  }
+  function stepMode1(dt, b){
+    if (!m1) return;
+    const sp = 300 * P.speed;   // 匀速：不受爆冲影响
+    const k1 = Math.max(1, Math.round(P.gap / Math.max(1, sp / 60)));
+    for (const it of m1.items){
+      if (!m1.done){
+        it.x += sp*dt;
+        if (it.x > W + 300) { it.x = -300; it.hist.length = 0; }
+      }
+      it.hist.push(it.x);                       // 每帧一个采样
+      const need = P.layers * k1 + 8; if (it.hist.length > need) it.hist.shift();
+    }
+    // 残影：第 i 层 = 每隔 k 帧取一个过去位置（k 由"间隔"滑杆和当前速度决定 → 间隔就是拖影的疏密）
+    const k = Math.max(1, Math.round(P.gap / Math.max(1, sp / 60)));   // 每层间隔几帧
+    for (const it of m1.items){
+      const alpha0 = 0.92;
+      for (let i=P.layers;i>=1;i--){
+        const a = alpha0 * Math.pow(P.fall, i);
+        if (a < 0.012) continue;
+        const idx = it.hist.length - 1 - i*k;
+        if (idx < 0) continue;
+        const hx = it.hist[idx];
+        drawWord(it.text, hx, it.y - i*0.5, -Math.sin(i*0.3)*0.02*(1+b), grad(i/P.layers), a, 0, false);
+      }
+      // 主体：色散 + 白热核心
+      const dx = P.ab * (0.3 + 0.7*b);
+      if (dx > 0.3){
+        ctx.save(); ctx.globalCompositeOperation='lighter';
+        drawWord(it.text, it.x+dx, it.y, 0, 'rgba(255,45,95,0.85)', 0.75, 0, false);
+        drawWord(it.text, it.x-dx, it.y, 0, 'rgba(0,255,205,0.85)', 0.75, 0, false);
+        ctx.restore();
+      }
+      const coreHue = (hslA[0]*360+8)%360;
+      drawWord(it.text, it.x, it.y, 0, 'hsl('+coreHue.toFixed(0)+',100%,94%)', 1, 0, true);
+      if (it.hit>0){ it.hit -= dt; ctx.save(); ctx.globalAlpha=Math.min(1,it.hit*3); ctx.fillStyle='#7df9ff';
+        ctx.font='700 16px Orbitron, monospace'; ctx.fillText('HIT', it.x - 14, it.y - P.size*0.62); ctx.restore(); }
+      if (it.wrong>0){ it.wrong -= dt; ctx.save(); ctx.globalAlpha=Math.min(1,it.wrong*3); ctx.fillStyle='#ff2b4e';
+        ctx.font='700 16px Orbitron, monospace'; ctx.fillText('MISS', it.x - 20, it.y - P.size*0.62); ctx.restore(); }
+    }
+  }
+
+  /* ============ 模式② 闪现默写 ============ */
+  let m2 = null;
+  function newRound2(){
+    const pick = BANK[(Math.random()*BANK.length)|0];
+    const w = String(pick[0]).toUpperCase();
+    const letters = Array.from(w);
+    // 字格：真字母 + 干扰字母（从银行里取常见字母）
+    const pool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const tiles = letters.slice();
+    const extra = Math.min(6, Math.max(3, Math.round(letters.length * 0.7)));
+    for (let i=0;i<extra;i++){ let c; do { c = pool[(Math.random()*26)|0]; } while (letters.length>3 && letters.indexOf(c)<0 && Math.random()<0.5); tiles.push(c); }
+    for (let i=tiles.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; const t=tiles[i];tiles[i]=tiles[j];tiles[j]=t; }
+    m2 = { word:w, zh:pick[1], phase:'flash', t:0, peeks:P.peek, built:'', tiles, done:false, msg:'' };
+    log('② 新题：闪现「' + w + '」（' + pick[1] + '）');
+  }
+  function stepMode2(dt, b){
+    if (!m2) return;
+    const cx = W/2, cy = H/2 - 40;
+    if (m2.phase === 'flash'){
+      m2.t += dt;
+      const left = P.flashMs/1000 - m2.t;
+      const localB = b;
+      // 满残影：沿"到达方向"铺开（参考文件里静止字的拖影就是这么来的）
+      const N = P.layers, gap = P.gap * (1 + localB*1.4);
+      for (let i=N;i>=1;i--){
+        const a = 0.95 * Math.pow(P.fall, i);
+        if (a < 0.012) continue;
+        const off = i*gap;
+        const rot = -0.012*i*(1+localB*2) + Math.sin(i*0.4)*0.01;
+        drawWord(m2.word, cx - off, cy + Math.sin(i*0.5)*3, rot, grad(i/N), a, 0, false);
+      }
+      const dx = P.ab*(0.3+0.7*localB);
+      if (dx > 0.3){ ctx.save(); ctx.globalCompositeOperation='lighter';
+        drawWord(m2.word, cx+dx, cy, 0, 'rgba(255,45,95,0.85)', 0.8, 0, false);
+        drawWord(m2.word, cx-dx, cy, 0, 'rgba(0,255,205,0.85)', 0.8, 0, false); ctx.restore(); }
+      const coreHue = (hslA[0]*360+8)%360;
+      drawWord(m2.word, cx, cy, 0, 'hsl('+coreHue.toFixed(0)+',100%,94%)', 1, 0, true);
+      if (left <= 0 || m2.peekStop){ m2.phase = 'spell'; m2.t = 0; }
+      // 闪现倒计时条
+      ctx.save(); ctx.fillStyle='rgba(125,249,255,.18)'; ctx.fillRect(cx-260, cy+120, 520, 3);
+      ctx.fillStyle='#7df9ff'; ctx.fillRect(cx-260, cy+120, 520*Math.max(0,left/(P.flashMs/1000)), 3); ctx.restore();
+      return;
+    }
+    // 拼写阶段
+    drawSpell(cx, cy, b);
+  }
+  function drawSpell(cx, cy, b){
+    // 已拼出的部分（下划线格）
+    const n = m2.word.length;
+    const cellW = Math.min(64, 620/n), gapx = 8;
+    const totalW = n*cellW + (n-1)*gapx;
+    let x0 = cx - totalW/2;
+    ctx.save();
+    for (let i=0;i<n;i++){
+      const x = x0 + i*(cellW+gapx) + cellW/2;
+      ctx.strokeStyle = i < m2.built.length ? 'rgba(125,249,255,.55)' : 'rgba(125,249,255,.22)';
+      ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x-cellW/2, cy+18); ctx.lineTo(x+cellW/2, cy+18); ctx.stroke();
+      if (i < m2.built.length){
+        drawWord(m2.built[i], x, cy - 4, 0, 'hsl('+((hslA[0]*360+8)%360).toFixed(0)+',100%,92%)', 1, 0, true);
+      }
+    }
+    // 字格
+    const per = Math.min(9, m2.tiles.length), rows = Math.ceil(m2.tiles.length/per), tw = 62, th = 62, g2 = 10;
+    m2.tiles.forEach((ch, i) => {
+      const r = Math.floor(i/per), c = i%per;
+      const rowN = Math.min(per, m2.tiles.length - r*per);
+      const rowW = rowN*tw + (rowN-1)*g2;
+      const bx = cx - rowW/2 + c*(tw+g2), by = cy + 80 + r*(th+g2);
+      const off = m2.offs && m2.offs[i];
+      ctx.save();
+      if (off) ctx.translate(off.x, off.y);
+      ctx.fillStyle = 'rgba(10,20,32,.95)'; ctx.fillRect(bx, by, tw, th);
+      ctx.strokeStyle = 'rgba(94,246,255,.35)'; ctx.lineWidth = 1; ctx.strokeRect(bx, by, tw, th);
+      drawWord(ch, bx+tw/2, by+th/2, 0, '#eafcff', 1, 0, true);
+      ctx.restore();
+    });
+    ctx.restore();
+    // 提示行
+    ctx.save();
+    ctx.fillStyle = 'rgba(125,249,255,.75)';
+    ctx.font = '400 18px "HarmonyOS Sans SC", sans-serif';
+    ctx.fillText('凭记忆拼出刚才闪现的词（点字母）　回溯剩余：' + m2.peeks, cx - 300, cy - 150);
+    if (m2.msg){ ctx.fillStyle = m2.msgOk ? '#7df9ff' : '#ff2b4e'; ctx.font = '900 30px Orbitron, monospace';
+      ctx.fillText(m2.msg, cx - ctx.measureText(m2.msg).width/2, cy + 40 + 40); }
+    ctx.restore();
+  }
+  function tileClick(mx, my){
+    if (!m2 || m2.phase !== 'spell') return;
+    const cx = W/2, cy = H/2 - 40;
+    const per = Math.min(9, m2.tiles.length), tw = 62, th = 62, g2 = 10;
+    for (let i=0;i<m2.tiles.length;i++){
+      const r = Math.floor(i/per), c = i%per;
+      const rowN = Math.min(per, m2.tiles.length - r*per);
+      const rowW = rowN*tw + (rowN-1)*g2;
+      const bx = cx - rowW/2 + c*(tw+g2), by = cy + 80 + r*(th+g2);
+      if (mx>=bx && mx<=bx+tw && my>=by && my<=by+th){
+        const want = m2.word[m2.built.length];
+        if (m2.tiles[i] === want){
+          m2.built += want; m2.msg = ''; m2.hits = (m2.hits||0)+1;
+          if (m2.built.length === m2.word.length){ m2.msg = 'ACCESS GRANTED'; m2.msgOk = true; m2.done = true; forced = 1; setTimeout(newRound2, 1100); }
+        } else {
+          m2.msg = 'ACCESS DENIED'; m2.msgOk = false; forced = 1;
+          m2.offs = m2.offs || {}; m2.offs[i] = { x: -8, y: 0 }; setTimeout(() => { if (m2) m2.offs = {}; }, 260);
+        }
+        return;
+      }
+    }
+  }
+
+  /* ============ 模式①点击判定 ============ */
+  function laneClick(mx, my){
+    if (!m1 || m1.done) return;
+    for (let i=0;i<m1.items.length;i++){
+      const it = m1.items[i];
+      const w = measure(it.text, false);
+      if (Math.abs(my - it.y) < P.size*0.6 && mx > it.x - w/2 - 30 && mx < it.x + w/2 + 30){
+        if (i === m1.laneReal){ it.hit = 0.6; forced = 1; m1.done = true; log('① 命中真词 ✅ 准备下一题'); setTimeout(newRound1, 900); }
+        else { it.wrong = 0.6; forced = 1; log('① 点到假词 ❌（真词在第 ' + (m1.laneReal+1) + ' 轨）'); }
+        return;
+      }
+    }
+  }
+
+  /* ============ 主循环 ============ */
+  let clock = 0, last = 0, posterT = 0;
+  function frame(now){
+    const t = now/1000, dt = last ? Math.min(t-last, 0.05) : 0.016; last = t;
+    clock += dt;
+    const b = boostAmt(clock);
+    // 抽帧：画面只在 1/fps 的节拍上更新（时间被量化）
+    if (P.fps > 0){ posterT += dt; if (posterT < 1/P.fps) { requestAnimationFrame(frame); return; } posterT = 0; }
+    drawBg(dt*(1 - b*0.96), b);
+    ctx.save();
+    if (P.mode === 1) stepMode1(dt, b); else stepMode2(dt, b);
+    ctx.restore();
+    // 爆冲进度条 + 模式名
+    ctx.save();
+    ctx.fillStyle='rgba(125,249,255,'+(0.18+b*0.75)+')';
+    ctx.fillRect(W/2-150, H-26, 300*Math.min(1,b), 2);
+    ctx.font='600 11px Orbitron, monospace'; ctx.fillStyle='rgba(125,249,255,'+(0.2+b*0.75)+')';
+    const label = P.mode===1 ? 'S A N D E V I S T A N  // 追击·真词识别' : 'S A N D E V I S T A N  // 闪现默写';
+    ctx.fillText(label, W/2 - ctx.measureText(label).width/2, H-38);
+    ctx.restore();
+    requestAnimationFrame(frame);
+  }
+
+  /* ============ 调试日志 ============ */
+  const logs = [];
+  function log(m){ logs.push(m); if (logs.length>6) logs.shift(); renderNotes(); }
+  function renderNotes(){
+    document.getElementById('notes').innerHTML =
+      '<b>① 追击·真词识别</b>：三条时间轨各有一个词高速掠过（带残影），<b>只有一个是真词</b>，其余是形近假词（字母打乱）。' +
+      '点中真词＝命中（爆冲），点假词＝MISS。→ <b>完全没有选项，跳出四选一</b>。<br>' +
+      '<b>② 闪现默写</b>：词条只闪现一次（默认 500ms，满残影 + 可抽帧），随即清空 → 你要<b>点字母凭记忆拼出来</b>；' +
+      '“回溯”次数＝允许再闪一次的救场次数。<br>' +
+      '<b>残影参数</b>：层数 / 间隔（px）/ 衰减 / 色散 / 爆冲强度与间隔 / 抽帧 —— 与 <code>sandevistan-text.html</code> 同源；' +
+      '颜色按层号做 HSL 插值（色A → 色B）。<br>' +
+      '<b>操作</b>：点词或点字母；<code>B</code> 强制爆冲；<code>R</code> 重开；数字 <code>1</code>/<code>2</code> 切模式。<br>' +
+      '<b>落地说明</b>：Phaser 里会用 <code>RenderTexture</code> 自衰减缓冲实现同一观感（只有 1 个文字对象，不会重影），' +
+      '机制单独门控给亚当重锤，其它 10 个战斗不受影响。<br>' +
+      (logs.length ? '<br><b>日志</b>：<br>· ' + logs.slice().reverse().join('<br>· ') : '');
+  }
+
+  /* ============ UI ============ */
+  const $ = id => document.getElementById(id);
+  function bind(id, label, fmt, apply){
+    const el = $(id), lb = $(label);
+    const upd = () => { const v = parseFloat(el.value); apply(v); lb.textContent = fmt(v); };
+    el.addEventListener('input', upd); upd();
+  }
+  bind('size','v-size', v=>v+' px', v=>P.size=v);
+  bind('track','v-track', v=>v+' px', v=>P.track=v);
+  bind('layers','v-layers', v=>v, v=>P.layers=v);
+  bind('gap','v-gap', v=>v+' px', v=>P.gap=v);
+  bind('fall','v-fall', v=>(v/100).toFixed(2), v=>P.fall=v/100);
+  bind('ab','v-ab', v=>v, v=>P.ab=v);
+  bind('boost','v-boost', v=>(v/100).toFixed(1)+'×', v=>P.boost=v/100);
+  bind('interval','v-int', v=>(v/10).toFixed(1)+' s', v=>P.interval=v/10);
+  bind('fps','v-fps', v=>v?v+' fps':'关', v=>P.fps=v);
+  bind('speed','v-speed', v=>(v/100).toFixed(2)+'×', v=>P.speed=v/100);
+  bind('flash','v-flash', v=>v+' ms', v=>P.flashMs=v);
+  bind('peek','v-peek', v=>v, v=>{ P.peek=v; if(m2) m2.peeks=v; });
+  $('colA').addEventListener('input', e=>{ P.colA=e.target.value; syncColors(); });
+  $('colB').addEventListener('input', e=>{ P.colB=e.target.value; syncColors(); });
+  $('modes').addEventListener('click', e=>{
+    const m = e.target.dataset.m; if (!m) return;
+    P.mode = +m;
+    Array.from($('modes').children).forEach(b=>b.classList.toggle('on', b.dataset.m===m));
+    if (P.mode===1) newRound1(); else newRound2();
+    log('切到模式 ' + P.mode);
+  });
+  $('burst').addEventListener('click', ()=>{ forced = 1; });
+  $('restart').addEventListener('click', ()=>{ if (P.mode===1) newRound1(); else newRound2(); });
+  $('again').addEventListener('click', ()=>{ if (P.mode===1) newRound1(); else newRound2(); });
+  cvs.addEventListener('click', e=>{
+    const r = cvs.getBoundingClientRect();
+    const mx = (e.clientX - r.left) * (W / r.width), my = (e.clientY - r.top) * (H / r.height);
+    if (P.mode===1) laneClick(mx,my); else tileClick(mx,my);
+  });
+  window.addEventListener('keydown', e=>{
+    if (e.key==='b'||e.key==='B') forced = 1;
+    else if (e.key==='r'||e.key==='R'){ if (P.mode===1) newRound1(); else newRound2(); }
+    else if (e.key==='1'){ P.mode=1; Array.from($('modes').children).forEach(b=>b.classList.toggle('on', b.dataset.m==='1')); newRound1(); }
+    else if (e.key==='2'){ P.mode=2; Array.from($('modes').children).forEach(b=>b.classList.toggle('on', b.dataset.m==='2')); newRound2(); }
+  });
+  // 缩放舞台以适配窗口
+  function fit(){
+    const box = document.querySelector('.stageBox');
+    const k = Math.min(box.clientWidth / W, Math.max(.45, (window.innerHeight - 220) / H));
+    cvs.style.transform = 'scale(' + k + ')';
+    box.style.height = (H*k) + 'px';
+  }
+  window.addEventListener('resize', fit);
+
+  syncColors(); renderNotes(); newRound1(); requestAnimationFrame(frame);
+  document.fonts && document.fonts.ready.then(fit);
+  setTimeout(fit, 60);
+})();
+</script>
+</body>
+</html>

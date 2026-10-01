@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>巴别残响 · 精心设计十种（R1–R10）</title>
+<style>
+/* ============================================================================
+   精心设计十种（R1~R10）—— 以【排版系统】而非贴图区分
+     功能分区与点击热区不变：状态区(y<300) / 题面区(300~980 × 145~325)
+     / 作答区(308~972 × 394~578) / 立绘区(左14、右994) / 底栏(656)
+     → 但框/线/字/留白的重心全部重做，这才是"好看"的来源
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2')format('woff2');font-weight:900}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#cfcdc7;font-family:'HOS',sans-serif;-webkit-font-smoothing:antialiased}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 16px 80px}
+.head{width:100%;max-width:1360px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.head h1{font-size:18px;margin:0;font-weight:900}
+.head p{margin:0;color:#6b6f76;font-size:12.5px}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto;max-width:860px;justify-content:flex-end}
+.tabs button{font-weight:700;font-size:12px;padding:6px 10px;border-radius:3px;cursor:pointer;border:1px solid #b9b6ad;background:#fff;color:#24252a}
+.tabs button.on{background:#101214;color:#fff;border-color:#101214}
+.viewport{position:relative;width:100%;max-width:1360px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 20px 54px rgba(0,0,0,.20);overflow:hidden}
+.notes{width:100%;max-width:1360px;background:#fff;border:1px solid #dcdad5;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.8;color:#24252a}
+.notes b{font-weight:900}.notes code{font-family:'Grotesk';font-size:12px}
+
+/* ==================== 令牌 ==================== */
+/* R1 学术期刊 */
+body.r1{--bg:#ffffff;--surface:#ffffff;--ink:#141414;--muted:#6f6f6f;--rule:#d8d8d8;--accent:#8c1d1d;--on-accent:#fff;
+  --radius:0px;--shadow:none;--frame:none;--wordFont:'Novecento';--wordW:600;--wordSize:56px;--wordLS:.02em;--wordAlign:center;--wordCase:none}
+/* R2 无印极简 */
+body.r2{--bg:#f4f2ec;--surface:#f4f2ec;--ink:#26241f;--muted:#8b8478;--rule:#ddd7ca;--accent:#b0472f;--on-accent:#fff;
+  --radius:0px;--shadow:none;--frame:none;--wordFont:'Grotesk';--wordW:500;--wordSize:76px;--wordLS:-.02em;--wordAlign:center;--wordCase:none}
+/* R3 解剖图谱 */
+body.r3{--bg:#e8dfc8;--surface:#eee6d2;--ink:#3a2a17;--muted:#8a7554;--rule:#c3ad84;--accent:#7a3b1e;--on-accent:#f6efdd;
+  --radius:0px;--shadow:none;--frame:hair;--wordFont:'Novecento';--wordW:700;--wordSize:58px;--wordLS:.01em;--wordAlign:center;--wordCase:none}
+/* R4 唱片封套 */
+body.r4{--bg:#14110f;--surface:#1b1815;--ink:#f3ece1;--muted:#9c9084;--rule:#332d28;--accent:#e0b23c;--on-accent:#1a1409;
+  --radius:0px;--shadow:none;--frame:none;--wordFont:'Grotesk';--wordW:600;--wordSize:88px;--wordLS:-.04em;--wordAlign:left;--wordCase:lowercase}
+/* R5 数据终端 */
+body.r5{--bg:#0e1113;--surface:#121618;--ink:#e6eae6;--muted:#7d8b84;--rule:#222a26;--accent:#b8e62e;--on-accent:#101503;
+  --radius:2px;--shadow:none;--frame:hair;--wordFont:'Grotesk';--wordW:600;--wordSize:56px;--wordLS:.06em;--wordAlign:left;--wordCase:lowercase}
+/* R6 包豪斯 */
+body.r6{--bg:#f7f6f1;--surface:#ffffff;--ink:#111111;--muted:#6b6b6b;--rule:#111111;--accent:#d0202a;--on-accent:#fff;
+  --radius:0px;--shadow:none;--frame:bold;--wordFont:'Grotesk';--wordW:600;--wordSize:68px;--wordLS:-.03em;--wordAlign:left;--wordCase:uppercase}
+/* R7 古籍羊皮 */
+body.r7{--bg:#e3d3ae;--surface:#e9dbba;--ink:#33240f;--muted:#7d6437;--rule:#b39257;--accent:#9b2d1f;--on-accent:#f7edd6;
+  --radius:0px;--shadow:none;--frame:double;--wordFont:'Novecento';--wordW:700;--wordSize:54px;--wordLS:.01em;--wordAlign:center;--wordCase:none}
+/* R8 工业铭牌 */
+body.r8{--bg:#20252b;--surface:#2b3138;--ink:#e9eef2;--muted:#93a1ab;--rule:#454e57;--accent:#f0c419;--on-accent:#231c00;
+  --radius:2px;--shadow:inset 0 1px 0 rgba(255,255,255,.10),inset 0 -2px 0 rgba(0,0,0,.45);
+  --frame:bevel;--wordFont:'Grotesk';--wordW:600;--wordSize:54px;--wordLS:.04em;--wordAlign:center;--wordCase:uppercase}
+/* R9 当代 SaaS */
+body.r9{--bg:#0b0b0d;--surface:#141417;--ink:#f2f3f5;--muted:#8d9099;--rule:#26262b;--accent:#6d7cff;--on-accent:#fff;
+  --radius:12px;--shadow:0 1px 0 rgba(255,255,255,.04),0 20px 40px rgba(0,0,0,.45);--frame:none;
+  --wordFont:'Grotesk';--wordW:600;--wordSize:56px;--wordLS:-.015em;--wordAlign:center;--wordCase:none}
+/* R10 双色孔版 */
+body.r10{--bg:#f0ebe0;--surface:#f0ebe0;--ink:#1b3a8c;--muted:#6a6f86;--rule:#c9c2b2;--accent:#ff4d8d;--on-accent:#fff;
+  --radius:0px;--shadow:none;--frame:none;--wordFont:'Grotesk';--wordW:600;--wordSize:62px;--wordLS:-.02em;--wordAlign:center;--wordCase:none}
+
+/* ==================== 画面 ==================== */
+.screen{position:relative;width:1280px;height:720px;background:var(--bg);color:var(--ink);overflow:hidden}
+.deco{position:absolute;inset:0;pointer-events:none;z-index:6}
+.deco>div{position:absolute;inset:0;display:none}
+.papergrain{mix-blend-mode:multiply;opacity:.30;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/></filter><rect width='180' height='180' filter='url(%23p)' opacity='0.5'/></svg>")}
+.baseline{background-image:repeating-linear-gradient(180deg,currentColor 0 1px,transparent 1px 24px);opacity:.055}
+.riso{mix-blend-mode:multiply;opacity:.55;background-image:radial-gradient(rgba(27,58,140,.30) 1px,transparent 1.3px);background-size:6px 6px}
+body.r3 .papergrain,body.r7 .papergrain,body.r10 .papergrain{display:block}
+body.r5 .baseline{display:block}
+body.r10 .riso{display:block}
+
+/* 页眉 */
+.hud{position:absolute;left:0;top:0;width:1280px;height:52px;display:flex;align-items:center;gap:14px;padding:0 28px;z-index:5;
+  background:var(--surface);border-bottom:1px solid var(--rule)}
+.pill{font-family:'Novecento';font-weight:600;font-size:12px;letter-spacing:.06em;color:var(--accent);border:1px solid var(--accent);padding:3px 9px;border-radius:var(--radius)}
+.floor{font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.floor b{font-family:'HOS';font-weight:700;font-size:14px;letter-spacing:.02em;color:var(--ink)}
+.spacer{flex:1}
+.stat{font-family:'Grotesk';font-size:15px;letter-spacing:.02em}
+.stat i{font-style:normal;color:var(--muted);font-family:'HOS';font-size:11.5px;letter-spacing:.06em}
+.btn-ghost{font-weight:700;font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--rule);padding:7px 18px;border-radius:var(--radius);cursor:pointer}
+body.r4 .hud,body.r9 .hud{background:transparent;border-bottom-color:var(--rule)}
+body.r6 .hud{border-bottom:3px solid #111}
+body.r7 .hud{border-bottom:3px double var(--rule)}
+body.r8 .hud{border-bottom:2px solid #000;box-shadow:inset 0 -1px 0 rgba(255,255,255,.06)}
+
+/* 立绘牌：本组强调"少框多留白" —— 只有 R6/R7/R8 保留实体框 */
+.plate{position:absolute;top:160px;width:272px;height:264px;overflow:hidden;z-index:2;background:var(--surface)}
+.plate.left{left:14px}.plate.right{left:994px}
+.plate .art{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background-repeat:no-repeat;background-position:0 0}
+.plate.left .art{width:150px;height:196px;background-image:url('../assets/img/logos-idle.png');background-size:2250px 1960px}
+.plate.right .art{width:190px;height:202px;background-image:url('../assets/img/andoain-idle.png');background-size:1900px 2020px;transform:translate(-50%,-50%) scaleX(-1)}
+/* R1/R2/R3/R5/R9/R10：立绘"去框"——只保留底部一条细线，让它像插图而非头像框 */
+body.r1 .plate,body.r2 .plate,body.r3 .plate,body.r5 .plate,body.r9 .plate,body.r10 .plate{
+  background:transparent;border-bottom:1px solid var(--rule)}
+body.r1 .plate .art{filter:grayscale(.15) contrast(1.05)}
+body.r2 .plate .art{filter:saturate(.85)}
+body.r3 .plate .art{filter:sepia(.45) contrast(1.02)}
+body.r4 .plate{background:#0f0d0b;border:1px solid var(--rule)}
+body.r4 .plate .art{filter:grayscale(1) contrast(1.25) brightness(.95)}
+body.r5 .plate .art{filter:grayscale(.7) contrast(1.15)}
+body.r6 .plate{border:3px solid #111;background:#fff}
+body.r6 .plate .art{filter:grayscale(1) contrast(1.4)}
+body.r7 .plate{border:3px double var(--rule);background:#e9dbba}
+body.r7 .plate .art{filter:sepia(.6) contrast(1.05)}
+body.r8 .plate{box-shadow:var(--shadow);border:1px solid var(--rule)}
+body.r8 .plate .art{filter:saturate(.7) contrast(1.08)}
+body.r9 .plate{border-radius:var(--radius);background:#111114;border:1px solid var(--rule);box-shadow:var(--shadow)}
+body.r10 .plate .art{filter:grayscale(.4) contrast(1.15)}
+
+.nameband{position:absolute;top:432px;width:272px;display:flex;align-items:baseline;z-index:3}
+.nameband.left{left:14px}.nameband.right{left:994px}
+.nameband .nm{font-weight:700;font-size:17px;color:var(--ink)}
+body.r1 .nameband .nm{font-family:'Novecento';font-weight:600;font-size:15px;letter-spacing:.06em}
+body.r2 .nameband .nm{font-weight:500;font-size:16px;letter-spacing:.02em}
+body.r3 .nameband .nm{font-family:'Novecento';font-weight:600;font-size:15px;letter-spacing:.04em}
+body.r4 .nameband .nm{font-weight:900;font-size:19px;letter-spacing:-.02em}
+body.r6 .nameband .nm{font-weight:900;font-size:18px;letter-spacing:-.01em}
+body.r7 .nameband .nm{font-family:'Novecento';font-weight:600;font-size:15px;letter-spacing:.03em}
+body.r8 .nameband .nm{font-family:'Grotesk';letter-spacing:.06em;text-transform:uppercase;font-size:15px;text-shadow:0 1px 0 rgba(255,255,255,.12),0 -1px 0 rgba(0,0,0,.5)}
+body.r9 .nameband .nm{font-weight:700;font-size:16px}
+body.r10 .nameband .nm{font-weight:700;font-size:17px;text-shadow:1.5px 0 rgba(255,77,141,.45)}
+.hp{position:absolute;top:466px;width:272px;height:2px;background:var(--rule);z-index:3;overflow:hidden}
+.hp.left{left:14px}.hp.right{left:994px}
+.hp i{position:absolute;inset:0;transform-origin:left center;background:var(--accent)}
+body.r1 .hp i{background:#5cc5e8}body.r1 .hp i.e{background:var(--accent)}
+body.r5 .hp i{background:var(--accent)}body.r5 .hp i.e{background:#ff6b6b}
+body.r8 .hp{height:8px;box-shadow:inset 0 1px 2px rgba(0,0,0,.6)}
+body.r9 .hp{height:6px;border-radius:3px;background:#26262b}
+body.r9 .hp i{border-radius:3px}
+body.r6 .hp{height:6px}body.r6 .hp i.e{background:var(--accent)}
+body.r3 .hp{height:3px;background:#c3ad84}
+body.r7 .hp{height:3px}body.r10 .hp{height:4px}
+body.r10 .hp i{background:var(--accent)}
+.hp .ticks{display:none}
+.numrow{position:absolute;top:480px;width:272px;display:flex;align-items:baseline;z-index:3}
+.numrow.left{left:14px}.numrow.right{left:994px}
+.numrow .n{font-family:'Grotesk';font-weight:600;font-size:18px;color:var(--ink);letter-spacing:.02em}
+.numrow .l{margin-left:auto;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+body.r1 .numrow .n{font-size:15px;color:var(--accent)}
+body.r2 .numrow .n{font-weight:500;font-size:15px}
+body.r4 .numrow .n{font-size:22px;font-weight:600}
+body.r5 .numrow .n{color:var(--accent);font-size:16px}
+body.r6 .numrow .n{font-size:22px;font-weight:700}
+body.r8 .numrow .n{color:var(--accent);text-shadow:0 1px 0 rgba(255,255,255,.10),0 -1px 0 rgba(0,0,0,.5)}
+body.r9 .numrow .n{font-size:16px;color:var(--muted)}
+body.r10 .numrow .n{color:var(--ink)}
+
+/* 题面卡：这是"好看"的主战场 —— 每套的框/线/字重心都不同 */
+.card{position:absolute;left:300px;top:145px;width:680px;height:180px;background:var(--surface);z-index:4;border-radius:var(--radius);box-shadow:var(--shadow)}
+body.r1 .card{border-top:2px solid var(--ink);border-bottom:1px solid var(--rule)}
+body.r2 .card{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+body.r3 .card{border:1px solid var(--rule);outline:1px solid var(--rule);outline-offset:4px}
+body.r4 .card{border:0}
+body.r5 .card{border:1px solid var(--rule)}
+body.r6 .card{border:3px solid #111}
+body.r7 .card{border:3px double var(--rule);box-shadow:inset 0 0 0 1px rgba(179,146,87,.5)}
+body.r8 .card{border:1px solid var(--rule);box-shadow:var(--shadow)}
+body.r9 .card{border:1px solid var(--rule)}
+body.r10 .card{border-top:3px solid var(--ink);border-bottom:3px solid var(--accent)}
+.card .word{position:absolute;left:34px;right:34px;top:80px;transform:translateY(-50%);color:var(--ink);
+  font-family:var(--wordFont);font-weight:var(--wordW);font-size:var(--wordSize);letter-spacing:var(--wordLS);
+  text-align:var(--wordAlign);text-transform:var(--wordCase);line-height:1.02}
+body.r3 .card .word{top:74px}
+body.r4 .card .word{left:28px;right:28px;top:86px}
+body.r5 .card .word{top:74px}
+body.r7 .card .word{top:78px}
+body.r10 .card .word{text-shadow:2px 0 rgba(255,77,141,.55)}
+.card .rule{position:absolute;left:34px;right:34px;top:118px;height:1px;background:var(--rule)}
+body.r1 .card .rule{background:var(--ink);height:1px}
+body.r4 .card .rule{display:none}
+body.r6 .card .rule{height:3px;background:#111}
+body.r9 .card .rule{left:24px;right:24px;background:var(--rule)}
+.card .hint{position:absolute;left:34px;top:140px;transform:translateY(-50%);font-size:12.5px;color:var(--muted)}
+body.r1 .card .hint{font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase}
+body.r2 .card .hint{font-size:12px;letter-spacing:.04em}
+body.r4 .card .hint{top:140px;color:var(--muted)}
+body.r5 .card .hint{font-family:'Grotesk';font-size:11.5px;letter-spacing:.08em}
+body.r6 .card .hint{font-weight:700;letter-spacing:.02em;color:#111}
+body.r7 .card .hint{font-size:12px;color:var(--muted)}
+body.r8 .card .hint{font-family:'Grotesk';font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+body.r10 .card .hint{color:var(--ink);opacity:.75}
+.card .sec{position:absolute;right:34px;top:140px;transform:translateY(-50%);font-family:'Grotesk';font-weight:600;font-size:20px;color:var(--ink)}
+body.r1 .card .sec{color:var(--accent);font-family:'Novecento';font-size:19px}
+body.r2 .card .sec{font-weight:500;font-size:18px;color:var(--muted)}
+body.r4 .card .sec{font-size:26px}
+body.r5 .card .sec{color:var(--accent);font-size:22px}
+body.r6 .card .sec{font-size:26px;font-weight:700}
+body.r8 .card .sec{color:var(--accent);font-size:24px;text-shadow:0 1px 0 rgba(255,255,255,.10),0 -1px 0 rgba(0,0,0,.5)}
+body.r9 .card .sec{font-size:17px;color:var(--muted)}
+/* 计时：本组一律"细线化"（不再是一根胖条） */
+.card .timer{position:absolute;left:34px;right:34px;bottom:10px;height:2px;background:var(--rule);overflow:hidden}
+.card .timer i{position:absolute;left:0;top:0;bottom:0;width:61%;background:var(--accent)}
+body.r1 .card .timer{bottom:8px;height:1px}
+body.r4 .card .timer{left:28px;right:28px;height:6px;background:#2a251f}
+body.r4 .card .timer i{background:var(--accent)}
+body.r6 .card .timer{height:6px;background:#e6e4dd}
+body.r7 .card .timer{height:3px}
+body.r8 .card .timer{height:6px;background:#171b1f;box-shadow:inset 0 1px 2px rgba(0,0,0,.7)}
+body.r9 .card .timer{height:4px;border-radius:2px;background:#26262b}
+body.r9 .card .timer i{border-radius:2px}
+body.r10 .card .timer{height:3px;bottom:8px}
+
+/* 机制槽位 */
+.mech{position:absolute;left:994px;top:514px;display:flex;align-items:center;gap:10px;z-index:4}
+.chip{display:inline-flex;align-items:center;height:26px;padding:0 9px;gap:6px;border:1px solid var(--rule);border-radius:var(--radius);
+  font-family:'Grotesk';font-weight:600;font-size:12.5px;color:var(--ink)}
+body.r2 .chip{border:0;border-bottom:1px solid var(--rule);padding:0 2px}
+body.r4 .chip{border-color:var(--accent);color:var(--accent)}
+body.r6 .chip{border:2px solid #111}
+body.r8 .chip{box-shadow:var(--shadow)}
+body.r9 .chip{border-color:var(--rule);border-radius:8px}
+.pips{display:flex;gap:6px}
+.pip{width:10px;height:10px;border:1px solid var(--rule);border-radius:50%}
+.pip.on{background:var(--accent);border-color:var(--accent)}
+body.r6 .pip{border-radius:0}
+body.r4 .pip{width:14px;height:3px;border:0;background:#2a251f;border-radius:0}
+body.r4 .pip.on{background:var(--accent)}
+
+/* 作答区：R1/R2/R3/R5 走"细线行"，R4/R6 走"实块"，R7/R8/R9/R10 各自成派 */
+.opt{position:absolute;width:320px;height:84px;display:flex;align-items:center;justify-content:center;color:var(--ink);z-index:4;
+  background:var(--surface);border-radius:var(--radius);font-weight:500;font-size:24px;
+  transition:transform .16s cubic-bezier(.2,.7,.3,1),box-shadow .16s,border-color .16s,background .16s,color .16s}
+.opt.a{left:308px;top:394px}.opt.b{left:652px;top:394px}.opt.c{left:308px;top:494px}.opt.d{left:652px;top:494px}
+/* R1 期刊：无框、细线行、序号 */
+body.r1 .opt{border:0;border-bottom:1px solid var(--rule);justify-content:flex-start;padding-left:44px;font-size:22px}
+body.r1 .opt::before{content:attr(data-k);position:absolute;left:12px;font-family:'Novecento';font-weight:600;font-size:13px;color:var(--accent);letter-spacing:.08em}
+body.r1 .opt:hover{border-bottom-color:var(--accent);background:#faf7f7}
+/* R2 无印：无框、无序号、只有一条极淡底线、字距放松 */
+body.r2 .opt{border:0;border-bottom:1px solid var(--rule);font-weight:400;font-size:23px;justify-content:flex-start;padding-left:4px;letter-spacing:.02em}
+body.r2 .opt:hover{border-bottom-color:var(--accent);color:var(--accent)}
+/* R3 图谱：细框 + 边注编号 */
+body.r3 .opt{border:1px solid var(--rule);font-size:22px}
+body.r3 .opt:hover{background:#f2ead6;border-color:var(--accent)}
+/* R4 封套：粗实块，层级最狠 */
+body.r4 .opt{background:#1f1b17;border:1px solid #2c2620;font-weight:600;font-size:25px;justify-content:flex-start;padding-left:26px}
+body.r4 .opt:hover{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+/* R5 终端：表格行 + 等宽 + 荧光数字 */
+body.r5 .opt{border:1px solid var(--rule);font-family:'Grotesk';font-size:22px;justify-content:flex-start;padding-left:26px;letter-spacing:.02em}
+body.r5 .opt:hover{border-color:var(--accent);color:var(--accent);background:#151b16}
+/* R6 包豪斯：粗黑框 + 几何块标记 */
+body.r6 .opt{border:3px solid #111;font-weight:700;font-size:24px}
+body.r6 .opt::before{content:'';position:absolute;left:0;top:0;bottom:0;width:16px;background:#111}
+body.r6 .opt.a::before{background:#d0202a}body.r6 .opt.b::before{background:#1d4ed8}
+body.r6 .opt.c::before{background:#eab308}body.r6 .opt.d::before{background:#111}
+body.r6 .opt{padding-left:30px}
+body.r6 .opt:hover{background:#111;color:#fff}
+/* R7 古籍：双线细框 + 朱红首标 */
+body.r7 .opt{border:2px solid var(--rule);font-size:22px}
+body.r7 .opt::before{content:'❖';position:absolute;left:12px;font-size:11px;color:var(--accent)}
+body.r7 .opt:hover{background:#f0e4c6;border-color:var(--accent)}
+/* R8 铭牌：倒角金属 + 蚀刻字 */
+body.r8 .opt{box-shadow:var(--shadow);border:1px solid var(--rule);font-family:'Grotesk';letter-spacing:.04em;font-size:23px}
+body.r8 .opt:hover{background:#333a42;border-color:var(--accent);box-shadow:inset 0 2px 4px rgba(0,0,0,.5)}
+/* R9 SaaS：卡片 + 柔和阴影 + 悬停提亮 */
+body.r9 .opt{background:#141417;border:1px solid var(--rule);box-shadow:0 1px 0 rgba(255,255,255,.04)}
+body.r9 .opt:hover{background:#1b1b20;border-color:#33343b;transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.5)}
+/* R10 孔版：双色叠印错位 */
+body.r10 .opt{border:2px solid var(--ink);font-weight:600;font-size:25px;box-shadow:4px 4px 0 rgba(255,77,141,.9)}
+body.r10 .opt:hover{background:var(--accent);color:var(--on-accent);border-color:var(--accent);box-shadow:4px 4px 0 var(--ink);transform:translate(-1px,-1px)}
+
+/* 底栏 */
+.foot{position:absolute;left:300px;top:656px;width:680px;height:1px;background:var(--rule);z-index:3}
+.footrow{position:absolute;left:300px;top:666px;width:680px;display:flex;align-items:center;gap:10px;z-index:3}
+.footrow .lab{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+.footrow .c{font-size:12px;color:var(--muted)}
+body.r2 .footrow .c{color:var(--ink)}
+body.r4 .footrow .c{color:#cbbfae}
+body.r6 .footrow .c{color:#111;font-weight:700}
+body.r10 .footrow .c{color:var(--ink)}
+</style>
+</head>
+<body class="r1">
+
+<div class="desk">
+  <div class="head">
+    <h1>精心设计十种（R1–R10）</h1>
+    <p>以排版系统区分，不以贴图区分 · 功能分区与点击热区不变</p>
+    <div class="tabs" id="tabs">
+      <button data-s="r1" class="on">R1 学术期刊</button>
+      <button data-s="r2">R2 无印极简</button>
+      <button data-s="r3">R3 解剖图谱</button>
+      <button data-s="r4">R4 唱片封套</button>
+      <button data-s="r5">R5 数据终端</button>
+      <button data-s="r6">R6 包豪斯</button>
+      <button data-s="r7">R7 古籍羊皮</button>
+      <button data-s="r8">R8 工业铭牌</button>
+      <button data-s="r9">R9 当代 SaaS</button>
+      <button data-s="r10">R10 双色孔版</button>
+    </div>
+  </div>
+
+  <div class="viewport"><div class="stage" id="stage">
+    <div class="screen">
+      <div class="deco"><div class="papergrain"></div><div class="baseline"></div><div class="riso"></div></div>
+
+      <div class="hud">
+        <span class="pill">B1 / 01</span>
+        <span class="floor">// FLOOR · <b>回声层</b> · BOSS</span>
+        <span class="spacer"></span>
+        <span class="stat"><i>残页</i> 27</span>
+        <span class="stat"><i>目标生命</i> 12 / 15</span>
+        <button class="btn-ghost">返回</button>
+      </div>
+
+      <div class="plate left"><div class="art"></div></div>
+      <div class="nameband left"><span class="nm">逻各斯</span></div>
+      <div class="hp left"><i class="p" style="transform:scaleX(.8)"></i></div>
+      <div class="numrow left"><span class="n">12 / 15</span><span class="l">目标生命</span></div>
+
+      <div class="plate right"><div class="art"></div></div>
+      <div class="nameband right"><span class="nm">殉道者 · 安多恩</span></div>
+      <div class="hp right"><i class="e" style="transform:scaleX(1)"></i></div>
+      <div class="numrow right"><span class="n">12 / 12</span><span class="l">ENEMY HP</span></div>
+
+      <div class="mech"><span class="chip">圣环 2/3</span>
+        <span class="pips"><i class="pip on"></i><i class="pip on"></i><i class="pip"></i></span></div>
+
+      <div class="card">
+        <div class="word">attitude</div>
+        <div class="rule"></div>
+        <div class="hint">连续答对题目以击碎圣环</div>
+        <div class="sec">11</div>
+        <div class="timer"><i></i></div>
+      </div>
+
+      <div class="opt a" data-k="01">重要的；重大的</div>
+      <div class="opt b" data-k="02">日落；傍晚</div>
+      <div class="opt c" data-k="03">栖息地；产地</div>
+      <div class="opt d" data-k="04">态度；看法</div>
+
+      <div class="foot"></div>
+      <div class="footrow"><span class="lab">藏品</span>
+        <span class="c">破环之诫</span><span class="c">迅捷之羽</span><span class="c">凝视之瞳</span></div>
+    </div>
+  </div></div>
+
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+const NOTES = {
+ 'r1':'<b>R1 学术期刊</b>：白纸 + 深红唯一强调色。题面卡只靠<b>一条 2px 顶线 + 一条细底线</b>界定；词条居中 56px 宽体；选项<b>去框成"条目"</b>（细底线 + 左侧 01/02 序号）；血条细到 2px。像一篇论文的标题页——<b>纪律感</b>就是美。',
+ 'r2':'<b>R2 无印极简</b>：米白同色系、<b>零边框</b>，全靠细线与留白分区；词条放大到 <b>76px</b> 成为绝对主角；选项无框无序号、极淡底线、悬停只变红字；标签小到 10px 宽字距。最"安静"的一套。',
+ 'r3':'<b>R3 解剖图谱</b>：老纸 + 深褐 + <b>双层描边框</b>（框内再套一条 offset 线），像旧医书的插图版；立绘做棕调；字距与字号都收敛，靠"器物感"取胜。',
+ 'r4':'<b>R4 唱片封套</b>：深墨底 + 芥末黄。词条 <b>88px 左对齐极紧字距</b>、全小写；选项是<b>实心深色块</b>，悬停整块变黄；无卡框、无线，靠色块与字号落差制造张力。最"设计感"的一套。',
+ 'r5':'<b>R5 数据终端</b>：深灰 + 荧光黄绿。背景有<b>24px 基线网格</b>（可见的排版格），所有数字等宽、标签大写字距；选项是表格行；克制、专业、不赛博。',
+ 'r6':'<b>R6 包豪斯</b>：白底 + 红/蓝/黄三原色 + 3px 黑框。选项左侧是<b>纯色几何块</b>（红/蓝/黄/黑按序），词条大写左对齐；把"选项"变成构成主义色标。',
+ 'r7':'<b>R7 古籍羊皮</b>：羊皮纸 + 朱红 + 金线，<b>3px 双线框</b>与内嵌细线，选项前有一枚朱红 ❖ 花标；立绘做棕褐晒印。庄严、有年岁感。',
+ 'r8':'<b>R8 工业铭牌</b>：蓝灰金属 + 安全黄。全屏元素用<b>倒角浮雕</b>（内高光/内暗边）与<b>蚀刻字</b>（上白下黑双层阴影）；数字与标签等宽。像一块仪器铭牌。',
+ 'r9':'<b>R9 当代 SaaS</b>：近黑 + 靛蓝 + <b>12px 圆角</b>与柔和多层投影，元素层级靠亮度而非线条；血条与计时条都做成细胶囊。当代产品级的高级感，最"干净"。',
+ 'r10':'<b>R10 双色孔版（Riso）</b>：米纸 + 荧光粉×墨蓝<b>双色叠印</b>，元素带 3~4px <b>错位投影</b>模拟套印偏移，全屏叠加<b>网点颗粒</b>。独立出版物的时髦质感。'
+};
+const tabs=document.getElementById('tabs'), notes=document.getElementById('notes');
+function setScheme(s){document.body.className=s;
+  tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
+  notes.innerHTML=NOTES[s]||'';}
+tabs.addEventListener('click',e=>{if(e.target.dataset.s)setScheme(e.target.dataset.s)});
+setScheme('r1');
+const stage=document.getElementById('stage'), vp=document.querySelector('.viewport');
+function fit(){const k=Math.min(vp.clientWidth/1280,Math.max(.42,(window.innerHeight-320)/720));
+  stage.style.transform='scale('+k+')';vp.style.height=(720*k)+'px';}
+window.addEventListener('resize',fit);document.fonts&&document.fonts.ready.then(fit);fit();
+</script>
+</body>
+</html>

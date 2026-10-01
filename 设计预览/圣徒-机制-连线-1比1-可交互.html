@@ -1,0 +1,216 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒 · 机制预览「连线」（1:1 · 可交互）</title>
+<style>
+/* ============================================================================
+   圣徒 BOSS 机制预览：**连线**（2026-09-21 用户选定方向 ✓）
+     · 左栏一个英文词 ✓ 右栏四个中文释义 ✓ **两栏都在缓慢漂浮** ✓
+     · 按住词 → **拖出一条线** → 拖到某个释义上松手 ✓
+     · 连对 → 线变白绷直 ＋ 两端各飞起一只白鸽 ✓
+     · 连错 → 线崩断 ＋ 两端炸成碎玻璃 ✓
+   ★ 这个预览是**真的能拖的** ✓ 请直接用鼠标试手感 ✓
+   ★ 可复现性 ✓：线＝Graphics.lineBetween ✓（这里用旋转的 1px div 表示 ✓ 同一件事）
+      漂浮＝y 轴 tween ✓ 断线＝glass 素材 ✓ 连对＝dove 素材 ✓ 全是现成的 ✓
+   ============================================================================ */
+:root{--deep:#12232e;--acc:#54686a;--ice:#8fa8bd;--red:#e2231a}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.lab{width:1280px;margin:20px auto 8px;color:#fff;font-size:13px;line-height:21px}
+.lab b{font-size:16px}.lab i{font-style:normal;color:#a9c6d6}.lab u{text-decoration:none;color:#ffd9a0}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto 10px;overflow:hidden;background:#eaf2f7;cursor:crosshair}
+.stage *{position:absolute;box-sizing:border-box}
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.veil{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:.52}
+.grid{left:0;top:0;width:1280px;height:720px;background-image:linear-gradient(#54686a 1px,transparent 1px),linear-gradient(90deg,#54686a 1px,transparent 1px);background-size:40px 40px;opacity:.13}
+.plate{top:160px;width:272px;height:264px;background:#141a20;border:1px solid #3d5a70}
+.plateL{left:14px}.plateR{left:994px}
+.sprL{left:49px;top:160px;width:202px;height:264px;background:url('../assets/img/logos-idle.png') 0 0/3030px 2640px no-repeat}
+.sprR{left:1020px;top:182px;width:220px;height:220px;background:url('../assets/img/saint-idle.png') 0 0/1760px 4840px no-repeat;transform:scaleX(-1)}
+.nmL{left:14px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.nmR{left:994px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.bar{top:488px;width:272px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.barL{left:14px}.barR{left:994px}
+.bar i{left:0;top:0;height:10px;display:block}
+.cdlab{left:420px;top:96px;font-size:13px;color:var(--deep)}
+.cd{left:420px;top:126px;width:440px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.cdfill{left:0;top:0;height:10px;width:62%;background:var(--acc)}
+.cdtxt{left:872px;top:120px;width:64px;text-align:right;font-size:16px;font-weight:700;color:var(--acc);font-family:'Space Grotesk',sans-serif}
+.hudr{right:44px;top:26px;font-size:14px;color:var(--deep)}
+.tag{left:640px;top:168px;transform:translateX(-50%);font-family:'Novecento Wide',sans-serif;font-size:10px;letter-spacing:.2em;color:var(--acc)}
+/* ---- 左栏：要连的词（漂浮 ✓ 可按住拖 ✓）---- */
+.wordbox{left:300px;top:396px;width:260px;height:104px;background:rgba(255,255,255,.55);border:1px solid var(--acc);
+         animation:fl1 4s ease-in-out infinite;cursor:grab;user-select:none}
+.wordbox .w{left:0;top:0;width:260px;height:104px;display:flex;align-items:center;justify-content:center;
+            font-family:'Space Grotesk',sans-serif;font-size:44px;font-weight:700;color:var(--deep)}
+.wordbox.on{cursor:grabbing;border-width:2px}
+@keyframes fl1{0%{transform:translateY(-10px)}50%{transform:translateY(10px)}100%{transform:translateY(-10px)}}
+/* ---- 右栏：四个释义（各自漂浮 ✓ 相位不同 ✓）---- */
+.mbox{left:700px;width:280px;height:76px;background:rgba(255,255,255,.45);border:1px solid var(--acc);display:flex;align-items:center;justify-content:center}
+.mbox span{font-size:20px;color:var(--deep)}
+.m1{top:300px;animation:fl2 4.4s ease-in-out infinite}
+.m2{top:386px;animation:fl3 3.6s ease-in-out infinite}
+.m3{top:472px;animation:fl4 4.8s ease-in-out infinite}
+.m4{top:558px;animation:fl5 4.0s ease-in-out infinite}
+@keyframes fl2{0%{transform:translateY(11px)}50%{transform:translateY(-11px)}100%{transform:translateY(11px)}}
+@keyframes fl3{0%{transform:translateY(-14px)}50%{transform:translateY(9px)}100%{transform:translateY(-14px)}}
+@keyframes fl4{0%{transform:translateY(8px)}50%{transform:translateY(-13px)}100%{transform:translateY(8px)}}
+@keyframes fl5{0%{transform:translateY(-9px)}50%{transform:translateY(12px)}100%{transform:translateY(-9px)}}
+.mbox.hit{border-color:var(--deep);border-width:2px;background:rgba(255,255,255,.8)}
+.mbox.bad{border-color:var(--red);background:rgba(255,255,255,.7)}
+/* ---- 线（旋转的 1px 条 ✓ ＝ Phaser 的 lineBetween ✓）---- */
+#line{height:1px;background:var(--acc);opacity:.9;transform-origin:0 50%;pointer-events:none}
+#line.ok{background:#fff;height:2px;box-shadow:0 0 3px rgba(84,104,106,.9)}
+#line.bad{background:var(--red);height:2px}
+/* ---- 连对：两端各飞起一只白鸽 ---- */
+.dove{width:56px;height:56px;background-position:center;background-size:contain;background-repeat:no-repeat;opacity:0;pointer-events:none}
+.dL{background-image:url('../素材/众生行记/bird_left1.png')}
+.dR{background-image:url('../素材/众生行记/bird_right.png')}
+/* ---- 连错：两端炸玻璃 ---- */
+.sh{width:56px;height:56px;background-position:center;background-size:contain;background-repeat:no-repeat;opacity:0;pointer-events:none}
+.sh1{background-image:url('../素材/月行水上/glass_1.png')}
+.sh2{background-image:url('../素材/月行水上/glass_3.png')}
+.sh3{background-image:url('../素材/月行水上/glass_5.png')}
+.sh4{background-image:url('../素材/月行水上/glass_7.png')}
+/* ---- 提示与计数 ---- */
+.hint{left:300px;top:520px;width:260px;font-size:12px;color:var(--acc);line-height:17px}
+.state{left:640px;top:640px;transform:translateX(-50%);font-family:'Novecento Wide',sans-serif;font-size:12px;letter-spacing:.16em;color:var(--acc)}
+.score{left:44px;top:672px;width:1192px;font-size:12px;color:var(--acc);font-family:'Novecento Wide',sans-serif;letter-spacing:.14em}
+</style></head><body>
+
+<div class="lab"><b>圣徒 · 机制「连线」</b>　<i>直接用鼠标试 ✓</i> ★ 按住<b>左边的词</b> → <b>拖出一条线</b> → 拖到右边某个释义上<b>松手</b> ✓
+　连对 → 线变白绷直 ＋ 两端各飞起一只<b>白鸽</b> ✓　连错 → <b>线崩断 ＋ 两端炸玻璃</b> ✓　（答对/答错后本轮会自动复位 ✓ 可以连着试 ✓）</div>
+
+<div class="stage" id="stage">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#8fa8bd;width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="tag">LEXICAL DOMAIN · 把词与释义连起来</div>
+
+  <div class="wordbox" id="wb"><div class="w" id="wtxt">fragile</div></div>
+  <div class="mbox m1" id="m0"><span>易碎的</span></div>
+  <div class="mbox m2" id="m1"><span>肥沃的</span></div>
+  <div class="mbox m3" id="m2"><span>脆弱的联盟</span></div>
+  <div class="mbox m4" id="m3"><span>碎片</span></div>
+
+  <div id="line"></div>
+  <div class="dove dL" id="dv1"></div><div class="dove dR" id="dv2"></div>
+  <div class="sh sh1" id="s1"></div><div class="sh sh2" id="s2"></div><div class="sh sh3" id="s3"></div><div class="sh sh4" id="s4"></div>
+
+  <div class="hint">按住我 → 拖到右边<br>（两栏都在缓慢漂浮 ✓ 线要跟着动 ✓）</div>
+  <div class="state" id="state">HOLD THE WORD AND DRAG</div>
+  <div class="score" id="score">答对 0 ／ 答错 0　·　正确答案＝「易碎的」（第 1 个 ✓ 现在就能试）</div>
+</div>
+
+<script>
+/* 预览逻辑（真实交互 ✓）：按住词 → 画线 → 松手判定 ✓
+   ★ 与游戏里的对应关系：
+       这条线 ＝ Phaser 的 Graphics.lineBetween（每帧重画 ✓）
+       漂浮   ＝ 各自不同的 y 轴 tween（相位不同 ✓）
+       命中   ＝ 松手时鼠标落在哪个释义的矩形内 ✓（游戏里就是 getBounds().contains ✓）
+       连对/连错＝换素材飞白鸽 / 炸玻璃 ✓（都是现成 PNG ✓）*/
+(function () {
+  var stage = document.getElementById('stage');
+  var wb = document.getElementById('wb');
+  var line = document.getElementById('line');
+  var stateEl = document.getElementById('state');
+  var scoreEl = document.getElementById('score');
+  var boxes = [0, 1, 2, 3].map(function (i) { return document.getElementById('m' + i); });
+  var CORRECT = 0;                 // 「易碎的」＝第 1 个 ✓
+  var dragging = false, locked = false, ok = 0, bad = 0;
+
+  function center(el) {
+    var r = el.getBoundingClientRect(), s = stage.getBoundingClientRect();
+    return { x: r.left - s.left + r.width / 2, y: r.top - s.top + r.height / 2 };
+  }
+  function drawLine(ax, ay, bx, by, cls) {
+    var dx = bx - ax, dy = by - ay, len = Math.sqrt(dx * dx + dy * dy);
+    var ang = Math.atan2(dy, dx) * 180 / Math.PI;
+    line.className = cls || '';
+    line.style.left = ax + 'px'; line.style.top = ay + 'px';
+    line.style.width = len + 'px';
+    line.style.transform = 'rotate(' + ang + 'deg)';
+    line.style.display = 'block';
+  }
+  function hideLine() { line.style.display = 'none'; }
+  function reset() {
+    locked = false; dragging = false;
+    hideLine();
+    wb.classList.remove('on');
+    boxes.forEach(function (b) { b.classList.remove('hit', 'bad'); });
+    ['dv1', 'dv2', 's1', 's2', 's3', 's4'].forEach(function (id) { document.getElementById(id).style.opacity = 0; });
+    stateEl.textContent = 'HOLD THE WORD AND DRAG';
+    scoreEl.textContent = '答对 ' + ok + ' ／ 答错 ' + bad + '　·　正确答案＝「易碎的」';
+  }
+  /* 按住词 → 开始拖 */
+  wb.addEventListener('mousedown', function (e) {
+    if (locked) return;
+    dragging = true; wb.classList.add('on');
+    stateEl.textContent = 'DRAGGING…';
+    e.preventDefault();
+  });
+  /* 拖动 → 每帧画线 */
+  stage.addEventListener('mousemove', function (e) {
+    if (!dragging || locked) return;
+    var s = stage.getBoundingClientRect();
+    var a = center(wb);
+    drawLine(a.x, a.y, e.clientX - s.left, e.clientY - s.top, '');
+  });
+  /* 松手 → 判定 */
+  stage.addEventListener('mouseup', function (e) {
+    if (!dragging || locked) return;
+    dragging = false; locked = true;
+    var s = stage.getBoundingClientRect();
+    var mx = e.clientX - s.left, my = e.clientY - s.top;
+    var a = center(wb), hitIdx = -1;
+    boxes.forEach(function (b, i) {
+      var r = b.getBoundingClientRect();
+      var x0 = r.left - s.left, y0 = r.top - s.top;
+      if (mx >= x0 && mx <= x0 + r.width && my >= y0 && my <= y0 + r.height) hitIdx = i;
+    });
+    if (hitIdx < 0) { stateEl.textContent = 'MISSED · 没连到任何释义'; hideLine(); wb.classList.remove('on'); setTimeout(reset, 700); return; }
+    var b = boxes[hitIdx], c = center(b);
+    if (hitIdx === CORRECT) {
+      /* 连对：线变白绷直 ＋ 两端飞白鸽 */
+      drawLine(a.x, a.y, c.x, c.y, 'ok');
+      b.classList.add('hit'); wb.classList.remove('on');
+      stateEl.textContent = 'LINKED · 正确';
+      ok++; scoreEl.textContent = '答对 ' + ok + ' ／ 答错 ' + bad + '　·　连对了 ✓ 线绷直了 ✓';
+      var d1 = document.getElementById('dv1'), d2 = document.getElementById('dv2');
+      d1.style.left = (a.x - 28) + 'px'; d1.style.top = (a.y - 28) + 'px';
+      d2.style.left = (c.x - 28) + 'px'; d2.style.top = (c.y - 28) + 'px';
+      d1.style.transition = d2.style.transition = 'all .9s ease-out';
+      requestAnimationFrame(function () {
+        d1.style.opacity = d2.style.opacity = 1;
+        d1.style.transform = 'translate(-70px,-120px) scale(1.1)';
+        d2.style.transform = 'translate(70px,-130px) scale(1.1)';
+      });
+      setTimeout(function () { d1.style.opacity = d2.style.opacity = 0; }, 900);
+    } else {
+      /* 连错：线崩断 ＋ 两端炸玻璃 */
+      drawLine(a.x, a.y, c.x, c.y, 'bad');
+      b.classList.add('bad'); wb.classList.remove('on');
+      stateEl.textContent = 'BROKEN · 错误';
+      bad++; scoreEl.textContent = '答对 ' + ok + ' ／ 答错 ' + bad + '　·　连错了 ✗ 线断了 ✓';
+      var ids = ['s1', 's2', 's3', 's4'], pos = [[a.x - 28, a.y - 28], [c.x - 28, c.y - 28], [a.x - 28, a.y + 10], [c.x - 28, c.y + 10]];
+      ids.forEach(function (id, k) {
+        var el = document.getElementById(id);
+        el.style.left = pos[k][0] + 'px'; el.style.top = pos[k][1] + 'px';
+        el.style.transition = 'all .8s ease-out';
+        requestAnimationFrame(function () {
+          el.style.opacity = 1;
+          el.style.transform = 'translate(' + (k % 2 ? 60 : -60) + 'px,' + (k < 2 ? -70 : 80) + 'px) rotate(' + (k % 2 ? 70 : -70) + 'deg) scale(1.15)';
+        });
+        setTimeout(function () { el.style.opacity = 0; }, 800);
+      });
+    }
+    setTimeout(reset, 1500);
+  });
+  document.addEventListener('mouseup', function () { if (dragging) { dragging = false; reset(); } });
+})();
+</script>
+</body></html>

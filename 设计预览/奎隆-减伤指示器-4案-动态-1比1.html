@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8">
+<title>伤害减免指示器 · 4 案 · 大 ＋ 动态</title>
+<style>
+  html,body{margin:0;background:#08080b;font-family:"HarmonyOS Sans SC","Microsoft YaHei",sans-serif}
+  #root{width:1280px;height:1440px;position:relative}
+
+  /* 每案：一个完整的 1280×720 小场景，缩到 0.5 摆在网格里 */
+  .page{position:absolute;width:1280px;height:720px;transform:scale(.5);transform-origin:0 0;
+        background:radial-gradient(ellipse at 50% 42%, #16161d 0%, #0c0c11 62%, #08080b 100%);
+        overflow:hidden}
+  .tag{position:absolute;left:16px;top:14px;z-index:99;color:#00ff88;font:14px monospace;
+       background:rgba(0,0,0,.55);padding:4px 10px;border:1px solid #1f4a33}
+  .frame{position:absolute;inset:0;border:1px solid #22222b;z-index:98;pointer-events:none}
+
+  /* ---------- 敌人牌与血条（与游戏同几何 ✓）---------- */
+  .plate{position:absolute;left:994px;top:160px;width:272px;height:264px;
+         background:#141519;border:1px solid #2a2b30;border-radius:4px}
+  .plate::before{content:'';position:absolute;left:-1px;top:-1px;width:16px;height:16px;background:#fff44f;
+                 clip-path:polygon(0 0,100% 0,0 100%)}
+  .plate::after{content:'';position:absolute;left:0;right:0;bottom:-56px;height:110px;
+                background:radial-gradient(ellipse at 50% 20%, rgba(226,35,26,.10), transparent 70%)}
+  .pname{position:absolute;left:994px;top:436px;color:#ff625d;font-size:17px}
+  .pbar {position:absolute;left:994px;top:472px;width:272px;height:16px;background:#c04030}
+  .pnum {position:absolute;left:994px;top:486px;color:#efe7d8;font:20px "Space Grotesk",monospace}
+  .plab {position:absolute;left:1266px;top:492px;transform:translateX(-100%);
+         color:#6f6f7a;font:10px sans-serif;letter-spacing:.1em}
+
+  /* ---------- 动画 ---------- */
+  @keyframes pop{0%{transform:scale(1)}5%{transform:scale(1.24)}14%{transform:scale(1)}100%{transform:scale(1)}}
+  @keyframes breathe{0%,100%{opacity:.7;transform:scale(.985)}50%{opacity:1;transform:scale(1.015)}}
+  @keyframes scan{0%{background-position:0 0}100%{background-position:56px 0}}
+  @keyframes grow{0%,10%{transform:scaleY(.2);opacity:.45}32%,100%{transform:scaleY(1);opacity:1}}
+  @keyframes glow{0%,100%{text-shadow:0 0 14px rgba(226,35,26,.45)}50%{text-shadow:0 0 26px rgba(255,106,72,.95)}}
+  @keyframes hitpulse{0%{opacity:0}3%{opacity:1}16%{opacity:0}100%{opacity:0}}
+
+  /* ---------- 案 1 · 符印（六边形徽记 ＋ 大字）---------- */
+  .a1{position:absolute;left:994px;top:500px;width:272px;height:84px;
+      display:flex;align-items:center;justify-content:center;gap:15px}
+  .a1 .hex{position:relative;width:64px;height:72px;flex:0 0 auto;
+      clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+      background:linear-gradient(160deg,#5a1c14,#1a0d0c);
+      display:flex;align-items:center;justify-content:center;
+      animation:breathe 2.8s ease-in-out infinite}
+  .a1 .hex::before{content:'';position:absolute;inset:3px;
+      clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+      background:linear-gradient(160deg,#2a1210,#120a09)}
+  .a1 .num{position:relative;z-index:2;font:700 26px "Space Grotesk",monospace;color:#ff8a62;
+      animation:pop 2.8s ease-out infinite, glow 2.8s ease-in-out infinite}
+  .a1 .t1{font-size:23px;color:#efe7d8;letter-spacing:.14em}
+  .a1 .t2{font-size:12px;color:#c8a24a;letter-spacing:.34em;margin-top:6px}
+
+  /* ---------- 案 2 · 刻度带 ---------- */
+  .a2{position:absolute;left:994px;top:508px;width:272px;height:78px}
+  .a2 .top{display:flex;align-items:baseline;justify-content:space-between}
+  .a2 .big{font:700 36px "Space Grotesk",monospace;color:#ff8a62;
+      animation:pop 2.6s ease-out infinite, glow 2.6s ease-in-out infinite}
+  .a2 .cap{font-size:14px;color:#c8a24a;letter-spacing:.36em}
+  .a2 .ticks{margin-top:10px;height:14px;width:100%;
+      background:repeating-linear-gradient(90deg,#ff6a48 0 7px,transparent 7px 14px);
+      background-size:56px 100%;animation:scan 1.5s linear infinite}
+  .a2 .base{margin-top:8px;height:2px;width:100%;
+      background:linear-gradient(90deg,#e2231a,rgba(226,35,26,0))}
+
+  /* ---------- 案 3 · 血誓竖条 ---------- */
+  .a3{position:absolute;left:994px;top:498px;width:272px;height:86px;
+      display:flex;align-items:flex-end;gap:13px}
+  .a3 .bars{display:flex;align-items:flex-end;gap:6px;height:100%}
+  .a3 .b{width:10px;background:linear-gradient(180deg,#ff8a62,#7d1710);
+      transform-origin:bottom;animation:grow 2.8s ease-out infinite}
+  .a3 .meta3{padding-bottom:3px}
+  .a3 .n{font:700 32px "Space Grotesk",monospace;color:#ff8a62;
+      animation:pop 2.8s ease-out infinite, glow 2.8s ease-in-out infinite}
+  .a3 .t1{font-size:19px;color:#efe7d8;letter-spacing:.1em;margin-top:2px}
+  .a3 .t2{font-size:11px;color:#c8a24a;letter-spacing:.3em;margin-top:4px}
+
+  /* ---------- 案 4 · 镌刻 ---------- */
+  .a4{position:absolute;left:994px;top:498px;width:272px;height:86px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .a4 .row{display:flex;align-items:baseline;gap:11px}
+  .a4 .big{font:700 40px "Space Grotesk",monospace;color:#ff8a62;
+      animation:pop 2.6s ease-out infinite, glow 2.6s ease-in-out infinite}
+  .a4 .unit{font-size:20px;color:#efe7d8;letter-spacing:.16em}
+  .a4 .stripe{margin-top:9px;width:236px;height:3px;
+      background:repeating-linear-gradient(90deg,#ff6a48 0 20px,transparent 20px 28px);
+      background-size:56px 100%;animation:scan 1.3s linear infinite}
+  .a4 .stage{margin-top:8px;font-size:13px;color:#c8a24a;letter-spacing:.46em}
+  .hit{position:absolute;left:994px;top:496px;width:272px;height:90px;pointer-events:none;
+       background:radial-gradient(ellipse at 50% 50%, rgba(255,106,72,.6), transparent 72%);
+       opacity:0;animation:hitpulse 2.6s ease-out infinite}
+</style></head><body>
+<div id="root">
+  <div class="page" style="left:0;top:0"><div class="tag">案 1 · 符印（六边形徽记 ＋ 大字）</div><div class="frame"></div>
+    <!-- 敌人牌（定位参照 ✓ 与游戏同几何 ✓）-->
+    <div class="plate"></div>
+    <div class="pname">奎隆</div>
+    <div class="pbar"></div>
+    <div class="pnum">45 / 45</div>
+    <div class="plab">ENEMY HP</div>
+    
+    <div class="a1">
+      <div class="hex"><span class="num">50%</span></div>
+      <div class="meta">
+        <div class="t1">伤害减免</div>
+        <div class="t2">入 定</div>
+      </div>
+    </div>
+</div>
+  <div class="page" style="left:640px;top:0"><div class="tag">案 2 · 刻度带（逐格点亮）</div><div class="frame"></div>
+    <!-- 敌人牌（定位参照 ✓ 与游戏同几何 ✓）-->
+    <div class="plate"></div>
+    <div class="pname">奎隆</div>
+    <div class="pbar"></div>
+    <div class="pnum">45 / 45</div>
+    <div class="plab">ENEMY HP</div>
+    
+    <div class="a2">
+      <div class="top"><span class="big">50%</span><span class="cap">入 定</span></div>
+      <div class="ticks"></div>
+      <div class="base"></div>
+    </div>
+</div>
+  <div class="page" style="left:0;top:720px"><div class="tag">案 3 · 血誓竖条（生长）</div><div class="frame"></div>
+    <!-- 敌人牌（定位参照 ✓ 与游戏同几何 ✓）-->
+    <div class="plate"></div>
+    <div class="pname">奎隆</div>
+    <div class="pbar"></div>
+    <div class="pnum">45 / 45</div>
+    <div class="plab">ENEMY HP</div>
+    
+    <div class="a3">
+      <div class="bars">
+        <div class="b" style="height:42%"></div>
+        <div class="b" style="height:60%"></div>
+        <div class="b" style="height:80%"></div>
+        <div class="b" style="height:100%"></div>
+      </div>
+      <div class="meta3">
+        <div class="n">50%</div>
+        <div class="t1">伤害减免</div>
+        <div class="t2">入 定</div>
+      </div>
+    </div>
+</div>
+  <div class="page" style="left:640px;top:720px"><div class="tag">案 4 · 镌刻（大字 ＋ 底纹 ＋ 受击闪）</div><div class="frame"></div>
+    <!-- 敌人牌（定位参照 ✓ 与游戏同几何 ✓）-->
+    <div class="plate"></div>
+    <div class="pname">奎隆</div>
+    <div class="pbar"></div>
+    <div class="pnum">45 / 45</div>
+    <div class="plab">ENEMY HP</div>
+    
+    <div class="a4">
+      <div class="row"><span class="big">50%</span><span class="unit">伤害减免</span></div>
+      <div class="stripe"></div>
+      <div class="stage">入 定</div>
+    </div>
+    <div class="hit"></div>
+</div>
+</div></body></html>

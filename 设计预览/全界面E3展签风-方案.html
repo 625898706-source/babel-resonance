@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>巴别残响 · 全界面 E3 展签风方案</title>
+<style>
+/* ============================================================================
+   E3「美术馆展签」全界面方案：主菜单 / 地图 / 事件商店 / 藏品与测试菜单
+   与战斗页同一套语言：
+     纸 #ffffff · 墨 #111111 · 说明灰 #6f6f6f · 细线 #e6e6e6 · 唯一强调红 #e2231a
+     结构只靠【细线 + 留白】，不用实心框；拉丁与大字用 Gilroy（细体），
+     小标签用 Novecento 大写宽字距，数字用等宽 Space Grotesk。
+     唯一保留的深色块 = 立绘图版（黑底立绘必须）。
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2')format('woff2');font-weight:900}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Light.9981d6.woff2')format('woff2');font-weight:300}
+
+:root{--bg:#fff;--ink:#111;--muted:#6f6f6f;--rule:#e6e6e6;--accent:#e2231a;--plate:#141519}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;-webkit-font-smoothing:antialiased;color:var(--ink)}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 16px 80px}
+.head{width:100%;max-width:1340px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.head h1{font-size:18px;margin:0;font-weight:900}
+.head p{margin:0;font-size:12.5px;color:var(--muted)}
+.tabs{display:flex;gap:6px;margin-left:auto}
+.tabs button{font-weight:700;font-size:12.5px;padding:7px 13px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#111;color:#fff;border-color:#111}
+.viewport{position:relative;width:100%;max-width:1340px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 18px 50px rgba(0,0,0,.18);overflow:hidden}
+.screen{position:absolute;inset:0;width:1280px;height:720px;background:var(--bg);display:none}
+.screen.on{display:block}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.8}
+.notes b{font-weight:900}.notes code{font-family:'Grotesk';font-size:12px}
+
+/* ---------- 通用元件（与战斗页同语言） ---------- */
+.hud{position:absolute;left:0;top:0;width:1280px;height:52px;display:flex;align-items:center;gap:16px;padding:0 30px;border-bottom:1px solid var(--rule)}
+.pill{font-family:'Novecento';font-weight:600;font-size:11.5px;letter-spacing:.08em;color:var(--accent);border:1px solid var(--accent);padding:3px 8px}
+.floor{font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.floor b{font-family:'HOS';font-weight:700;font-size:13.5px;letter-spacing:.02em;color:var(--ink)}
+.spacer{flex:1}
+.stat{font-family:'Grotesk';font-size:14.5px}
+.stat i{font-style:normal;font-family:'Novecento';font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.btn{font-family:'HOS';font-weight:700;font-size:12.5px;color:var(--ink);background:transparent;border:1px solid var(--rule);padding:6px 16px;cursor:pointer}
+.label{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.num{font-family:'Grotesk';font-weight:600}
+.rule{position:absolute;height:1px;background:var(--rule)}
+.ruler{width:100%;height:1px;background:var(--rule)}
+
+/* 条目（无框 + 细底线；悬停底线变红） */
+.row{display:flex;align-items:center;gap:14px;height:64px;border-bottom:1px solid var(--rule);cursor:pointer;transition:border-color .15s,background .15s}
+.row:hover{border-bottom-color:var(--accent);background:#fcfcfc}
+.row .t{font-size:22px;flex:1}
+.row .tag{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.row .p{font-family:'Grotesk';font-weight:600;font-size:17px}
+
+/* 立绘图版（唯一保留的深色块） */
+.plate{position:absolute;background:var(--plate);overflow:hidden}
+.plate .art{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background-repeat:no-repeat;background-position:0 0}
+.plate .corner{position:absolute;left:0;top:0;width:0;height:0;border-top:16px solid #fff44f;border-right:16px solid transparent}
+.hpbar{position:absolute;height:16px;border:1px solid #e6e6e6;background:#fff;overflow:hidden}
+.hpbar i{position:absolute;inset:0;transform-origin:left center}
+.hpbar .ticks{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent 0 30px,rgba(0,0,0,.28) 30px 31px)}
+
+/* ============================== 1 主菜单 ============================== */
+#s1 .title{position:absolute;left:120px;top:190px;font-family:'Gilroy';font-weight:300;font-size:112px;letter-spacing:-.02em;line-height:1}
+#s1 .sub{position:absolute;left:126px;top:320px;font-family:'Novecento';font-weight:600;font-size:12px;letter-spacing:.42em;text-transform:uppercase;color:var(--muted)}
+#s1 .redline{position:absolute;left:126px;top:360px;width:200px;height:3px;background:var(--accent)}
+#s1 .menu{position:absolute;left:120px;top:404px;width:460px}
+#s1 .foot{position:absolute;left:126px;bottom:46px;font-size:11px;color:var(--muted);letter-spacing:.08em}
+#s1 .plate{right:96px;top:120px;width:420px;height:480px}
+#s1 .plate .art{width:300px;height:392px;background-image:url('../assets/img/logos-idle.png');background-size:4500px 3920px}
+#s1 .vtag{position:absolute;right:126px;top:626px;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+
+/* ============================== 2 地图 ============================== */
+#s2 .side{position:absolute;left:30px;top:84px;width:250px}
+#s2 .side .blk{margin-bottom:26px}
+#s2 .side .n{font-family:'Grotesk';font-weight:600;font-size:22px}
+#s2 .side .c{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;height:30px;align-items:center;border-bottom:1px solid var(--rule)}
+#s2 .map{position:absolute;left:320px;top:84px;width:930px;height:600px}
+#s2 .col{position:absolute;width:224px}
+#s2 .colh{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+#s2 .node{position:relative;border-bottom:1px solid var(--rule);padding:12px 0 12px 12px;margin-bottom:18px;cursor:pointer;transition:border-color .15s,background .15s}
+#s2 .node:hover{border-bottom-color:var(--accent);background:#fcfcfc}
+#s2 .node.cur::before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;background:var(--accent)}
+#s2 .node .nt{font-size:16px;font-weight:500}
+#s2 .node .nk{font-family:'Novecento';font-weight:600;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:3px}
+#s2 .node.boss{background:#111;color:#fff;padding-left:14px;border-bottom:0}
+#s2 .node.boss .nk{color:#bdbdbd}
+#s2 .node.done{opacity:.42}
+#s2 .link{position:absolute;height:1px;background:var(--rule)}
+
+/* ============================== 3 事件商店 ============================== */
+#s3 .ev{position:absolute;left:80px;top:96px;width:560px}
+#s3 .ev h2{margin:0 0 6px;font-family:'Gilroy';font-weight:500;font-size:54px;letter-spacing:-.01em}
+#s3 .ev .en{font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
+#s3 .ev .txt{margin-top:22px;font-size:15px;line-height:2.0;color:#333}
+#s3 .ev .redline{width:120px;height:3px;background:var(--accent);margin:20px 0 0}
+#s3 .shop{position:absolute;right:80px;top:96px;width:520px}
+#s3 .shop .row .t{font-size:19px}
+#s3 .buy{font-family:'HOS';font-weight:700;font-size:12px;color:var(--accent);border:1px solid var(--accent);padding:5px 13px;cursor:pointer}
+#s3 .buy.no{color:var(--muted);border-color:var(--rule)}
+#s3 .leave{position:absolute;left:80px;bottom:64px;width:560px}
+#s3 .foothint{position:absolute;right:80px;bottom:64px;font-size:11.5px;color:var(--muted);letter-spacing:.06em}
+
+/* ============================== 4 测试菜单 / 藏品 ============================== */
+#s4 .sec{position:absolute;left:80px;width:1120px}
+#s4 .sech{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:6px}
+#s4 .sech .f{font-family:'Novecento';font-weight:600;font-size:12px;letter-spacing:.1em;color:var(--accent)}
+#s4 .sech .nm{font-size:20px;font-weight:700}
+#s4 .sech .c{margin-left:auto;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+#s4 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0 34px}
+#s4 .pick{display:flex;align-items:center;gap:10px;height:44px;border-bottom:1px solid var(--rule);font-size:14.5px;cursor:pointer}
+#s4 .pick:hover{border-bottom-color:var(--accent)}
+#s4 .dot{width:10px;height:10px;border-radius:50%;border:1px solid var(--rule)}
+#s4 .pick.on .dot{background:var(--accent);border-color:var(--accent)}
+#s4 .pick .r{margin-left:auto;font-family:'Novecento';font-weight:600;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+#s4 .acts{position:absolute;right:80px;bottom:44px;display:flex;gap:10px;align-items:center}
+#s4 .count{font-family:'Grotesk';font-weight:600;font-size:16px;margin-right:8px}
+</style>
+</head>
+<body>
+
+<div class="desk">
+  <div class="head">
+    <h1>全界面 E3 展签风方案</h1>
+    <p>与战斗页同一套语言：白纸 · 细线 · 单一红 · 排版层级</p>
+    <div class="tabs" id="tabs">
+      <button data-s="s1" class="on">主菜单</button>
+      <button data-s="s2">地图</button>
+      <button data-s="s3">事件 / 商店</button>
+      <button data-s="s4">藏品 / 测试菜单</button>
+    </div>
+  </div>
+
+  <div class="viewport"><div class="stage" id="stage">
+
+    <!-- ============ 1 主菜单 ============ -->
+    <div class="screen on" id="s1">
+      <div class="title">巴别残响</div>
+      <div class="sub">Babel Resonance · Integrated Strategies</div>
+      <div class="redline"></div>
+      <div class="menu">
+        <div class="row"><span class="t">开始探索</span><span class="tag">New Run</span></div>
+        <div class="row"><span class="t">继续上次</span><span class="tag">Continue</span></div>
+        <div class="row"><span class="t">战斗测试</span><span class="tag">Sandbox</span></div>
+        <div class="row" style="border-bottom:0"><span class="t">设置</span><span class="tag">Options</span></div>
+      </div>
+      <div class="plate"><div class="art"></div></div>
+      <div class="vtag">Babel Resonance · v0.1</div>
+      <div class="foot">词句即武器：把英文词义钉进对手的名字里。</div>
+    </div>
+
+    <!-- ============ 2 地图 ============ -->
+    <div class="screen" id="s2">
+      <div class="hud">
+        <span class="pill">B1</span>
+        <span class="floor">// FLOOR · <b>回声层</b></span>
+        <span class="spacer"></span>
+        <span class="stat"><i>残页</i> 27</span>
+        <span class="stat"><i>目标生命</i> 12 / 15</span>
+        <button class="btn">返回</button>
+      </div>
+
+      <div class="side">
+        <div class="blk">
+          <div class="label" style="margin-bottom:8px">逻各斯</div>
+          <div class="hpbar" style="position:relative;width:250px"><i style="background:#5cc5e8;transform:scaleX(.8)"></i><span class="ticks"></span></div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px">
+            <span class="n">12 / 15</span><span class="label">目标生命</span>
+          </div>
+        </div>
+        <div class="blk">
+          <div class="label" style="margin-bottom:6px">残页</div>
+          <div class="n" style="font-size:28px">27</div>
+        </div>
+        <div class="blk">
+          <div class="label" style="margin-bottom:4px">藏品</div>
+          <div class="c">破环之诫</div>
+          <div class="c">迅捷之羽</div>
+          <div class="c" style="border-bottom:0">凝视之瞳</div>
+        </div>
+      </div>
+
+      <div class="map">
+        <div class="col" style="left:0">
+          <div class="colh">01 · 已通过</div>
+          <div class="node done"><span class="nk">战斗</span><span class="nt">源石虫</span></div>
+          <div class="node done"><span class="nk">事件</span><span class="nt">拾荒者</span></div>
+          <div class="node done"><span class="nk">商店</span><span class="nt">旧货摊</span></div>
+        </div>
+        <div class="col" style="left:250px">
+          <div class="colh">02 · 当前</div>
+          <div class="node cur"><span class="nk">紧急作战</span><span class="nt">萨卡兹宿主卫巢百夫长</span></div>
+          <div class="node"><span class="nk">奖励</span><span class="nt">残页 · 藏品</span></div>
+          <div class="node"><span class="nk">残响之隙</span><span class="nt">里恩</span></div>
+        </div>
+        <div class="col" style="left:500px">
+          <div class="colh">03 · 层尾</div>
+          <div class="node boss"><span class="nk">险路恶敌</span><span class="nt">殉道者 · 安多恩</span></div>
+          <div class="node" style="border-bottom:0"><span class="nk">下一层</span><span class="nt">回响层</span></div>
+        </div>
+        <div class="col" style="left:750px">
+          <div class="colh">图例</div>
+          <div class="node" style="cursor:default"><span class="nk">普通 / 紧急</span><span class="nt">答题造成伤害</span></div>
+          <div class="node" style="cursor:default"><span class="nk">残响之隙</span><span class="nt">里恩 · 循环机制</span></div>
+          <div class="node" style="border-bottom:0;cursor:default"><span class="nk">险路恶敌</span><span class="nt">层尾 BOSS</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 3 事件 / 商店 ============ -->
+    <div class="screen" id="s3">
+      <div class="hud">
+        <span class="pill">B1 / 02</span>
+        <span class="floor">// NODE · <b>旧货摊</b></span>
+        <span class="spacer"></span>
+        <span class="stat"><i>残页</i> 27</span>
+        <button class="btn">返回</button>
+      </div>
+
+      <div class="ev">
+        <h2>旧货摊</h2>
+        <div class="en">The Junk Stall</div>
+        <div class="redline"></div>
+        <div class="txt">
+          摊主把一只锈蚀的箱子推到你面前：「词是被用旧的工具，<br />
+          旧词比新词更结实。」<br />
+          他指了指箱子里几件还带着墨迹的东西。
+        </div>
+      </div>
+
+      <div class="shop">
+        <div class="label" style="margin-bottom:10px">可交换（残页 27）</div>
+        <div class="row">
+          <span class="t">破环之诫</span><span class="tag">史诗</span><span class="p">12</span>
+          <button class="buy">交换</button>
+        </div>
+        <div class="row">
+          <span class="t">迅捷之羽</span><span class="tag">稀有</span><span class="p">8</span>
+          <button class="buy">交换</button>
+        </div>
+        <div class="row">
+          <span class="t">凝视之瞳</span><span class="tag">稀有</span><span class="p">10</span>
+          <button class="buy">交换</button>
+        </div>
+        <div class="row" style="opacity:.45">
+          <span class="t">从容之印</span><span class="tag">普通</span><span class="p">6</span>
+          <button class="buy no">残页不足</button>
+        </div>
+      </div>
+
+      <div class="leave">
+        <div class="row" style="border-bottom:0"><span class="t">离开（不交换）</span><span class="tag">Leave</span></div>
+      </div>
+      <div class="foothint">藏品效果全局生效，可在页眉右侧查看已拥有数量。</div>
+    </div>
+
+    <!-- ============ 4 藏品 / 测试菜单 ============ -->
+    <div class="screen" id="s4">
+      <div class="hud">
+        <span class="pill">TEST</span>
+        <span class="floor">// <b>战斗测试</b> · 按层分组</span>
+        <span class="spacer"></span>
+        <span class="stat"><i>已选藏品</i> 3</span>
+        <button class="btn">返回</button>
+      </div>
+
+      <div class="sec" style="top:92px">
+        <div class="sech"><span class="f">B1</span><span class="nm">回声层</span><span class="c">5 个可测战斗</span></div>
+        <div class="grid">
+          <div class="pick">普通 · 源石虫<span class="r">Battle</span></div>
+          <div class="pick">紧急 · 萨卡兹宿主卫巢百夫长<span class="r">Battle</span></div>
+          <div class="pick">残响之隙 · 里恩<span class="r">Lien</span></div>
+          <div class="pick">BOSS · 殉道者 · 安多恩<span class="r">Shield</span></div>
+          <div class="pick">BOSS · 皇帝的利刃<span class="r">Trial</span></div>
+        </div>
+      </div>
+
+      <div class="sec" style="top:320px">
+        <div class="sech"><span class="f">B2</span><span class="nm">回响层</span><span class="c">5 个可测战斗</span></div>
+        <div class="grid">
+          <div class="pick">普通 · 猎狗pro<span class="r">Anagram</span></div>
+          <div class="pick">紧急 · 复仇者<span class="r">Anagram</span></div>
+          <div class="pick">残响之隙 · 里恩<span class="r">Lien</span></div>
+          <div class="pick">BOSS · 铁络无面者<span class="r">Maskless</span></div>
+          <div class="pick">BOSS · 塔露拉<span class="r">Rail</span></div>
+        </div>
+      </div>
+
+      <div class="sec" style="top:530px">
+        <div class="sech"><span class="f">◇</span><span class="nm">测试携带藏品</span><span class="c">大池 + BOSS 池</span></div>
+        <div class="grid">
+          <div class="pick on"><span class="dot"></span>破环之诫<span class="r">史诗</span></div>
+          <div class="pick on"><span class="dot"></span>迅捷之羽<span class="r">稀有</span></div>
+          <div class="pick on"><span class="dot"></span>凝视之瞳<span class="r">稀有</span></div>
+          <div class="pick"><span class="dot"></span>从容之印<span class="r">普通</span></div>
+          <div class="pick"><span class="dot"></span>指令机<span class="r">稀有</span></div>
+          <div class="pick"><span class="dot"></span>墨渍未干<span class="r">普通</span></div>
+        </div>
+      </div>
+
+      <div class="acts">
+        <span class="count">已选 3</span>
+        <button class="btn">清空</button>
+        <button class="btn" style="border-color:#111">确定</button>
+      </div>
+    </div>
+
+  </div></div>
+
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+const NOTES = {
+ s1:'<b>主菜单</b>：标题用 <b>Gilroy Light 112px</b>（展签作品名），副标题小写宽字距；四个动作做成<b>无框条目</b>（细底线 + 右侧英文小标），悬停底线变红；右侧保留一块<b>深色立绘图版</b>作为唯一实体块。',
+ s2:'<b>地图</b>：左侧状态栏用细线与留白分区（血条仍 16px 带刻度）；路线按<b>列</b>分（已通过 / 当前 / 层尾），节点=无框条目，<b>当前节点左缘 3px 红条</b>，已通过节点降透明度，<b>层尾 BOSS 节点反白为黑块</b>（唯一允许的实心块，用于最强层级）。',
+ s3:'<b>事件 / 商店</b>：左=叙事（Gilroy 54px 标题 + 红色短横线 + 行距 2.0 的正文），右=交换列表（无框条目：名称 / 稀有度小标 / 残页数字 / 交换按钮）；买不起的条目整行降到 45% 并把按钮变灰字（不只是禁用）。',
+ s4:'<b>藏品 / 测试菜单</b>：按层分组，组头＝<b>2px 黑底线</b> + 层号红字 + 右侧计数；战斗条目与藏品勾选都用无框条目（勾选用<b>红点</b>而非方框）；底部动作区右对齐（清空 / 确定）。'
+};
+const tabs=document.getElementById('tabs'), notes=document.getElementById('notes');
+function setScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id));
+  tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.s===id));
+  notes.innerHTML = NOTES[id] || '';
+}
+tabs.addEventListener('click', e=>{ if(e.target.dataset.s) setScreen(e.target.dataset.s); });
+setScreen('s1');
+const stage=document.getElementById('stage'), vp=document.querySelector('.viewport');
+function fit(){const k=Math.min(vp.clientWidth/1280, Math.max(.42,(window.innerHeight-320)/720));
+  stage.style.transform='scale('+k+')'; vp.style.height=(720*k)+'px';}
+window.addEventListener('resize',fit); document.fonts&&document.fonts.ready.then(fit); fit();
+</script>
+</body>
+</html>

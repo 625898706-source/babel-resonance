@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>巴别残响 · 标题字体六版</title>
+<style>
+/* ============================================================================
+   标题「巴别残响」六种排法 —— 项目内可用字体只有 HarmonyOS Sans SC + 拉丁字体，
+   所以在【字重 / 字距 / 双色 / 描边 / 竖排 / 印章格】上做变体。
+   页面其余部分（红横线 + 五条长签 + 底部信息）与 V3 标题页一致，便于就地比较。
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2')format('woff2');font-weight:900}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Light.9981d6.woff2')format('woff2');font-weight:300}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111;-webkit-font-smoothing:antialiased}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 16px 80px}
+.head{width:100%;max-width:1340px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.head h1{font-size:18px;margin:0;font-weight:900}
+.head p{margin:0;font-size:12.5px;color:#6f6f6f}
+.tabs{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;max-width:900px}
+.tabs button{font-weight:700;font-size:12px;padding:6px 11px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#111;color:#fff;border-color:#111}
+.viewport{position:relative;width:100%;max-width:1340px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 18px 50px rgba(0,0,0,.18);overflow:hidden}
+.screen{position:absolute;inset:0;width:1280px;height:720px;background:#fff;display:none}
+.screen.on{display:block}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.8}
+
+/* 页面共同部分（照 V3 标题页） */
+.rl{position:absolute;left:80px;width:180px;height:3px;background:#e2231a}
+.list{position:absolute;left:80px;right:80px;top:300px}
+.row{display:flex;align-items:center;gap:26px;height:76px;border-top:1px solid #e6e6e6;cursor:pointer}
+.row .no{font-family:'Grotesk';font-weight:600;font-size:14px;color:#e2231a;width:40px}
+.row .nm{font-size:30px;font-weight:500;flex:1}
+.row .en{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#6f6f6f}
+.row .ar{font-family:'Grotesk';font-size:16px;color:#6f6f6f}
+.foot{position:absolute;left:80px;bottom:44px;font-size:11.5px;color:#6f6f6f}
+.vr{position:absolute;right:80px;bottom:44px;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#6f6f6f}
+
+/* ============ B1 特紧黑体（默认升级） ============ */
+#b1 .t{position:absolute;left:78px;top:96px;font-family:'HOS';font-weight:900;font-size:110px;letter-spacing:-.055em;line-height:1}
+#b1 .en{position:absolute;left:82px;top:224px;font-family:'Novecento';font-weight:600;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#6f6f6f}
+#b1 .rl{top:252px}
+
+/* ============ B2 宽字距题签 ============ */
+#b2 .t{position:absolute;left:78px;top:104px;font-family:'HOS';font-weight:900;font-size:92px;letter-spacing:.3em;line-height:1}
+#b2 .sq{position:absolute;left:78px;top:96px;width:14px;height:60px;background:#e2231a}
+#b2 .en{position:absolute;left:82px;top:218px;font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.34em;text-transform:uppercase;color:#6f6f6f}
+#b2 .rl{top:246px}
+
+/* ============ B3 双色（后两字红） ============ */
+#b3 .t{position:absolute;left:78px;top:96px;font-family:'HOS';font-weight:900;font-size:112px;letter-spacing:-.02em;line-height:1}
+#b3 .t i{font-style:normal;color:#e2231a}
+#b3 .en{position:absolute;left:82px;top:230px;font-family:'Novecento';font-weight:600;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#6f6f6f}
+#b3 .rl{top:258px}
+
+/* ============ B4 描边空心（细体感） ============ */
+#b4 .t{position:absolute;left:78px;top:96px;font-family:'HOS';font-weight:900;font-size:112px;letter-spacing:.02em;line-height:1;
+  color:transparent;-webkit-text-stroke:2px #111}
+#b4 .en{position:absolute;left:82px;top:230px;font-family:'Novecento';font-weight:600;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#6f6f6f}
+#b4 .rl{top:258px}
+
+/* ============ B5 竖排题签 ============ */
+#b5 .t{position:absolute;right:96px;top:80px;writing-mode:vertical-rl;text-orientation:upright;
+  font-family:'HOS';font-weight:900;font-size:76px;letter-spacing:.16em;line-height:1}
+#b5 .en{position:absolute;right:190px;top:88px;writing-mode:vertical-rl;text-orientation:upright;
+  font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:#6f6f6f}
+#b5 .vline{position:absolute;right:300px;top:88px;width:1px;height:420px;background:#e6e6e6}
+#b5 .t2{position:absolute;left:80px;top:92px;font-family:'HOS';font-weight:900;font-size:44px;letter-spacing:.04em}
+#b5 .en2{position:absolute;left:82px;top:150px;font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.36em;text-transform:uppercase;color:#6f6f6f}
+#b5 .rl{top:180px;left:80px}
+#b5 .list{top:224px;right:340px}
+
+/* ============ B6 印章格（逐字方格） ============ */
+#b6 .grid{position:absolute;left:80px;top:100px;display:flex;gap:0}
+#b6 .cell{width:104px;height:104px;border:1px solid #111;display:flex;align-items:center;justify-content:center;
+  font-family:'HOS';font-weight:900;font-size:64px;line-height:1}
+#b6 .cell+.cell{border-left:0}
+#b6 .cell.red{color:#e2231a}
+#b6 .en{position:absolute;left:82px;top:230px;font-family:'Novecento';font-weight:600;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:#6f6f6f}
+#b6 .rl{top:258px}
+</style>
+</head>
+<body>
+
+<div class="desk">
+  <div class="head">
+    <h1>标题「巴别残响」六种排法</h1>
+    <p>项目内中文字体只有 HarmonyOS Sans SC → 变体做在字重/字距/双色/描边/竖排/印章格</p>
+    <div class="tabs" id="tabs">
+      <button data-s="b1" class="on">B1 特紧黑体</button>
+      <button data-s="b2">B2 宽字距题签</button>
+      <button data-s="b3">B3 双色</button>
+      <button data-s="b4">B4 描边空心</button>
+      <button data-s="b5">B5 竖排题签</button>
+      <button data-s="b6">B6 印章格</button>
+    </div>
+  </div>
+
+  <div class="viewport"><div class="stage" id="stage"></div></div>
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+const ROWS = [
+  ['01', '开始探索', 'NEW RUN'], ['02', '继续上次', 'CONTINUE'], ['03', '战斗测试', 'SANDBOX'],
+  ['04', '声音：开', 'SOUND'], ['05', '退出游戏', 'QUIT'],
+];
+const listHTML = `<div class="list">${ROWS.map(([no, nm, en]) =>
+  `<div class="row"><span class="no">${no}</span><span class="nm">${nm}</span><span class="en">${en}</span><span class="ar">→</span></div>`).join('')}</div>`;
+const FOOT = `<div class="foot">词句即武器：把正确的义钉进对手的名字里。</div>
+  <div class="vr">Babel Resonance · v0.1</div>`;
+
+const BODIES = {
+  b1: `<div class="t">巴别残响</div><div class="en">Babel Resonance · Integrated Strategies</div><div class="rl"></div>${listHTML}${FOOT}`,
+  b2: `<div class="sq"></div><div class="t">巴别残响</div><div class="en">Babel Resonance</div><div class="rl"></div>${listHTML}${FOOT}`,
+  b3: `<div class="t">巴别<i>残响</i></div><div class="en">Babel Resonance</div><div class="rl"></div>${listHTML}${FOOT}`,
+  b4: `<div class="t">巴别残响</div><div class="en">Babel Resonance</div><div class="rl"></div>${listHTML}${FOOT}`,
+  b5: `<div class="en">Babel Resonance</div><div class="t">巴别残响</div><div class="vline"></div>
+       <div class="t2">巴别残响</div><div class="en2">Babel Resonance</div><div class="rl"></div>${listHTML}${FOOT}`,
+  b6: `<div class="grid"><div class="cell">巴</div><div class="cell">别</div><div class="cell red">残</div><div class="cell red">响</div></div>
+       <div class="en">Babel Resonance</div><div class="rl"></div>${listHTML}${FOOT}`,
+};
+['b1','b2','b3','b4','b5','b6'].forEach(id => {
+  const d = document.createElement('div');
+  d.className = 'screen' + (id === 'b1' ? ' on' : '');
+  d.id = id; d.innerHTML = BODIES[id];
+  document.querySelector('.stage').appendChild(d);
+});
+
+const NOTES = {
+ b1:'<b>B1 特紧黑体</b>：HarmonyOS <b>Black 900 / 110px / 字距 −0.055em</b>。把字挤紧会显得"更重、更有块面"，是中文标题最稳的现代做法（原来 14px 小字 + 巨号拉丁，现在中文回到主角位）。',
+ b2:'<b>B2 宽字距题签</b>：Black 900 / 92px / <b>字距 +0.3em</b> + 左侧红色小竖块。宽字距＋红块＝"展签 / 题签"气质，庄重、留白多，和美术馆语言最贴。',
+ b3:'<b>B3 双色</b>：「巴别」墨黑 + <b>「残响」红</b>。用唯一的强调色点题（"残响"＝回声消散），呼应战斗页红线的用法。最省事但很有效。',
+ b4:'<b>B4 描边空心</b>：<b>空心字</b>（2px 墨色描边、内部透明）。轻、透气、像线框/图纸，与地图那套「线框角标」是同一族语言。',
+ b5:'<b>B5 竖排题签</b>：右侧 <b>竖排</b>大字（76px，字距 0.16em）+ 左侧细竖线，左侧另起一列横排小标题与菜单；像古籍书封题签，最有个性。',
+ b6:'<b>B6 印章格</b>：<b>逐字方格</b>（104px 方框 + 64px 黑体），后两字用红色——像印章/活字盘，把"字"本身当作画面主角，最贴"语言被拆成碎片"的世界观。',
+};
+const tabs = document.getElementById('tabs'), notes = document.getElementById('notes');
+function setV(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.s === id));
+  notes.innerHTML = NOTES[id] || '';
+}
+tabs.addEventListener('click', e => { if (e.target.dataset.s) setV(e.target.dataset.s); });
+setV('b1');
+
+const stage = document.getElementById('stage'), vp = document.querySelector('.viewport');
+function fit(){const k=Math.min(vp.clientWidth/1280,Math.max(.42,(window.innerHeight-320)/720));
+  stage.style.transform='scale('+k+')';vp.style.height=(720*k)+'px';}
+window.addEventListener('resize',fit);document.fonts&&document.fonts.ready.then(fit);fit();
+</script>
+</body>
+</html>

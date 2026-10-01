@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>tex probe</title>
+<style>body{margin:0;background:#111;color:#eee;font:13px monospace}#out{padding:8px}</style></head>
+<body>
+<div id="out">running…</div>
+<script src="../libs/phaser.min.js"></script>
+<script>
+/* 用真实 Phaser 复现 nightcity.js 里的 texOptPanel，然后回读像素，确认贴图是否真的画出来了 */
+const log = [];
+function texOptPanel(scene, key, fillTop, fillBot, border, bar) {
+  if (scene.textures.exists(key)) return key;
+  const W = 320, H = 84, cut = 10;
+  const t = scene.textures.createCanvas(key, W, H);
+  const g = t.getContext();
+  g.clearRect(0, 0, W, H);
+  const path = function () {
+    g.beginPath();
+    g.moveTo(cut, 0); g.lineTo(W, 0); g.lineTo(W, H - cut);
+    g.lineTo(W - cut, H); g.lineTo(0, H); g.lineTo(0, cut); g.closePath();
+  };
+  const grd = g.createLinearGradient(0, 0, 0, H);
+  grd.addColorStop(0, fillTop); grd.addColorStop(1, fillBot);
+  path(); g.fillStyle = grd; g.fill();
+  path(); g.lineWidth = 2; g.strokeStyle = border; g.stroke();
+  g.fillStyle = bar; g.fillRect(0, cut, 4, H - cut * 2);
+  t.refresh();
+  return key;
+}
+class S extends Phaser.Scene {
+  constructor() { super('S'); }
+  create() {
+    try {
+      texOptPanel(this, 'cyber-opt-idle', 'rgba(10,20,32,0.95)', 'rgba(6,11,17,0.95)', 'rgba(94,246,255,0.35)', 'rgba(94,246,255,0.55)');
+      const tex = this.textures.get('cyber-opt-idle');
+      const src = tex.getSourceImage();
+      log.push('texture exists: ' + this.textures.exists('cyber-opt-idle'));
+      log.push('source type: ' + (src && src.tagName ? src.tagName : typeof src) + '  size: ' + (src ? src.width + 'x' + src.height : 'n/a'));
+      const c = src && src.getContext ? src : null;
+      if (c) {
+        const g = c.getContext('2d');
+        const px = (x, y) => { const d = g.getImageData(x, y, 1, 1).data; return d[0] + ',' + d[1] + ',' + d[2] + ',' + d[3]; };
+        log.push('画布中心(160,42) RGBA = ' + px(160, 42));      // 应该是深色填充（不透明）
+        log.push('左亮条(2,42) RGBA = ' + px(2, 42));            // 应是青色
+        log.push('边框(160,0) RGBA = ' + px(160, 0));            // 应是青边
+        log.push('切角外(2,2) RGBA = ' + px(2, 2));              // 应是透明（被切掉）
+        // 顺带确认它作为 Image 能显示
+        const img = this.add.image(200, 120, 'cyber-opt-idle').setDisplaySize(320, 84);
+        log.push('image displaySize = ' + img.displayWidth + 'x' + img.displayHeight + '  frame = ' + img.frame.realWidth + 'x' + img.frame.realHeight);
+      } else {
+        log.push('!! getSourceImage() 不是 canvas（无法回读）');
+      }
+    } catch (e) { log.push('ERR ' + e.message); }
+    document.getElementById('out').innerHTML = log.join('<br>');
+    document.title = 'PROBE ' + log.join(' || ');
+  }
+}
+new Phaser.Game({ type: Phaser.CANVAS, width: 640, height: 240, backgroundColor: '#04070c', scene: [S], parent: document.body });
+</script>
+</body></html>

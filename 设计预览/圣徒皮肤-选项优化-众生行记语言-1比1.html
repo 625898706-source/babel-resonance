@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒皮肤 · 选项优化 —— 按「众生行记」图纸语言重做（各 1:1）</title>
+<style>
+/* ============================================================================
+   设计语言取自「众生行记」标题卡（event-title-full.png ✓）：
+     · 黑白为主 ＋ 一点淡青（teal #8fd0d4）✓
+     · 制图/测绘隐喻：十字准星 ✓ 坐标轴 ✓ 标注点 ✓ 虚线 ✓ 同心圆 ✓
+     · 细线 1px ✓ 方角 ✓ 无圆角 ✗ 无阴影 ✗ 无渐变 ✗
+     · 大写细体拉丁（A/B/C/D 标注 ✓ 疏排 ✓）＋ 中文保留项目正文字体 ✓
+     · 最强的一招：**深色主体压白字** ✓（标题卡就是这么做的 ✓）
+   ★ 可复现性：矩形 ＋ 1px 线 ＋ 虚线（Phaser 里＝分段短线 ✓）＋ 十字准星（两条短线 ✓）
+     全部 Phaser Graphics 原生 ✓ 零模糊零渐变 ✓
+   ============================================================================ */
+:root{--ink:#111;--deep:#12232e;--ice:#8fa8bd;--ice2:#5d7a91;--gold:#d8c9a3;--gold2:#b9a271;
+      --teal:#8fd0d4;--line:#e6e6e6;--paper:#fff}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#6f7276;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.lab{width:1280px;margin:24px auto 8px;color:#fff;font-size:13px;line-height:20px}
+.lab b{font-size:15px}.lab i{color:#8fd0d4;font-style:normal}.lab s{color:#ffd9a0;text-decoration:none}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto 8px;overflow:hidden;background:#eaf2f7}
+.stage *{position:absolute;box-sizing:border-box}
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.veil{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:.52}
+.grain{left:0;top:0;width:1280px;height:720px;background:repeating-linear-gradient(0deg,rgba(143,168,189,.10) 0 1px,transparent 1px 4px);opacity:.5}
+.card{left:420px;top:150px;width:440px;height:180px;background:rgba(255,255,255,.82);border:1px solid var(--ice)}
+.cardtag{left:436px;top:160px;font-size:11px;color:var(--ice2);letter-spacing:.1em}
+.word{left:440px;top:196px;width:400px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:700;color:var(--deep)}
+.cdlab{left:420px;top:96px;font-size:13px;color:var(--deep)}
+.cd{left:420px;top:126px;width:440px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.cdfill{left:0;top:0;height:10px;width:62%;background:var(--gold)}
+.cdtxt{left:872px;top:120px;width:64px;text-align:right;font-size:16px;font-weight:700;color:var(--gold2);font-family:'Space Grotesk',sans-serif}
+.opt{left:420px;width:440px;height:60px}
+.o1{top:360px}.o2{top:430px}.o3{top:500px}.o4{top:570px}
+.opt .t{top:19px;font-size:20px;color:var(--deep)}
+.opt .k{left:392px;top:20px;width:40px;text-align:right;font-family:'Novecento Wide',sans-serif;font-size:11px;letter-spacing:.14em;color:var(--ice2)}
+
+/* ---------- 案 A ⭐「测绘标注」：细实线 ＋ 左端标注点 ＋ hover 出十字准星 ---------- */
+.vA .opt .t{left:34px}
+.vA .opt .tag{left:0;top:22px;width:8px;height:8px;border:1px solid var(--ice2)}      /* 标注点（方框 ✓ 图纸上的点位 ✓）*/
+.vA .opt .ln{left:34px;top:56px;width:406px;height:1px;background:var(--ice2);opacity:.55}
+.vA .opt.hov .tag{background:var(--teal);border-color:var(--teal)}
+.vA .opt.hov .ln{background:var(--teal);opacity:1;height:2px;top:55px}
+.vA .opt.hov .cross{display:block}
+.vA .opt .cross{display:none;left:414px;top:20px;width:18px;height:18px}
+.vA .opt .cross i{background:var(--teal)}
+.vA .opt .cross .h{left:0;top:8px;width:18px;height:1px}
+.vA .opt .cross .v{left:8px;top:0;width:1px;height:18px}
+.vA .opt .cross .c{left:7px;top:7px;width:3px;height:3px;border:1px solid var(--teal);background:transparent}
+.vA .opt.sel .ln{background:var(--gold2);opacity:1;height:2px;top:55px}
+.vA .opt.sel .tag{background:var(--gold2);border-color:var(--gold2)}
+
+/* ---------- 案 B「图纸裁切框」：四边 1px 虚线 ---------- */
+.vB .opt .t{left:20px}
+.vB .opt{background:rgba(255,255,255,.55);border:1px dashed rgba(93,122,145,.75)}
+.vB .opt.hov{background:rgba(255,255,255,.85);border-style:solid;border-color:var(--teal)}
+.vB .opt.sel{background:#fff;border-style:solid;border-color:var(--gold2)}
+.vB .opt .ln{left:0;top:58px;width:440px;height:1px;background:var(--gold2)}
+
+/* ---------- 案 C ⭐⭐「深底压白字」：最贴标题卡（深色主体上压白字 ✓ 对比最强 ✓） ---------- */
+.vC .opt{background:rgba(24,30,36,.78)}
+.vC .opt .t{left:20px;color:#f2f6f8}
+.vC .opt .k{color:#9fc4c8}
+.vC .opt .ln{left:0;top:59px;width:440px;height:1px;background:rgba(143,208,212,.45)}
+.vC .opt.hov{background:rgba(20,40,44,.88)}
+.vC .opt.hov .ln{background:var(--teal);height:2px;top:58px}
+.vC .opt.sel{background:rgba(28,34,40,.95)}
+.vC .opt.sel .ln{background:var(--gold);height:2px;top:58px}
+</style></head><body>
+
+<div class="lab"><b>众生行记的语言</b>（我从它的标题卡里读出来的 ✓）：<i>制图／测绘图纸</i> —— 十字准星 ✓ 坐标标注（X·Y·Z ✓ A1·A2·A3 ✓）✓ 虚线 ✓ 同心圆 ✓ 细线 1px ✓ 方角 ✓ 无圆角 ✗ 无阴影 ✗；配色＝黑白为主＋<i>一点淡青</i>；最狠的一招＝<s>深色主体上压白字</s>（对比极强 ✓）</div>
+
+<div class="lab"><b>案 A ⭐ 测绘标注</b>　每行＝左端一个小<span style="color:#8fd0d4">标注点</span> ＋ 一条冰蓝细实线 ✓
+　hover：标注点与线转<b>淡青</b> ✓ 行末浮现<b>十字准星</b>（图纸上的取点标记 ✓✓）　选中：线转金 2px ✓</div>
+<div class="stage vA">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">paint</div>
+  <div class="opt o1"><div class="tag"></div><div class="t">奶油；乳脂</div><div class="k">A</div><div class="ln"></div></div>
+  <div class="opt o2 hov"><div class="tag"></div><div class="t">白色；洁白</div><div class="k">B</div><div class="ln"></div><div class="cross"><i class="h"></i><i class="v"></i><i class="c"></i></div></div>
+  <div class="opt o3"><div class="tag"></div><div class="t">自由；许可</div><div class="k">C</div><div class="ln"></div></div>
+  <div class="opt o4 sel"><div class="tag"></div><div class="t">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>案 B 图纸裁切框</b>　每行＝四边 <b>1px 虚线</b>框（像图纸上圈出一块区域 ✓）＋ 半透明白底
+　hover：虚线转实线转淡青 ✓　选中：实线金边 ✓　★ 比 A 更"块状" ✓ 但会遮掉较多背景 ✗</div>
+<div class="stage vB">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">paint</div>
+  <div class="opt o1"><div class="t">奶油；乳脂</div><div class="k">A</div></div>
+  <div class="opt o2 hov"><div class="t">白色；洁白</div><div class="k">B</div></div>
+  <div class="opt o3"><div class="t">自由；许可</div><div class="k">C</div></div>
+  <div class="opt o4 sel"><div class="t">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>案 C ⭐⭐ 深底压白字</b>　<i>最贴标题卡</i> —— 标题卡就是把白字压在深色主体上 ✓ 对比最强 ✓✓
+　四行＝深灰半透明条（0.78 ✓ 无圆角 ✗ 无阴影 ✗）＋ 白字 ＋ 行底淡青细线 ✓
+　hover：底色更深 ＋ 底线转淡青 ✓　选中：底线转金 2px ✓　★ 可读性在三案里最好 ✓</div>
+<div class="stage vC">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">paint</div>
+  <div class="opt o1"><div class="t">奶油；乳脂</div><div class="k">A</div><div class="ln"></div></div>
+  <div class="opt o2 hov"><div class="t">白色；洁白</div><div class="k">B</div><div class="ln"></div></div>
+  <div class="opt o3"><div class="t">自由；许可</div><div class="k">C</div><div class="ln"></div></div>
+  <div class="opt o4 sel"><div class="t">宽度；广度</div><div class="k">D</div><div class="ln"></div></div>
+</div>
+
+<div class="lab" style="height:70px">
+<b>可复现性</b>（三案都成立 ✓）：全部是 矩形 ＋ 1px 线 ＋ 虚线（＝分段短线 ✓）＋ 十字准星（两条短线 ✓）＋ alpha ✓
+没有模糊 ✗ 渐变 ✗ 阴影 ✗ SVG ✗ —— Phaser 里只是给每行底板矩形改 fillAlpha / strokeStyle / 画两条短线 ✓ <i>零结构改动</i> ✓<br>
+<b>我的建议</b>：<s>C 打底（可读性最强 ✓ 最贴标题卡 ✓）＋ A 的十字准星 hover（图纸味 ✓）</s> —— 两者可叠加 ✓ 你说一个组合我就落地 ✓
+</div>
+</body></html>

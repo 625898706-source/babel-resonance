@@ -1,0 +1,169 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒 · 二阶段红线样式 · 7 案（实时 · 1:1）</title>
+<style>
+/* ============================================================================
+   二阶段「留疤」红线样式候选（2026-09-21 用户：现在的红线有点丑 ✗ → 出几个 ✓）
+   ★ 全部用 canvas 按**游戏同款算法**实时画 ✓✓
+     · 基础态 ＝ 干净实线 ✓　故障态 ＝ 每 0.7 秒随机抖 180ms ✓（与游戏完全一致 ✓✓）
+     · 只改"线的画法" ✗ 不改故障机制 ✓ → 你选中哪条，我把它搬进 Graphics 即可 ✓
+   ★ 背景用**游戏真实素材**（bg.png ＋ 白纱 ＋ 蓝图网格 ✓）→ 看到的就是游戏里的样子 ✓✓
+   ============================================================================ */
+:root{--ink:#12232e;--muted:#6f7f8a;--slate:#54686a;--red:#e2231a;--cy:#3ce0e0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;color:#fff;font-family:'HarmonyOS Sans SC','Microsoft YaHei',sans-serif;padding:18px 0 40px}
+.lab{width:1280px;margin:0 auto 6px;font-size:13px;line-height:20px}
+.lab b{font-size:16px}.lab i{font-style:normal;color:#a9c6d6}.lab u{text-decoration:none;color:#ffd9a0}
+.wrap{position:relative;width:1280px;height:190px;margin:0 auto 12px;overflow:hidden;background:#eaf2f7}
+.wrap .bg{position:absolute;inset:0;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.wrap .veil{position:absolute;inset:0;background:#fff;opacity:.52}
+.wrap .grid{position:absolute;inset:0;opacity:.13;
+  background-image:linear-gradient(#54686a 1px,transparent 1px),linear-gradient(90deg,#54686a 1px,transparent 1px);background-size:40px 40px}
+.wrap canvas{position:absolute;inset:0;width:1280px;height:190px}
+.tagline{position:absolute;left:16px;top:12px;font-size:13px;color:var(--slate);font-weight:700;letter-spacing:.06em}
+.sub{position:absolute;left:16px;top:34px;font-size:11.5px;color:var(--muted)}
+.state{position:absolute;right:16px;top:12px;font-size:11.5px;color:var(--muted);font-family:monospace}
+</style></head><body>
+
+<div class="lab"><b>二阶段红线 · 7 个候选</b>　<i>全部实时播放</i> ✓ 基础态＝干净实线 ✓ 每 <b>0.7 秒</b>抖一次 ✓ 抖 <b>180ms</b> ✓（与游戏完全同款 ✓✓）
+　<u>背景是游戏真实素材</u> ✓ 看到的就是游戏里的样子 ✓ —— 右上角会实时显示当前是「实线」还是「故障」✓</div>
+
+<div class="lab">① <b>现状</b>（红 3px 实线 ＋ 故障时青红错位断线）—— 你觉得丑的就是它 ✗</div>
+<div class="wrap"><div class="bg"></div><div class="veil"></div><div class="grid"></div><canvas id="c1"></canvas>
+  <div class="tagline">① 现状</div><div class="sub">红 3px 实线／故障＝青红错位＋断线</div><div class="state" id="s1"></div></div>
+
+<div class="lab">② <b>套印双线</b> ⭐ <i>我推荐</i>—— 红 2px ＋ 紧贴下方深青 1px ✓ 像印刷**套印错位** ✓ 有设计感不土 ✓✓</div>
+<div class="wrap"><div class="bg"></div><div class="veil"></div><div class="grid"></div><canvas id="c2"></canvas>
+  <div class="tagline">② 套印双线</div><div class="sub">红 2px ＋ 下方深青 1px（+3px 偏移）</div><div class="state" id="s2"></div></div>
+
+<div class="lab">③ <b>脉冲</b> ⭐ —— 红 2px 主线 ＋ 一道**更亮的红**沿线周期性流过 ✓✓ 有生命感／像心跳 ✓</div>
+<div class="wrap"><div class="bg"></div><div class="veil"></div><div class="grid"></div><canvas id="c3"></canvas>
+  <div class="tagline">③ 脉冲</div><div class="sub">红 2px ＋ 亮红脉冲沿线流动</div><div class="state" id="s3"></div></div>
+
+<div class="lab">④ <b>蓝图刻度线</b> ⭐ —— 红 2px ＋ 沿线**等距小刻度** ✓ 与整套蓝图皮肤同语言 ✓✓ 最"克制"</div>
+<div class="wrap"><div class="bg"></div><div class="veil"></div><div class="grid"></div><canvas id="c4"></canvas>
+  <div class="tagline">④ 蓝图刻度线</div><div class="sub">红 2px ＋ 每 8px 一根短刻度</div><div class="state" id="s4"></div></div>
+
+<div class="lab">⑤ <b>烧灼线</b> —— 红 2.5px 主线 ＋ 两侧**更细更淡的红**（像热辐射）✓ 端点稍粗 ✓ 最"痛"</div>
+<div class="wrap"><div class="bg"></div><div class="veil"></div><div class="grid"></div><canvas id="c5"></canvas>
+  <div class="tagline">⑤ 烧灼线</div><div class="sub">主线 ＋ 上下各一层辐射红线</div><div class="state" id="s5"></div></div>
+
+<div class="lab">⑥ <b>数据虚线</b> —— 红 3px **等长虚线** ✓ 故障时整条**横向位移** ✓✓ 最赛博</div>
+<div class="wrap"><div class="bg"></div><div class="veil"></div><div class="grid"></div><canvas id="c6"></canvas>
+  <div class="tagline">⑥ 数据虚线</div><div class="sub">红虚线 ＋ 故障＝整条横向跳</div><div class="state" id="s6"></div></div>
+
+<div class="lab">⑦ <b>裂隙</b> —— 红 2px ＋ 沿线**毛糙缺口** ＋ 两端**分叉**成细线 ✓✓ 像真的裂开 ✓ 最"破碎"但不脏</div>
+<div class="wrap"><div class="bg"></div><div class="veil"></div><div class="grid"></div><canvas id="c7"></canvas>
+  <div class="tagline">⑦ 裂隙</div><div class="sub">毛糙边 ＋ 两端分叉</div><div class="state" id="s7"></div></div>
+
+<script>
+/* ============================================================================
+   与游戏同一套逻辑 ✓：
+     · 基础态画"实线" ✓ 每 700ms 随机抖一次 ✓ 抖 180ms 后恢复 ✓
+     · 每条线在画面里固定位置（游戏里是"连错那一刻的坐标" ✓ 历史痕迹 ✓）
+   ★ 七个候选只有"画法"不同 ✗ 故障机制完全一样 ✓ → 你选中哪条我搬进 Graphics ✓✓ */
+var CY = '#3ce0e0', RED = '#e2231a';
+function setup(id, sid, style) {
+  var cv = document.getElementById(id), sx = document.getElementById(sid);
+  var ctx = cv.getContext('2d');
+  var glitch = false;
+  cv.width = 1280; cv.height = 190;
+  /* 三条固定的疤（横向铺开 ✓ 便于看效果） */
+  var scars = [
+    { ax: 210, ay: 62, bx: 1050, by: 118 },
+    { ax: 300, ay: 138, bx: 940, by: 44 },
+    { ax: 400, ay: 92, bx: 860, by: 96 }
+  ];
+  var pulseT = 0;
+  setInterval(function () {                      // 游戏里：每 700ms ✓
+    glitch = true; sx.textContent = '状态：故障';
+    setTimeout(function () { glitch = false; sx.textContent = '状态：实线'; }, 180);
+  }, 700);
+  function line(ctx2, x1, y1, x2, y2, w, col, alpha) {
+    ctx2.strokeStyle = col; ctx2.globalAlpha = alpha; ctx2.lineWidth = w;
+    ctx2.beginPath(); ctx2.moveTo(x1, y1); ctx2.lineTo(x2, y2); ctx2.stroke(); ctx2.globalAlpha = 1;
+  }
+  function draw(dt) {
+    ctx.clearRect(0, 0, 1280, 190);
+    pulseT = (pulseT + dt / 1000) % 1.6;
+    scars.forEach(function (sc, k) {
+      var dx = sc.bx - sc.ax, dy = sc.by - sc.ay;
+      var len = Math.sqrt(dx * dx + dy * dy);
+      var ux = dx / len, uy = dy / len;
+      var nx = -uy, ny = ux;                       // 法线（做偏移用 ✓）
+      if (style === 1) {                           /* ① 现状 */
+        if (!glitch) line(ctx, sc.ax, sc.ay, sc.bx, sc.by, 3, RED, .55);
+        else {
+          for (var i = 0; i < 9; i++) {
+            if (Math.random() < .35) continue;
+            var t0 = i / 9, t1 = (i + 1) / 9, j = (Math.random() * 6 - 3);
+            line(ctx, sc.ax + dx * t0 + nx * j + 2, sc.ay + dy * t0 + ny * j - 1, sc.ax + dx * t1 + nx * j + 2, sc.ay + dy * t1 + ny * j - 1, 1 + Math.random() * 3, CY, .42);
+            line(ctx, sc.ax + dx * t0 + nx * j, sc.ay + dy * t0 + ny * j, sc.ax + dx * t1 + nx * j, sc.ay + dy * t1 + ny * j, 1 + Math.random() * 3, RED, .62);
+          }
+        }
+      } else if (style === 2) {                    /* ② 套印双线 */
+        var off = glitch ? (Math.random() * 8 - 4) : 3;
+        line(ctx, sc.ax, sc.ay + off, sc.bx, sc.by + off, 1, '#54686a', glitch ? .5 : .75);
+        line(ctx, sc.ax, sc.ay, sc.bx, sc.by, 2, RED, glitch ? .7 : .95);
+        if (glitch) line(ctx, sc.ax + 2, sc.ay - 2, sc.bx + 2, sc.by - 2, 1, CY, .5);
+      } else if (style === 3) {                    /* ③ 脉冲 */
+        line(ctx, sc.ax, sc.ay, sc.bx, sc.by, 2, RED, .62);
+        var ph = (pulseT / 1.6 + k * .3) % 1;
+        var p0 = Math.max(0, ph - .18), p1 = ph;
+        ctx.strokeStyle = '#ff6b5e'; ctx.lineWidth = glitch ? 4 : 5; ctx.globalAlpha = glitch ? .7 : 1;
+        ctx.beginPath(); ctx.moveTo(sc.ax + dx * p0, sc.ay + dy * p0); ctx.lineTo(sc.ax + dx * p1, sc.ay + dy * p1); ctx.stroke();
+        ctx.globalAlpha = 1;
+      } else if (style === 4) {                    /* ④ 蓝图刻度 */
+        line(ctx, sc.ax, sc.ay, sc.bx, sc.by, 2, RED, glitch ? .6 : .85);
+        var n = Math.floor(len / 8);
+        for (var q = 0; q <= n; q++) {
+          if (glitch && Math.random() < .5) continue;
+          var t = q / n, px = sc.ax + dx * t, py = sc.ay + dy * t;
+          line(ctx, px - nx * 4, py - ny * 4, px + nx * 4, py + ny * 4, 1, RED, .5);
+        }
+      } else if (style === 5) {                    /* ⑤ 烧灼线 */
+        var w0 = glitch ? 5 : 3;
+        line(ctx, sc.ax, sc.ay + 2.4, sc.bx, sc.by + 2.4, 1, RED, .22);
+        line(ctx, sc.ax, sc.ay - 2.4, sc.bx, sc.by - 2.4, 1, RED, .22);
+        line(ctx, sc.ax, sc.ay, sc.bx, sc.by, w0, RED, .8);
+        ctx.fillStyle = RED; ctx.globalAlpha = .8;
+        ctx.beginPath(); ctx.arc(sc.ax, sc.ay, glitch ? 5 : 3.6, 0, 7); ctx.fill();
+        ctx.beginPath(); ctx.arc(sc.bx, sc.by, glitch ? 5 : 3.6, 0, 7); ctx.fill();
+        ctx.globalAlpha = 1;
+      } else if (style === 6) {                    /* ⑥ 数据虚线 */
+        var jx = glitch ? (Math.random() * 10 - 5) : 0;
+        var seg = len / 22;
+        for (var m = 0; m < 22; m++) {
+          if (glitch && Math.random() < .25) continue;
+          var a0 = m / 22, a1 = a0 + (seg * .58) / len;
+          line(ctx, sc.ax + dx * a0 + jx, sc.ay + dy * a0, sc.ax + dx * a1 + jx, sc.ay + dy * a1, 3, RED, .75);
+        }
+        if (glitch) line(ctx, sc.ax + jx + 3, sc.ay - 2, sc.bx + jx + 3, sc.by - 2, 1, CY, .4);
+      } else {                                     /* ⑦ 裂隙 */
+        var N = Math.floor(len / 7);
+        for (var s2 = 0; s2 < N; s2++) {
+          var b0 = s2 / N, b1 = (s2 + 1) / N;
+          /* 毛糙：每小段随机法线抖动 ✓ 边缘不齐 ✓ */
+          var jj = glitch ? (Math.random() * 5 - 2.5) : (Math.random() < .5 ? -0.7 : 0.7);
+          line(ctx, sc.ax + dx * b0 + nx * jj, sc.ay + dy * b0 + ny * jj,
+                    sc.ax + dx * b1 + nx * jj, sc.ay + dy * b1 + ny * jj, 2, RED, .75);
+        }
+        /* 两端分叉成细线 ✓ */
+        [0, 1].forEach(function (e2) {
+          var ex = e2 ? sc.bx : sc.ax, ey = e2 ? sc.by : sc.ay;
+          var sg2 = e2 ? -1 : 1;
+          for (var f = 0; f < 3; f++) {
+            var ang = (f - 1) * .35, ca = Math.cos(ang), sa = Math.sin(ang);
+            var fx = (dx * sg2 * ca - dy * sg2 * sa) * .16, fy = (dx * sg2 * sa + dy * sg2 * ca) * .16;
+            line(ctx, ex, ey, ex + fx, ey + fy, 1, RED, .5);
+          }
+        });
+      }
+    });
+  }
+  var last = performance.now();
+  (function loop(now) { draw(now - last); last = now; requestAnimationFrame(loop); })(last);
+}
+[[1, 'c1', 's1'], [2, 'c2', 's2'], [3, 'c3', 's3'], [4, 'c4', 's4'], [5, 'c5', 's5'], [6, 'c6', 's6'], [7, 'c7', 's7']].forEach(function (a) {
+  setup(a[1], a[2], a[0]);
+});
+</script>
+</body></html>

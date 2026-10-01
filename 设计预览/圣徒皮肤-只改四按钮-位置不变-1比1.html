@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒皮肤 · 只改四个按钮（位置不变 · 6 种样式 · 各 1:1）</title>
+<style>
+/* ============================================================================
+   ★ 严格按用户要求：
+     · **不改战斗布局** ✗ —— 按钮仍是 **2×2 四宫格**，位置尺寸一律照代码 ✓
+         optW 320 / optH 84 ✓  x = cx ∓ 172（468 / 812）✓  y = cy + 76 / +176（436 / 536）✓
+         文字**居中** ✓ 无 A/B/C/D 键帽（代码里 noKey:true ✓）✓ 下底线在格底 ✓
+     · **位置不变** ✓ 只换按钮自身的样式（底色/边框/下划线/悬停反馈）✓
+   其余全部保持当前游戏现状 ✓：bg.png ＋ 白纱 ＋ 细横纹 ✓ 词卡 ✓ 倒计时（深青灰 ✓ 你刚定的 ✓）
+     顶栏无白底 ✓ 两侧立绘 ✓
+   真素材：entry_bg.png（雾纹 ✓）／bird_left1.png ／ bird_right.png（白鸽 ✓）
+   可复现 ✓：真 PNG ＋ 矩形 ＋ 1px 线 ＋ tween ✓
+   ============================================================================ */
+:root{--deep:#12232e;--ice:#8fa8bd;--ice2:#5d7a91;--teal:#8fd0d4;--slate:#54686a}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.lab{width:1280px;margin:26px auto 8px;color:#fff;font-size:13px;line-height:21px}
+.lab b{font-size:16px}.lab i{color:#8fd0d4;font-style:normal}.lab u{text-decoration:none;color:#ffd9a0}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto 10px;overflow:hidden;background:#eaf2f7}
+.stage *{position:absolute;box-sizing:border-box}
+/* ---- 现状部分（一律不动 ✓）---- */
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.veil{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:.52}
+.grain{left:0;top:0;width:1280px;height:720px;background:repeating-linear-gradient(0deg,rgba(143,168,189,.10) 0 1px,transparent 1px 4px);opacity:.5}
+.plateL{left:88px;top:160px;width:272px;height:264px;background:#141a20;border:1px solid #3d5a70}
+.plateR{left:920px;top:160px;width:272px;height:264px;background:#141a20;border:1px solid #3d5a70}
+.sprL{left:123px;top:160px;width:202px;height:264px;background:url('../assets/img/logos-idle.png') 0 0/3030px 2640px no-repeat}
+.sprR{left:946px;top:182px;width:220px;height:220px;background:url('../assets/img/saint-idle.png') 0 0/1760px 4840px no-repeat;transform:scaleX(-1)}
+.nmL{left:88px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.nmR{left:920px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.barL{left:88px;top:488px;width:272px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.barL i{left:0;top:0;height:10px;width:60%;background:var(--ice)}
+.barR{left:920px;top:488px;width:272px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.barR i{left:0;top:0;height:10px;width:100%;background:var(--slate)}
+.card{left:420px;top:150px;width:440px;height:180px;background:rgba(255,255,255,.82);border:1px solid var(--ice)}
+.cardtag{left:436px;top:161px;font-size:11px;color:var(--ice2);letter-spacing:.1em}
+.word{left:440px;top:200px;width:400px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:700;color:var(--deep)}
+.cdlab{left:420px;top:96px;font-size:13px;color:var(--deep)}
+.cd{left:420px;top:126px;width:440px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.cdfill{left:0;top:0;height:10px;width:62%;background:var(--slate)}
+.cdtxt{left:872px;top:120px;width:64px;text-align:right;font-size:16px;font-weight:700;color:var(--slate);font-family:'Space Grotesk',sans-serif}
+.hudr{right:44px;top:26px;font-size:14px;color:var(--deep)}
+/* ---- ★ 四个按钮：位置尺寸**照代码**（468/812 × 436/536 ✓ 320×84 ✓） ---- */
+.opt{width:320px;height:84px}
+.a1{left:468px;top:436px}.a2{left:812px;top:436px}
+.a3{left:468px;top:536px}.a4{left:812px;top:536px}
+.opt .t{left:0;top:34px;width:320px;text-align:center;font-size:20px;color:var(--deep);line-height:26px}
+.opt .ln{left:0;top:62px;width:320px;height:1px;background:var(--ice2);opacity:.5}
+.opt .mist{left:0;top:0;width:320px;height:84px;background:url('../素材/众生行记/entry_bg.png') center/cover no-repeat;opacity:.5}
+.opt .doveL,.opt .doveR{top:16px;width:52px;height:52px;background-size:contain;background-repeat:no-repeat;background-position:center;opacity:0}
+.opt .doveL{background-image:url('../素材/众生行记/bird_left1.png')}
+.opt .doveR{background-image:url('../素材/众生行记/bird_right.png')}
+/* ① 雾纹底 */
+.v1 .opt .mist{opacity:.55}
+/* ② 雾纹纸片 */
+.v2 .opt{background:rgba(255,255,255,.74);border:1px solid rgba(143,168,189,.6);overflow:hidden}
+.v2 .opt .ln{display:none}
+/* ③ 左鸽 */
+.v3 .opt.hov .doveL{animation:flyL 1.1s ease-out infinite}
+@keyframes flyL{0%{left:-56px;opacity:0}15%{opacity:1}100%{left:330px;opacity:0}}
+/* ④ 右鸽 */
+.v4 .opt.hov .doveR{animation:flyR 1.1s ease-out infinite}
+@keyframes flyR{0%{left:330px;opacity:0}15%{opacity:1}100%{left:-56px;opacity:0}}
+/* ⑤ 双鸽＋雾纹 */
+.v5 .opt .mist{opacity:.4}
+.v5 .opt.hov .doveL{animation:flyL 1.1s ease-out infinite}
+.v5 .opt.hov .doveR{animation:flyR 1.1s ease-out infinite}
+/* ⑥ 虚线框 */
+.v6 .opt{border:1px dashed rgba(93,122,145,.8)}
+.v6 .opt .mist{opacity:.28}
+.v6 .opt .ln{display:none}
+/* 悬停/选中反馈（各版一致 ✓；游戏里原生的悬停是**红线** ✓ 这里换成淡青 ✓ 不动位置 ✓） */
+.opt.hov .ln{background:var(--teal);opacity:1;height:2px;top:61px}
+.opt.sel .ln{background:var(--slate);opacity:1;height:2px;top:61px}
+.v2 .opt.hov{border-color:var(--teal);background:rgba(255,255,255,.92)}
+.v2 .opt.sel{border-color:var(--slate);background:#fff}
+.v6 .opt.hov{border-style:solid;border-color:var(--teal)}
+.v6 .opt.sel{border-style:solid;border-color:var(--slate)}
+/* 长释义也照原样（第二行换行 ✓ 位置不变 ✓） */
+</style></head><body>
+
+<div class="lab"><b>版面照代码 1:1 复刻</b> ✓ —— 四宫格 320×84 ✓ 位置 468/812 × 436/536 ✓ 文字居中 ✓ 无键帽 ✓
+<b>位置尺寸一律没动</b> ✓ 只换按钮样式 ✓（每屏：<u>右上＝悬停态</u> ✓ <u>右下＝选中态</u> ✓）</div>
+
+<div class="lab"><b>① 雾纹底</b>　按钮里铺极淡<i>entry_bg 雾纹</i>（真素材 ✓ .55）＋ 冰蓝下底线 ✓ 改动最小 ✓</div>
+<div class="stage v1">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="plateL"></div><div class="plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="barL"><i></i></div><div class="barR"><i></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">majority</div>
+  <div class="opt a1"><div class="mist"></div><div class="t">多数；成年</div><div class="ln"></div></div>
+  <div class="opt a2 hov"><div class="mist"></div><div class="t">倾泻；流出</div><div class="ln"></div></div>
+  <div class="opt a3"><div class="mist"></div><div class="t">中东<br>包括亚洲西南部和非洲东北部</div><div class="ln"></div></div>
+  <div class="opt a4 sel"><div class="mist"></div><div class="t">装饰；布置</div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>② 雾纹纸片</b>　白纸 .74 ＋ 雾纹 ＋ 1px 冰蓝细框 ✓（去掉底线 ✗）　对比度提升最明显 ✓</div>
+<div class="stage v2">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="plateL"></div><div class="plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="barL"><i></i></div><div class="barR"><i></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">majority</div>
+  <div class="opt a1"><div class="mist"></div><div class="t">多数；成年</div></div>
+  <div class="opt a2 hov"><div class="mist"></div><div class="t">倾泻；流出</div></div>
+  <div class="opt a3"><div class="mist"></div><div class="t">中东<br>包括亚洲西南部和非洲东北部</div></div>
+  <div class="opt a4 sel"><div class="mist"></div><div class="t">装饰；布置</div></div>
+</div>
+
+<div class="lab"><b>③ 左鸽</b>　不加底色 ✓ 保持原样（无框＋底线）✓ <b>悬停时一只白鸽从左侧掠入该格</b> ✓（真素材 bird_left1 ✓）</div>
+<div class="stage v3">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="plateL"></div><div class="plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="barL"><i></i></div><div class="barR"><i></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">majority</div>
+  <div class="opt a1"><div class="t">多数；成年</div><div class="ln"></div></div>
+  <div class="opt a2 hov"><div class="doveL"></div><div class="t">倾泻；流出</div><div class="ln"></div></div>
+  <div class="opt a3"><div class="t">中东<br>包括亚洲西南部和非洲东北部</div><div class="ln"></div></div>
+  <div class="opt a4 sel"><div class="t">装饰；布置</div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>④ 右鸽</b>　同上 ✓ 鸽子从<b>右侧</b>掠入（真素材 bird_right ✓）　与"敌人从右边来"同向 ✓</div>
+<div class="stage v4">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="plateL"></div><div class="plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="barL"><i></i></div><div class="barR"><i></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">majority</div>
+  <div class="opt a1"><div class="t">多数；成年</div><div class="ln"></div></div>
+  <div class="opt a2 hov"><div class="doveR"></div><div class="t">倾泻；流出</div><div class="ln"></div></div>
+  <div class="opt a3"><div class="t">中东<br>包括亚洲西南部和非洲东北部</div><div class="ln"></div></div>
+  <div class="opt a4 sel"><div class="t">装饰；布置</div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>⑤ 双鸽 ＋ 雾纹</b>　雾纹 .4 ✓ ＋ 悬停时<b>左右各一只白鸽相对飞过</b> ✓✓（两张鸽子素材都用上 ✓）</div>
+<div class="stage v5">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="plateL"></div><div class="plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="barL"><i></i></div><div class="barR"><i></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">majority</div>
+  <div class="opt a1"><div class="mist"></div><div class="t">多数；成年</div><div class="ln"></div></div>
+  <div class="opt a2 hov"><div class="mist"></div><div class="doveL"></div><div class="doveR"></div><div class="t">倾泻；流出</div><div class="ln"></div></div>
+  <div class="opt a3"><div class="mist"></div><div class="t">中东<br>包括亚洲西南部和非洲东北部</div><div class="ln"></div></div>
+  <div class="opt a4 sel"><div class="mist"></div><div class="t">装饰；布置</div><div class="ln"></div></div>
+</div>
+
+<div class="lab"><b>⑥ 虚线框</b>　四边 1px <b>虚线</b>（图纸裁切感 ✓）＋ 极淡雾纹 .28 ✓　悬停转实线淡青 ✓ 选中转实线青灰 ✓</div>
+<div class="stage v6">
+  <div class="bg"></div><div class="veil"></div><div class="grain"></div>
+  <div class="plateL"></div><div class="plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="barL"><i></i></div><div class="barR"><i></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN · 请选出正确释义</div><div class="word">majority</div>
+  <div class="opt a1"><div class="mist"></div><div class="t">多数；成年</div></div>
+  <div class="opt a2 hov"><div class="mist"></div><div class="t">倾泻；流出</div></div>
+  <div class="opt a3"><div class="mist"></div><div class="t">中东<br>包括亚洲西南部和非洲东北部</div></div>
+  <div class="opt a4 sel"><div class="mist"></div><div class="t">装饰；布置</div></div>
+</div>
+
+<div class="lab" style="height:60px">
+<b>六屏的版面完全一致</b> ✓（四宫格 320×84 ✓ 位置 468/812 × 436/536 ✓ 文字居中 ✓）—— <b>只有按钮样式不同</b> ✓
+长释义照原样换行 ✓（第三格 ✓）位置不变 ✓　全部可复现 ✓：真 PNG ＋ 矩形 ＋ 1px 线 ＋ tween ✓
+</div>
+</body></html>

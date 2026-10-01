@@ -1,0 +1,527 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<title>巴别残响 · 奎隆专属皮肤 · 三案 1:1 预览</title>
+<style>
+/* ============================================================================
+   奎隆（摩诃萨埵权化）· 专属战斗皮肤 —— 三案 1:1 可切换预览
+   ----------------------------------------------------------------------------
+   ★ 依据：docs/research_quilon_art_brief.md（子代理调研 ✓ 全篇只采用它的【查到】/【实测】）
+     · 三件套必留：**银白鬃毛体量感 + 朱红火焰冠 + 背后金轮**（少一件就不像奎隆）
+     · 底盘 = 萨卡兹「半圆拱门 + 柱 + 表现主义色块喷溅 + 前景缺损石板蒙版」
+     · 叠加 = 宝轮（文明的存续）/ 莲座 / 坛城式地砖 / 梵语经文线
+     · 色板 = 冷灰蓝黑 #282838/#181828 · 石材 #303030/#404040 · 苔绿 #304030/#505040
+              褪色古铜金 #9C846C（辉光 #B4B49C）· 朱红 #CC543C · 酒红 #6C2424 · 暗紫红 #3C0C24
+              官方 UI 红 #C01D22（BOSS 语义）· 阶段橙 #FF4F08（阶段/危险）
+     · 氛围 = 「说法·辩论」→ 缓慢、对称、仪式化 ✓ 无爆炸粒子 ✗
+   ★ 坐标**全部从源码抄**（设计预览「完全复刻」口径 skill §42 ✓ 一个都不猜 ✗）：
+     CombatScene.js：立绘牌 272×264 顶边 cy−200、中心 cx±490、名字 +22、血条 +26/16px、
+                     数值行 +22、词卡 cardTop=cy−215 / W680 / H180 / 字 80、
+                     选项 2×2 320×84 中心 cx±172 行 cy+76/cy+176、
+                     倒计时条 cardTop−22 高 12、数字右对齐 cardR−22
+     saint.js：倒计时上移到 cardTop−22 ✓ 标签在 cardTop−46 ✓（奎隆沿用同一套位置 ✓）
+   ★ 可复现性：真 PNG 立绘（逐帧步进）+ 背景 PNG + 矩形 + 1px 线 + 文本 + 位移/旋转/alpha
+     无 CSS 模糊 ✗ 无渐变边框 ✗ 无图标字体 ✗ 无 SVG ✗ 无 backdrop-filter ✗
+   ============================================================================ */
+:root{
+  --ink:#E8E8EE; --silver:#B8B8C8; --dim:#8A8A9C; --deep:#282838; --deep2:#181828;
+  --bronze:#9C846C; --bronze-hi:#B4B49C; --verm:#CC543C; --wine:#6C2424; --plum:#3C0C24;
+  --uire:#C01D22; --stage:#FF4F08; --stone:#303030;
+  --stageW:1090px;                     /* 1280 × 0.852 —— 适配常见屏高，等比 ✓ */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#101014;font-family:'HarmonyOS Sans SC','Microsoft YaHei',sans-serif;color:var(--ink);
+     display:flex;flex-direction:column;align-items:center;padding:14px 0 40px}
+h1{font-size:14px;font-weight:500;letter-spacing:.08em;color:var(--silver);margin-bottom:8px;text-align:center}
+h1 small{color:var(--dim);font-weight:400;letter-spacing:0}
+#tabs{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;justify-content:center;max-width:1100px}
+.tab{padding:7px 15px;border:1px solid #33333d;background:#16161c;color:var(--silver);cursor:pointer;
+     font-size:12.5px;letter-spacing:.04em;font-family:inherit}
+.tab:hover{border-color:var(--verm);color:#fff}
+.tab.on{background:#221418;border-color:var(--verm);color:#fff}
+#stage{position:relative;width:var(--stageW);height:calc(var(--stageW) * 0.5625);overflow:hidden;
+       background:#0b0b10;border:1px solid #2a2a34}
+#stage .L{position:absolute;transform-origin:0 0}
+#bg,#grain,#wheelspin,#word,#plateL,#plateR,#hud,#hudrule,.flagL,.flagR,.pnL,.pnR,.plL,.plR,
+#barL,#barR,.hbL,.hbR,.numL,.numR,.lbL,.lbR,#cardrule,#hint,#cdlab,#cdwrap,#cdfill,#cdtxt,
+#optwrap,#foot,#stagebadge,#vign{position:absolute}
+#bg{inset:0;background-size:cover;background-position:center}
+#vign{inset:0;background:rgba(0,0,0,0);pointer-events:none}
+#grain{inset:0;opacity:.055;pointer-events:none;
+  background:repeating-linear-gradient(0deg,#fff 0 1px,transparent 1px 4px)}
+#word{font-family:'Gilroy','Space Grotesk',sans-serif;font-weight:300;color:#F2F2F6;text-align:center;
+      letter-spacing:.01em;line-height:1}
+#plateL,#plateR{background:#14141c;border:1px solid #33333f}
+.flagL,.flagR{width:0;height:0;border-top:16px solid var(--uire);border-right:16px solid transparent}
+#hud,#hudrule{}
+#hudrule{height:1px;background:rgba(184,184,200,.30)}
+#hud div{position:absolute;white-space:nowrap}
+#pill{border:1px solid var(--uire);color:#F2F2F6;display:flex;align-items:center;justify-content:center;letter-spacing:.12em}
+.pnL,.pnR{font-weight:700;color:#F2F2F6;letter-spacing:.02em}
+.plL,.plR{color:var(--dim);letter-spacing:.10em}
+#barL,#barR{border:1px solid #3a3a48;background:rgba(10,10,14,.55)}
+#barL i,#barR i{position:absolute;left:0;top:0;display:block}
+.hbL,.hbR{color:var(--silver)}
+.numL,.numR{font-family:'Space Grotesk',monospace;color:var(--bronze-hi)}
+.lbL,.lbR{color:var(--dim);letter-spacing:.10em;text-align:right}
+#cardrule{height:1px;background:rgba(156,132,108,.85)}
+#hint{color:var(--bronze);letter-spacing:.06em}
+#cdlab{color:var(--silver);letter-spacing:.06em}
+#cdwrap{background:rgba(24,24,40,.72);border:1px solid #3a3a48}
+#cdfill{height:100%;left:0;top:0}
+#cdtxt{font-family:'Space Grotesk',monospace;text-align:right;color:var(--bronze-hi)}
+.opt{position:absolute;height:84px}
+.opt .t{position:absolute;left:0;color:#E4E4EC;letter-spacing:.01em}
+.opt .k{position:absolute;color:var(--dim);font-family:'Space Grotesk',monospace;text-align:right}
+.opt .ln{position:absolute;left:0;bottom:0;height:1px;background:rgba(156,132,108,.55)}
+.opt.ok .ln{background:var(--verm);height:2px}
+.opt.ok .t{color:#fff}
+#foot{height:1px;background:rgba(184,184,200,.16)}
+#stagebadge{font-family:'Orbitron','Rajdhani',sans-serif;font-weight:700;letter-spacing:.34em;
+            color:rgba(204,84,60,.85);text-align:center}
+#wheelspin{border-radius:50%;border:3px dashed rgba(180,180,156,.55);animation:spin 40s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#note{width:var(--stageW);margin-top:14px;font-size:12px;line-height:1.75;color:var(--dim)}
+#note b{color:var(--silver);font-weight:500}
+#note .k{color:var(--bronze-hi);font-family:'Space Grotesk',monospace}
+#note .r{color:var(--verm)}
+</style></head><body>
+
+<h1>巴别残响 · 奎隆专属战斗皮肤 —— 三案 1:1 预览
+  <small>（点上面标签切换；布局与坐标逐条从 <code>CombatScene.js</code> / <code>saint.js</code> 抄的，不是示意）</small></h1>
+
+<div id="tabs">
+  <button class="tab on" data-k="A">A · 授法（神庙庭院 · 坛城地砖）</button>
+  <button class="tab" data-k="B">B · 说法（冷灰石壁 · 金轮居右）</button>
+  <button class="tab" data-k="C">C · 无终（拱廊纵深 · 荷塘夜景）</button>
+  <button class="tab" data-k="PH">阶段变化（自在 / 无忧觉）</button>
+  <button class="tab" id="compareBtn" style="border-color:#5a5a68">并排对比（把窗口拉伸到最宽）</button>
+</div>
+
+<div id="stage">
+  <div id="bg"></div>
+  <div id="wheelspin" style="background:rgba(40,40,56,.55)"></div>
+  <div id="vign"></div>
+  <div id="grain"></div>
+
+  <!-- 页眉（hudH=52） -->
+  <div id="hud"></div>
+  <div id="hudrule"></div>
+
+  <!-- 左：逻各斯（玩家） -->
+  <div id="plateL"><div class="flagL"></div></div>
+  <div class="pnL"></div><div class="plL"></div>
+  <div id="barL"><i></i></div><div class="hbL"></div><div class="numL"></div><div class="lbL"></div>
+
+  <!-- 右：奎隆（敌人 · 镜像）-->
+  <div id="plateR"><div class="flagR"></div></div>
+  <div class="pnR"></div><div class="plR"></div>
+  <div id="barR"><i></i></div><div class="hbR"></div><div class="numR"></div><div class="lbR"></div>
+
+  <!-- 中栏 -->
+  <div id="stagebadge">T H E &nbsp; D H A R M A &nbsp; S E R M O N</div>
+  <div id="cardrule" class="L"></div>
+  <div id="word" class="L"></div>
+  <div id="hint" class="L"></div>
+  <div id="cdlab" class="L">剩余时间</div>
+  <div id="cdwrap" class="L"><div id="cdfill"></div></div>
+  <div id="cdtxt" class="L">12</div>
+
+  <div id="optwrap"></div>
+
+  <div id="foot" class="L"></div>
+</div>
+
+<div id="note">
+  <b>共用底盘（三案一致）</b>：立绘牌 <span class="k">272×264 @ cy−200</span>、中心 <span class="k">cx±490</span>；
+  名字 <span class="k">+22</span>、血条 <span class="k">+26 / 16px</span>、数值行 <span class="k">+22</span>；
+  词卡 <span class="k">W680 H180，字 80px</span>；选项 <span class="k">2×2 320×84 @ cx±172，行 cy+76 / cy+176</span>；
+  倒计时 <span class="k">W680 H12 @ cardTop−22</span>、标签在 <span class="k">cardTop−46</span>、数字右对齐 <span class="k">cardR−22</span>。
+  <br>
+  <b>配色</b>（全部来自简报实测）：暗部 <span class="k">#282838</span>（带蓝调的冷灰蓝黑，不是纯灰）、
+  石材 <span class="k">#303030 / #404040</span>、苔绿 <span class="k">#304030 / #505040</span>、
+  金只用 <span class="k">#9C846C</span>（辉光 <span class="k">#B4B49C</span>，<span class="r">不用亮金</span>）、
+  主强调朱红 <span class="k">#CC543C</span>、敌方语义红 <span class="k">#C01D22</span>（血条/角标）、阶段橙 <span class="k">#FF4F08</span>。
+  <br>
+  <b>三件套</b>：<span class="r">银白鬃毛体量感 + 朱红火焰冠 + 背后金轮</span> —— 简报口径：少一件就不像奎隆。
+  立绘本身自带前两件 ✓；金轮由背景承担 ✓（A/C 在右侧 <span class="k">(1118,288)</span>、B 在 <span class="k">(1030,430)</span>），
+  预览里叠加的那圈虚线金环就是游戏里会 <span class="k">rotation tween</span> 缓慢旋转的部分。
+  <br>
+  <b>落地方式</b>：新增 <span class="k">src/scenes/skins/quilon.js</span> + 一张背景 PNG（<span class="k">assets/skin-quilon/bg.png</span>），
+  开关只在奎隆这条敌人定义上加 <span class="k">skin:'quilon'</span> → 其它战斗代码路径一字节不变。
+</div>
+
+<script>
+/* ============================================================================
+   1) 常量：坐标 / 尺寸全部按游戏源码（1280×720 设计单位）
+   ========================================================================== */
+var GEO = {
+  hudH: 52,
+  cx: 640, cy: 360,
+  plateW: 272, plateH: 264, plateTop: 360 - 200, plateOff: 490,
+  nameDY: 22, barDY: 26, barH: 16, numDY: 22,
+  cardTop: 360 - 215, cardW: 680, cardH: 180,
+  cardL: 640 - 340, cardR: 640 + 340,
+  optW: 320, optH: 84, optDX: 172, optY1: 76, optY2: 176,
+  cdDY: 22, cdH: 12, cddx: 46, cdnum: 22,
+  footDY: 296
+};
+var SPR = {                       // 立绘精灵表（PNG 实际尺寸算列数 ✓ skill §41.6：别背数字 ✗）
+  logos: { url: '../assets/img/logos-idle.png', fw: 260, fh: 340, cols: 15, total: 150, disp: [202, 264] },
+  quilon: { url: '../assets/img/quilon-idle.png', fw: 180, fh: 180, cols: 10, total: 160, disp: [220, 220] }
+};
+var BG = { A: '../_tmp_ref/quilon_art/A.png', B: '../_tmp_ref/quilon_art/B.png', C: '../_tmp_ref/quilon_art/C.png' };
+var WHEEL = {                     // 背景里金轮的位置（生成脚本里的原始值 ✓ 用于叠旋转环）
+  A: { x: 1118, y: 288, r: 436 }, B: { x: 1030, y: 430, r: 452 }, C: { x: 1136, y: 296, r: 378 }
+};
+var ROMAN = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+
+/* ============================================================================
+   2) 排版器：把设计单位映射到 stage 像素
+   ========================================================================== */
+var STAGE = document.getElementById('stage');
+var SC = 1;
+function u(v) { return v * SC; }                 // 设计单位 → stage px
+function setL(el, x, y) { el.style.left = u(x) + 'px'; el.style.top = u(y) + 'px'; }
+function setSize(el, w, h) { el.style.width = u(w) + 'px'; el.style.height = u(h) + 'px'; }
+function setFont(el, px, weight, spacing) {
+  el.style.fontSize = u(px) + 'px';
+  if (weight) el.style.fontWeight = weight;
+  if (spacing != null) el.style.letterSpacing = u(spacing) + 'px';
+}
+
+/* 四位随机英文词 + 四个中文释义（假数据 ✓ 只为看排版 ✓） */
+var DEMO_WORD = 'circumvent';
+var DEMO_OPTS = ['规避；绕过', '任命；指定', '使确信；使信服', '累积；积聚'];
+
+function render(state) {
+  SC = STAGE.clientWidth / 1280;
+  var G = GEO, k = state.key, ph = state.phase;
+  var enemyHP = ph === 3 ? 12 : (ph === 2 ? 24 : 45);
+  var enemyMax = 45;
+
+  /* ---- 背景 ---- */
+  var bgKey = (k === 'PH') ? 'B' : k;
+  document.getElementById('bg').style.backgroundImage = 'url("' + BG[bgKey] + '")';
+  /* 阶段变化时整体换调（游戏里可行的做法：color 叠加矩形 ✓ 无 CSS 滤镜 ✗） */
+  document.getElementById('vign').style.background =
+    ph === 3 ? 'rgba(60,12,36,.34)' : (ph === 2 ? 'rgba(40,40,56,.18)' : 'rgba(0,0,0,0)');
+
+  /* ---- 金轮旋转环（游戏里＝rotation tween ✓）---- */
+  var wh = WHEEL[bgKey];
+  var ws = document.getElementById('wheelspin');
+  ws.style.left = u(wh.x - wh.r) + 'px'; ws.style.top = u(wh.y - wh.r) + 'px';
+  ws.style.width = u(wh.r * 2) + 'px'; ws.style.height = u(wh.r * 2) + 'px';
+  ws.style.borderWidth = Math.max(1, u(3)) + 'px';
+
+  /* ---- 页眉 ---- */
+  var hud = document.getElementById('hud');
+  hud.innerHTML = '';
+  hud.style.height = u(G.hudH) + 'px';
+  var pill = document.createElement('div'); pill.id = 'pill';
+  pill.textContent = state.floorLabel;
+  pill.style.left = u(30) + 'px'; pill.style.top = u(14) + 'px';
+  pill.style.width = u(104) + 'px'; pill.style.height = u(24) + 'px';
+  setFont(pill, 11, 500, 1.5);
+  hud.appendChild(pill);
+  var st = document.createElement('div');
+  st.textContent = state.stageName;
+  st.style.left = u(150) + 'px'; st.style.top = u(16) + 'px';
+  setFont(st, 15, 500, 2);
+  hud.appendChild(st);
+  var rs = document.createElement('div');
+  rs.textContent = '残页 ' + state.currency;
+  rs.style.right = u(150) + 'px'; rs.style.top = u(18) + 'px';
+  setFont(rs, 14, 400, .5); rs.style.color = 'var(--silver)';
+  hud.appendChild(rs);
+  var hp = document.createElement('div');
+  hp.textContent = '目标生命 ' + state.playerHP;
+  hp.style.right = u(268) + 'px'; hp.style.top = u(18) + 'px';
+  setFont(hp, 14, 400, .5); hp.style.color = 'var(--silver)';
+  hud.appendChild(hp);
+  var qt = document.createElement('div');
+  qt.textContent = '退出';
+  qt.style.right = u(46) + 'px'; qt.style.top = u(14) + 'px';
+  qt.style.border = '1px solid rgba(184,184,200,.28)';
+  qt.style.padding = u(4) + 'px ' + u(12) + 'px';
+  setFont(qt, 12, 400, 1);
+  hud.appendChild(qt);
+  var hr = document.getElementById('hudrule');
+  hr.style.top = u(G.hudH) + 'px'; hr.style.left = '0'; hr.style.width = '100%';
+
+  /* ---- 立绘牌 ---- */
+  var pl = G.plateTop;
+  [['plateL', -G.plateOff, 'flagL'], ['plateR', G.plateOff, 'flagR']].forEach(function (t) {
+    var el = document.getElementById(t[0]);
+    setL(el, G.cx + t[1] - G.plateW / 2, pl); setSize(el, G.plateW, G.plateH);
+    var f = el.querySelector('.' + t[2]);
+    f.style.left = '0'; f.style.top = '0';
+    f.style.borderTopWidth = u(16) + 'px'; f.style.borderRightWidth = u(16) + 'px';
+  });
+
+  /* ---- 立绘：交给顶层 fitSprite（canvas 抽帧 ✓ 见文件下方 3) 区）---- */
+  var _spL = document.getElementById('sprL'), _spR = document.getElementById('sprR');
+  if (_spL) fitSprite(_spL, SPR.logos);
+  if (_spR) fitSprite(_spR, SPR.quilon);
+
+  /* ---- 名字 / 血条 / 数值 ---- */
+  function nameBlock(elName, off, name) {
+    setL(elName, G.cx + off - G.plateW / 2, pl + G.plateH + G.nameDY - 10);
+    setFont(elName, 19, 700, .5); elName.textContent = name;
+  }
+  /* ★ 名字下面那两行小注（DOCTOR · 你 / QUI'LON · 待定）**按用户要求删掉** ✗（2026-09-24）
+   *   游戏里本来就没有这两行 ✓（CombatScene 的立绘卡只有名字 + 血条 + 数值行 ✓） */
+  nameBlock(document.querySelector('.pnL'), -G.plateOff, '逻各斯');
+  nameBlock(document.querySelector('.pnR'), G.plateOff, '奎隆');
+
+  function barBlock(elBar, elHb, elNum, elLb, off, ratio, color, hpTxt) {
+    var bx = G.cx + off - G.plateW / 2, by = pl + G.plateH + G.nameDY + G.barDY;
+    setL(elBar, bx, by); setSize(elBar, G.plateW, G.barH);
+    elBar.querySelector('i').style.width = u(G.plateW * ratio) + 'px';
+    elBar.querySelector('i').style.height = u(G.barH - 2) + 'px';
+    elBar.querySelector('i').style.background = color;
+    setL(elHb, bx, by + G.barH + u(6) / SC); setFont(elHb, 11, 400, .5); elHb.textContent = hpTxt;
+    setL(elNum, bx, by + G.barH + 6); setFont(elNum, 17, 500, 0); elNum.textContent = hpTxt;
+    setL(elLb, bx + G.plateW - 96, by + G.barH + 6); setSize(elLb, 96, 18);
+    setFont(elLb, 10, 400, 1.2);
+  }
+  barBlock(document.getElementById('barL'), document.querySelector('.hbL'), document.querySelector('.numL'),
+           document.querySelector('.lbL'), -G.plateOff, .6, '#B8B8C8', '6 / 10');
+  var barR = document.getElementById('barR');
+  barBlock(barR, document.querySelector('.hbR'), document.querySelector('.numR'), document.querySelector('.lbR'),
+           G.plateOff, enemyHP / enemyMax, ph === 3 ? '#C01D22' : '#CC543C', '');
+  /* 敌方数值行走「HP / 上限」＋ 右侧 ENEMY HP 标签 */
+  document.querySelector('.numR').textContent = enemyHP + ' / ' + enemyMax;
+  document.querySelector('.lbR').textContent = 'ENEMY HP';
+  document.querySelector('.hbR').style.display = 'none';
+
+  /* ---- 三阶段徽标（官方阶段橙 #FF4F08 ✓ 简报：游戏里就是这么用的 ✓）---- */
+  var badge = document.getElementById('stagebadge');
+  badge.style.left = u(G.cardL) + 'px'; badge.style.top = u(74) + 'px';
+  badge.style.width = u(G.cardW) + 'px';
+  setFont(badge, 13, 700, 5);
+  var NAMES = { 1: '入定 · SAMADHI', 2: '自在 · VIMUTTI', 3: '无忧觉 · ASHOKA' };
+  badge.textContent = NAMES[ph].replace(' · ', '   ·   ');
+  badge.style.color = ph === 3 ? 'rgba(255,79,8,.95)' : (ph === 2 ? 'rgba(255,79,8,.80)' : 'rgba(204,84,60,.85)');
+
+  /* ---- 词卡：细线 + 英文词 + 提示 ---- */
+  var cr = document.getElementById('cardrule');
+  setL(cr, G.cardL, G.cardTop); setSize(cr, G.cardW, 1);
+  var wd = document.getElementById('word');
+  wd.textContent = DEMO_WORD;
+  setFont(wd, 80, 300, 0);
+  setL(wd, G.cardL, G.cardTop + 74 - 46); setSize(wd, G.cardW, 92);
+  var hint = document.getElementById('hint');
+  hint.textContent = '选出正确释义';
+  setFont(hint, 12, 400, 2);
+  setL(hint, G.cardL, G.cardTop + 148);
+
+  /* ---- 倒计时（saint.js 口径：条在 cardTop−22、标签 cardTop−46、数字右对齐 cardR−22）---- */
+  var cdl = document.getElementById('cdlab');
+  setFont(cdl, 13, 400, .5);
+  setL(cdl, G.cardL, G.cardTop - G.cdDY - 24);
+  var cdw = document.getElementById('cdwrap');
+  setL(cdw, G.cardL, G.cardTop - G.cdDY); setSize(cdw, G.cardW, G.cdH);
+  var cdf = document.getElementById('cdfill');
+  cdf.style.width = '62%';
+  cdf.style.background = ph === 3 ? 'linear-gradient(90deg,#6C2424,#C01D22)'
+                     : (ph === 2 ? 'linear-gradient(90deg,#9C846C,#CC543C)' : 'linear-gradient(90deg,#9C846C,#B4B49C)');
+  var cdt = document.getElementById('cdtxt');
+  cdt.textContent = '12';
+  setFont(cdt, 16, 500, 0);
+  setL(cdt, G.cardR - 66, G.cardTop - G.cdDY - 26); setSize(cdt, 66, 22);
+
+  /* ---- 选项 2×2（320×84，中心 cx±172，行 cy+76 / cy+176）---- */
+  var ow = document.getElementById('optwrap');
+  ow.innerHTML = '';
+  for (var i = 0; i < 4; i++) {
+    var col = i % 2, row = (i / 2) | 0;
+    var cxx = G.cx + (col ? G.optDX : -G.optDX), cyy = G.cy + (row ? G.optY2 : G.optY1);
+    var o = document.createElement('div');
+    o.className = 'opt' + (i === 0 ? ' ok' : '');
+    setL(o, cxx - G.optW / 2, cyy - G.optH / 2); setSize(o, G.optW, G.optH);
+    var t = document.createElement('div'); t.className = 't'; t.textContent = DEMO_OPTS[i];
+    t.style.top = u(24) + 'px'; setFont(t, 21, 400, 0);
+    var kk = document.createElement('div'); kk.className = 'k'; kk.textContent = 'ABCD'[i];
+    kk.style.top = u(26) + 'px'; kk.style.width = u(60) + 'px'; kk.style.right = '0';
+    setFont(kk, 12, 400, 2);
+    var ln = document.createElement('div'); ln.className = 'ln';
+    ln.style.width = u(G.optW) + 'px';
+    o.appendChild(t); o.appendChild(kk); o.appendChild(ln);
+    ow.appendChild(o);
+  }
+
+  /* ---- 底栏分隔线（cy+296）---- */
+  var ft = document.getElementById('foot');
+  setL(ft, G.cardL - 200, G.cy + G.footDY); setSize(ft, G.cardW + 400, 1);
+}
+
+/* ============================================================================
+   3) 立绘：canvas 抽帧（＝游戏 sprite.play('...-anim') ✓ 30fps ✓）
+   ----------------------------------------------------------------------------
+   ★★ 为什么不用 CSS background（2026-09-24 实测踩坑 ✓ 必须记住）
+     写了 `background-size: 1530px 2448px`，getComputedStyle **看得到**该值 ✓
+     但实际渲染**按整表原尺寸（1800×2880）平铺** ✗ → 一格只显示 1/4 帧 ＋ 2×2 重复 ✗✓
+     （用无头 Edge 截图 + 逐像素测量确认 ✓ 见 skill §44.7）
+   → 改用 canvas `drawImage(img, sx, sy, fw, fh, 0, 0, w, h)`：**确定的** ✓
+     语义与 Phaser 的 `anims.generateFrameNumbers` 同源 ✓ 所以"预览＝游戏" ✓
+   ========================================================================== */
+var IMGS = {};
+function sheetImg(sp) {
+  if (!IMGS[sp.url]) {
+    var im = new Image();
+    im.onload = function () { im.ready = true; refitAll(); };
+    im.src = sp.url;
+    im.ready = false;
+    IMGS[sp.url] = im;
+  }
+  return IMGS[sp.url];
+}
+function refitAll() {
+  ['sprL', 'sprR'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) drawFrame(el, el._idx || 0);
+  });
+}
+function fitSprite(el, sp) {
+  var G = GEO;
+  var sc = G.plateH / sp.fh;                    // 按**单帧**比例贴满 264 高 ✓ 不拉伸 ✓
+  var dw = sp.fw * sc, dh = G.plateH;
+  el.style.width = u(dw) + 'px'; el.style.height = u(dh) + 'px';
+  el.style.left = u(G.cx + (sp === SPR.quilon ? G.plateOff : -G.plateOff) - dw / 2) + 'px';
+  el.style.top = u(G.plateTop) + 'px';
+  el.style.transform = (sp === SPR.quilon) ? 'scaleX(-1)' : 'none';   // 敌人默认镜像 ✓
+  var cv = el._cv;
+  if (!cv) {
+    el.innerHTML = '';
+    cv = document.createElement('canvas');
+    cv.style.cssText = 'display:block;width:100%;height:100%';
+    el.appendChild(cv);
+    el._cv = cv; el._ctx = cv.getContext('2d');
+  }
+  var dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = Math.max(1, Math.round(u(dw) * dpr));
+  cv.height = Math.max(1, Math.round(u(dh) * dpr));
+  el._sp = sp;
+  drawFrame(el, el._idx || 0);
+  sheetImg(sp);
+}
+function drawFrame(el, idx) {
+  var sp = el._sp, ctx = el._ctx;
+  if (!sp || !ctx) return;
+  el._idx = idx;
+  var im = IMGS[sp.url];
+  ctx.clearRect(0, 0, el._cv.width, el._cv.height);
+  if (!im || !im.ready) return;
+  var c = idx % sp.cols, r = Math.floor(idx / sp.cols);
+  ctx.imageSmoothingEnabled = false;            // 放大时保持像素清晰（预览说明里写明 ✓）
+  ctx.drawImage(im, c * sp.fw, r * sp.fh, sp.fw, sp.fh, 0, 0, el._cv.width, el._cv.height);
+}
+function tickSprite(el, sp, idx) { drawFrame(el, idx); }
+
+/* ============================================================================
+   4) 三案 + 阶段变化的预设（数字都按游戏真实值 ✓）
+   ========================================================================== */
+var STATES = {
+  A: { key: 'A', phase: 1, floorLabel: 'B1 / 01', stageName: '回声层 · 待定', playerHP: 6, currency: 38 },
+  B: { key: 'B', phase: 1, floorLabel: 'B1 / 01', stageName: '回声层 · 待定', playerHP: 6, currency: 38 },
+  C: { key: 'C', phase: 1, floorLabel: 'B1 / 01', stageName: '回声层 · 待定', playerHP: 6, currency: 38 },
+  PH: { key: 'PH', phase: 2, floorLabel: 'B1 / 01', stageName: '回声层 · 待定', playerHP: 5, currency: 52 }
+};
+var cur = 'A', phIdx = 0;
+
+function apply() {
+  var st = STATES[cur];
+  render(st);
+  /* 阶段变化那档：每 2.6s 在 1 → 2 → 3 之间轮换（看三套配色 ✓） */
+  var badgeNote = document.querySelector('#note');
+  if (cur === 'PH') {
+    var list = [1, 2, 3];
+    render({ key: 'B', phase: list[phIdx % 3], floorLabel: st.floorLabel, stageName: st.stageName,
+             playerHP: 6 - (phIdx % 3 === 0 ? 0 : (phIdx % 3 === 1 ? 1 : 2)), currency: 38 + (phIdx % 3) * 7 });
+  }
+}
+
+/* 交互 */
+var tabs = document.querySelectorAll('.tab');
+tabs.forEach(function (b) {
+  b.addEventListener('click', function () {
+    tabs.forEach(function (x) { x.classList.remove('on'); });
+    b.classList.add('on');
+    cur = b.dataset.k; phIdx = 0;
+    /* 插入两个立绘层（首次） */
+    if (!document.getElementById('sprL')) {
+      var a = document.createElement('div'); a.id = 'sprL';
+      var c = document.createElement('div'); c.id = 'sprR';
+      var st = document.getElementById('stage');
+      st.insertBefore(a, document.getElementById('plateL'));
+      st.insertBefore(c, document.getElementById('plateR'));
+    }
+    apply();
+  });
+});
+
+/* ============================================================================
+   5) 并排对比：点击后显示 A / B / C 三个缩比实例（同屏一次看全 ✓）
+   ========================================================================== */
+document.getElementById('compareBtn').addEventListener('click', function () {
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;inset:0;background:#0a0a0e;z-index:999;overflow:auto;padding:16px';
+  var bar = document.createElement('div');
+  bar.style.cssText = 'display:flex;gap:14px;align-items:center;margin-bottom:12px';
+  bar.innerHTML = '<b style="font-size:13px;color:#B8B8C8">三案并排（等比缩到同宽，同屏一次看全）</b>' +
+    '<button id="cmpClose" style="padding:6px 14px;border:1px solid #33333d;background:#16161c;color:#B8B8C8;cursor:pointer;font-family:inherit;font-size:12.5px">关闭</button>';
+  wrap.appendChild(bar);
+  var row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:14px;flex-wrap:wrap';
+  ['A', 'B', 'C'].forEach(function (k) {
+    var cell = document.createElement('div');
+    var lab = document.createElement('div');
+    lab.textContent = ({ A: 'A · 授法（神庙庭院 · 坛城地砖）', B: 'B · 说法（冷灰石壁 · 金轮居右）', C: 'C · 无终（拱廊纵深 · 荷塘夜景）' })[k];
+    lab.style.cssText = 'font-size:12px;color:#B8B8C8;margin-bottom:6px';
+    var img = document.createElement('img');
+    img.src = BG[k];
+    img.style.cssText = 'width:100%;display:block;border:1px solid #2a2a34';
+    cell.appendChild(lab); cell.appendChild(img);
+    cell.style.flex = '1 1 460px'; cell.style.maxWidth = '640px';
+    row.appendChild(cell);
+  });
+  wrap.appendChild(row);
+  document.body.appendChild(wrap);
+  document.getElementById('cmpClose').addEventListener('click', function () { wrap.remove(); });
+});
+
+/* 首次进入：先建立立绘层再渲染 */
+(function boot() {
+  var st = document.getElementById('stage');
+  var a = document.createElement('div'); a.id = 'sprL';
+  var c = document.createElement('div'); c.id = 'sprR';
+  a.style.position = 'absolute'; c.style.position = 'absolute';
+  a.style.zIndex = 5; c.style.zIndex = 5;
+  st.insertBefore(a, document.getElementById('plateL'));
+  st.insertBefore(c, document.getElementById('plateR'));
+  document.getElementById('plateL').style.zIndex = 2;
+  document.getElementById('plateR').style.zIndex = 2;
+  document.getElementById('bg').style.zIndex = 0;
+  document.getElementById('wheelspin').style.zIndex = 1;
+  document.getElementById('vign').style.zIndex = 3;
+  document.getElementById('grain').style.zIndex = 4;
+  document.getElementById('hud').style.zIndex = 30;
+  document.getElementById('hudrule').style.zIndex = 30;
+  ['stagebadge', 'cardrule', 'word', 'hint', 'cdlab', 'cdwrap', 'cdtxt', 'optwrap', 'foot'].forEach(function (id) {
+    document.getElementById(id).style.zIndex = 40;
+  });
+  apply();
+  window.addEventListener('resize', apply);
+  /* 立绘动画 */
+  var i1 = 0, i2 = 0;
+  setInterval(function () {
+    var e1 = document.getElementById('sprL'), e2 = document.getElementById('sprR');
+    if (!e1 || !e2) return;
+    tickSprite(e1, SPR.logos, i1); i1 = (i1 + 1) % SPR.logos.total;
+    tickSprite(e2, SPR.quilon, i2); i2 = (i2 + 1) % SPR.quilon.total;
+  }, 1000 / 30);
+  /* 阶段轮换 */
+  setInterval(function () {
+    if (cur === 'PH') { phIdx = (phIdx + 1) % 3; apply(); }
+  }, 2600);
+})();
+</script></body></html>

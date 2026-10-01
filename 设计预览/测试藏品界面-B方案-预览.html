@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>测试藏品界面 · B 方案预览（条目第二行放完整效果）</title>
+<style>
+/* ============================================================================
+   战斗测试 · 「选择测试藏品」模态 —— B 方案预览
+   ----------------------------------------------------------------------------
+   ★ 数据直接加载游戏真实文件 ../src/data/collectibles.js（34 件，不会与游戏脱节）
+   ★ 可在「现状 / B 方案」之间切换，并可开关"专属标注来源""按稀有度排序"
+   真实几何（来自 TestScene，1280×720）：
+     pw = min(1040, W-120) / ph = min(620, H-80) → pl=120, pt=50, pr=1160, pb=670
+     gL = pl+30 = 150, gW = pw-60 = 980, colGap 40 → colW = 470, gT = pt+74 = 124
+     行高：现状 40 → rowsFit 11 → 每页 22（2 页）；B 方案 56 → rowsFit 8 → 每页 16（3 页）
+     按钮行 y = pb-34 = 636
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Light.9981d6.woff2')format('woff2');font-weight:300}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 16px 80px}
+.head{width:100%;max-width:1340px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.head h1{font-size:17px;margin:0;font-weight:900;white-space:nowrap}
+.head p{margin:0;font-size:12px;color:#6f6f6f}
+.tabs{display:flex;gap:5px;flex-wrap:wrap}
+.tabs.grp{margin-left:auto}
+.tabs button{font-family:'HOS';font-weight:700;font-size:12px;padding:6px 11px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#111;color:#fff;border-color:#111}
+.tabs button.ghost.on{background:#e2231a;border-color:#e2231a}
+.viewport{position:relative;width:100%;max-width:1340px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 18px 50px rgba(0,0,0,.18);overflow:hidden;background:#fff;position:relative}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.85}
+.notes b{font-weight:700}
+.notes code{font-family:'Grotesk';font-size:12px;background:#f5f4f1;padding:1px 4px;border-radius:2px}
+
+/* ---------- 底层：战斗测试列表（被模态压暗，只作背景质感） ---------- */
+.under{position:absolute;inset:0;padding:92px 80px}
+.under .gh{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid #111;padding-bottom:6px;margin-bottom:10px}
+.under .gh b{font-family:'Novecento';font-weight:600;color:#e2231a;font-size:12px;letter-spacing:.1em}
+.under .g2{display:grid;grid-template-columns:repeat(3,1fr);gap:0 30px}
+.under .it{height:46px;display:flex;align-items:center;font-size:19px;color:#141414;border-bottom:1px solid #e6e6e6}
+.under .it span{margin-left:auto;font-family:'Novecento';font-weight:600;font-size:10px;color:#6f6f6f}
+
+/* ---------- 模态 ---------- */
+/* ★ 只有这一层是"底板"（用页面坐标 120,50 / 1040×620）；标题/列表/按钮都放在舞台坐标系里，
+     绝不能再嵌进 .modal —— 否则坐标会被 (120,50) 二次偏移，内容溢出白框（踩过） */
+.scrim{position:absolute;inset:0;background:rgba(10,11,13,.32)}
+.modal{position:absolute;left:120px;top:50px;width:1040px;height:620px;background:#fff}
+.modal .top2{position:absolute;left:0;top:0;width:1040px;height:2px;background:#111}
+.modal .bot1{position:absolute;left:0;bottom:0;width:1040px;height:1px;background:#e6e6e6}
+.mtitle{position:absolute;left:150px;top:76px;font-size:20px;font-weight:700;transform:translateY(-50%)}
+.msub{position:absolute;left:270px;top:77px;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.2em;color:#6f6f6f;transform:translateY(-50%)}
+.mcount{position:absolute;left:1030px;top:77px;font-family:'Grotesk';font-size:15px;color:#e2231a;transform:translate(-100%,-50%)}
+.mclose{position:absolute;left:1098px;top:62px;width:42px;height:28px;border:1px solid #e6e6e6;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;background:#fff}
+.mclose:hover{border-color:#e2231a;color:#e2231a}
+
+/* ---------- 列表行 ---------- */
+.row{position:absolute;display:flex;align-items:center;cursor:pointer}
+.row .hit{position:absolute;inset:0}
+.row .dot{position:absolute;left:0;top:50%;width:8px;height:8px;transform:translateY(-50%);border:1px solid #e6e6e6;background:#fff}
+.row .dot.on{background:#e2231a;border-color:#e2231a}
+.row .nm{position:absolute;left:18px;font-size:19px;color:#141414;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .ds{position:absolute;left:18px;font-size:11.5px;color:#6f6f6f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .ds .src{color:#9d5cff}
+.row .tag{position:absolute;right:12px;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.06em;color:#6f6f6f;white-space:nowrap}
+.row .rule{position:absolute;left:0;right:0;bottom:0;height:1px;background:#e6e6e6}
+.row:hover .rule{background:#e2231a}
+.row.on .nm{color:#e2231a}
+.row.on .tag{color:#e2231a}
+/* 稀有度色点（B 方案新增：一眼看出档位，替代分组标题） */
+.row .rdot{position:absolute;right:0;top:8px;width:6px;height:14px}
+
+/* ---------- 底部按钮 ---------- */
+.btn{position:absolute;height:30px;border:1px solid #e6e6e6;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer}
+.btn:hover{border-color:#111}
+.btn.pri{border-color:#e2231a;color:#e2231a}
+.pg{position:absolute;font-family:'Grotesk';font-size:13px;color:#6f6f6f;transform:translate(-100%,-50%)}
+</style>
+</head>
+<body>
+
+<div class="desk">
+  <div class="head">
+    <h1>战斗测试 · 选择测试藏品（B 方案）</h1>
+    <p>条目第二行放<b>完整效果描述</b>；数据直接读游戏真实文件。</p>
+    <div class="tabs grp" id="modes">
+      <button data-m="now">现状（只有名字）</button>
+      <button data-m="b" class="on">B 方案（第二行放效果）</button>
+    </div>
+  </div>
+  <div class="head">
+    <div class="tabs" id="opts">
+      <button data-o="sort" class="on ghost">按稀有度排序</button>
+      <button data-o="bossFirst" class="ghost">专属排前面</button>
+      <button data-o="src" class="on ghost">专属标注掉落来源</button>
+      <button data-o="rdot" class="on ghost">稀有度色条</button>
+    </div>
+    <div class="tabs"><button id="reset">清空已选</button></div>
+  </div>
+  <div class="viewport"><div class="stage" id="stage"></div></div>
+  <div class="notes" id="notes"></div>
+</div>
+
+<script src="../src/config/constants.js"></script>
+<script src="../src/data/collectibles.js"></script>
+<script>
+const B = window.Babel;
+const S = { mode: 'b', sort: true, bossFirst: false, src: true, rdot: true, page: 0, sel: [] };
+const RA = { epic: { label: '史诗', color: '#d4af37' }, rare: { label: '稀有', color: '#5cc5e8' }, common: { label: '普通', color: '#6b6f76' }, boss: { label: '专属', color: '#9d5cff' } };
+const ORDER = { epic: 0, rare: 1, common: 2, boss: 3 };
+const BOSSN = { lien: '里恩', andoain: '殉道者 · 安多恩', emperor: '皇帝的利刃', maskless: '铁络无面者', talulah: '塔露拉' };
+const ALL = () => (B.COLLECTIBLES || []).concat(B.BOSS_COLLECTIBLES || []);
+const rowH = () => (S.mode === 'b' ? 56 : 40);
+const rowsFit = () => Math.max(3, Math.floor(462 / rowH()));
+const perPage = () => 2 * rowsFit();
+const pages = () => Math.max(1, Math.ceil(ALL().length / perPage()));
+
+function list() {
+  let a = ALL().slice();
+  if (S.sort) {
+    const k = c => (S.bossFirst ? (c.rarity === 'boss' ? -1 : ORDER[c.rarity]) : ORDER[c.rarity]);
+    a.sort((x, y) => (k(x) - k(y)) || 0);
+  }
+  return a;
+}
+function srcText(c) { return (c.rarity === 'boss' && c.boss) ? ('　·　击败〈' + (BOSSN[c.boss] || c.boss) + '〉必定获得') : ''; }
+
+const stage = document.getElementById('stage');
+const notes = document.getElementById('notes');
+
+function render() {
+  const items = list(), rh = rowH(), pp = perPage(), tp = pages();
+  if (S.page > tp - 1) S.page = tp - 1;
+  const slice = items.slice(S.page * pp, (S.page + 1) * pp);
+  const gL = 150, colW = 470, colGap = 40, gT = 124;
+
+  let h = '';
+  /* 底层：一屏战斗测试列表（只做背景质感） */
+  h += '<div class="under"><div class="gh"><b>B1</b><span style="font-size:20px;font-weight:700">回声层</span><span style="margin-left:auto;font-family:Novecento;font-size:10px;color:#6f6f6f">5 个可测战斗</span></div>'
+    + '<div class="g2">' + ['普通 · 源石虫', '紧急 · 萨卡兹宿主卫巢百夫长', '残响之隙 · 里恩', 'BOSS · 殉道者 · 安多恩', 'BOSS · 皇帝的利刃', '']
+      .map(t => '<div class="it">' + t + '<span>BATTLE</span></div>').join('') + '</div>'
+    + '<div class="gh" style="margin-top:26px"><b>B2</b><span style="font-size:20px;font-weight:700">回响层</span><span style="margin-left:auto;font-family:Novecento;font-size:10px;color:#6f6f6f">5 个可测战斗</span></div>'
+    + '<div class="g2">' + ['普通 · 猎狗pro', '紧急 · 复仇者', '残响之隙 · 幽影', 'BOSS · 铁络无面者', 'BOSS · 塔露拉', '']
+      .map(t => '<div class="it">' + t + '<span>BATTLE</span></div>').join('') + '</div></div>';
+
+  /* 模态：底板单独一层，其余元素全部用舞台坐标（与游戏一致） */
+  h += '<div class="scrim"></div><div class="modal"><span class="top2"></span><span class="bot1"></span></div>'
+    + '<span class="mtitle">测试携带藏品</span><span class="msub">// SANDBOX LOADOUT</span>'
+    + '<span class="mcount">已选 ' + S.sel.length + ' / ' + items.length + '</span>'
+    + '<span class="mclose" id="close">×</span>';
+
+  slice.forEach((c, i) => {
+    const cx = gL + colW / 2 + (i % 2) * (colW + colGap);
+    const ry = gT + rh / 2 + Math.floor(i / 2) * rh;
+    const on = S.sel.indexOf(c.id) >= 0;
+    const ra = RA[c.rarity] || RA.common;
+    const nameY = S.mode === 'b' ? 11 : 0;                  // 名称相对行中心的纵向偏移
+    const descY = S.mode === 'b' ? 11 : 0;
+    h += '<div class="row' + (on ? ' on' : '') + '" data-id="' + c.id + '" style="left:' + (cx - colW / 2) + 'px;top:' + ry + 'px;width:' + colW + 'px;height:' + (rh - 1) + 'px;margin-top:' + (-(rh - 1) / 2) + 'px">'
+      + '<span class="hit"></span>'
+      + '<span class="dot' + (on ? ' on' : '') + '"></span>'
+      + '<span class="nm" style="top:50%;transform:translateY(calc(-50% - ' + nameY + 'px))">' + c.name + '</span>';
+    if (S.mode === 'b') {
+      const st = S.src ? srcText(c) : '';
+      h += '<span class="ds" style="top:50%;transform:translateY(calc(-50% + ' + descY + 'px))">' + c.desc
+        + (st ? '<span class="src">' + st + '</span>' : '') + '</span>';
+    }
+    h += '<span class="tag" style="top:50%;transform:translateY(calc(-50% - ' + nameY + 'px))">' + ra.label + '</span>';
+    if (S.rdot) h += '<span class="rdot" style="background:' + ra.color + '"></span>';
+    h += '<span class="rule"></span></div>';
+  });
+
+  /* 底部按钮行（与游戏一致的位置） */
+  const by = 636;
+  h += '<span class="pg" style="left:698px;top:' + by + 'px">' + (S.page + 1) + ' / ' + tp + '</span>'
+    + '<span class="btn" style="left:758px;top:' + (by - 15) + 'px;width:88px" id="clear">清空</span>'
+    + '<span class="btn" style="left:854px;top:' + (by - 15) + 'px;width:88px" id="prev">上一页</span>'
+    + '<span class="btn" style="left:950px;top:' + (by - 15) + 'px;width:88px" id="next">下一页</span>'
+    + '<span class="btn pri" style="left:1046px;top:' + (by - 15) + 'px;width:84px" id="ok">确定</span>';
+
+  stage.innerHTML = h;
+
+  stage.querySelectorAll('.row').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.dataset.id, k = S.sel.indexOf(id);
+      if (k >= 0) S.sel.splice(k, 1); else S.sel.push(id);
+      render();
+    });
+  });
+  const on = (id, fn) => { const e = document.getElementById(id); if (e) e.addEventListener('click', fn); };
+  on('prev', () => { if (S.page > 0) { S.page--; render(); } });
+  on('next', () => { if (S.page < tp - 1) { S.page++; render(); } });
+  on('clear', () => { S.sel = []; render(); });
+  on('close', () => { S.sel = []; render(); });
+  on('ok', () => { /* 预览里只提示 */ alert('（预览）确定 → 关闭模态，已选 ' + S.sel.length + ' 件'); });
+}
+
+const MODE_NOTES = {
+  now: '<b>现状</b>：每行只有名称 + 右侧稀有度标签，<b>看不到任何效果</b>——所以挑藏品时只能凭名字猜。<br>行高 <code>40</code> → 每页 <code>22</code> 件 → 共 <code>2</code> 页。',
+  b: '<b>B 方案（本次选定）</b>：名称一行 + <b>完整效果描述</b>一行（11.5px 灰字），右侧稀有度标签、最右一条稀有度色条。<br>'
+    + '行高 <code>40 → 56</code> → 每页 <code>22 → 16</code> 件 → 共 <code>2 → 3</code> 页（16/16/2）。<br>'
+    + '<b>注意</b>：上一版把三件"效果类型不通用"的藏品删掉后，池子=31 件主池 + 3 件专属 = <b>34 件</b>；'
+    + '长描述（如专属「指令机」的"每累计答对 9 题…（计数不可跨战斗）"）会接近一行宽度，若你实测觉得挤，可以：①描述字号降到 11px；②行高再抬到 60（每页 14）。'
+};
+const NOTES_EXTRA = '<br><br><b>两项加料</b>：<span style="color:#e2231a">① 专属藏品标注掉落来源</span>（"击败〈里恩〉必定获得"，与名称同色系紫字）；'
+  + '<span style="color:#e2231a">② 按稀有度排序</span>（史诗 → 稀有 → 普通 → 专属），并用最右的<b>稀有度色条</b>替代分组标题，不占额外高度。';
+
+const tabs = document.getElementById('modes'), opts = document.getElementById('opts');
+tabs.addEventListener('click', e => {
+  if (!e.target.dataset.m) return;
+  S.mode = e.target.dataset.m;
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.m === S.mode));
+  S.page = 0; render();
+});
+opts.addEventListener('click', e => {
+  const k = e.target.dataset.o; if (!k) return;
+  S[k] = !S[k];
+  e.target.classList.toggle('on', S[k]);
+  S.page = 0; render();
+});
+document.getElementById('reset').addEventListener('click', () => { S.sel = []; render(); });
+document.getElementById('notes').innerHTML = MODE_NOTES[S.mode] + NOTES_EXTRA;
+tabs.addEventListener('click', () => { document.getElementById('notes').innerHTML = MODE_NOTES[S.mode] + NOTES_EXTRA; });
+
+render();
+
+/* URL 预设：…-预览.html#b-3-1-1-1 → 模式-页码-排序-专属优先-来源标注 */
+(function preset() {
+  const m = (location.hash || '').replace('#', '').split('-');
+  if (m[0] === 'now' || m[0] === 'b') S.mode = m[0];
+  if (m[1]) S.page = Math.max(0, parseInt(m[1], 10) - 1 || 0);
+  if (m[2]) S.sort = m[2] === '1';
+  if (m[3]) S.bossFirst = m[3] === '1';
+  if (m[4]) S.src = m[4] === '1';
+  document.querySelectorAll('#modes button').forEach(b => b.classList.toggle('on', b.dataset.m === S.mode));
+  document.querySelectorAll('#opts button').forEach(b => b.classList.toggle('on', !!S[b.dataset.o]));
+  document.getElementById('notes').innerHTML = MODE_NOTES[S.mode] + NOTES_EXTRA;
+  render();     // ★ 预设改完状态必须重画（否则 hash 看起来没生效）
+})();
+
+const vp = document.querySelector('.viewport');
+function fit() {
+  const k = Math.min(vp.clientWidth / 1280, Math.max(.42, (window.innerHeight - 300) / 720));
+  stage.style.transform = 'scale(' + k + ')';
+  vp.style.height = (720 * k) + 'px';
+}
+window.addEventListener('resize', fit);
+document.fonts && document.fonts.ready.then(fit);
+fit();
+</script>
+</body>
+</html>

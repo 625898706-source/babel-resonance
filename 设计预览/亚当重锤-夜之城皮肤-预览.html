@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>亚当重锤 · 夜之城皮肤（6 套立绘变式 · 任选一套）</title>
+<style>
+/* ============================================================================
+   亚当重锤 · NIGHT CITY 战斗皮肤 —— **变式选择版**（全新重做，不在旧版上改）
+   ----------------------------------------------------------------------------
+   只作用于这一场战斗；其他敌人一律保持 E3 展签不变。
+   骨架用本作真实坐标：页眉 52 ／ 立绘 272×264 顶边 160、中心 cx±490 ／
+                       词条 y=219 ／ 倒计时条 y=307 ／ 选项 320×84 中心 cx±172 ／ 藏品栏 y=656
+   ----------------------------------------------------------------------------
+   ★ 立绘做法（本轮踩了很多坑后的定论）：
+     把「牌底 + 立绘 + 可选辉光 + 边框」**预先合成成一张 272×264 成品图**，
+     页面里只放**最普通的 <img>**（不用 background 裁剪、不套 clip-path、不用伪元素、
+     不用 mix-blend-mode、不给图加 filter）—— 这些叠加会让浏览器只画出一部分图。
+   ★ 六套变式（切换按钮，只换左牌＝逻各斯；右牌＝亚当重锤固定）：
+     V1 原样尺寸（与游戏一致 150×196）＋黑底轻辉光
+     V2 裁紧放大（175×208）＋黑底辉光          ← 推荐：大小与机甲相当
+     V3 裁紧最大（205×244）＋黑底辉光          ← 存在感最强
+     V4 E3 实底 #141519（无辉光，最接近游戏原观感）
+     V5 深蓝底 #0f1a28 ＋辉光
+     V6 青色全息染色 ＋强辉光（数据投影感）
+   ★ 动画照搬原型（无音效）：单词逐字解码 420ms；答对＝青闪+ACCESS GRANTED+
+     选项发光+COMBO pop+敌牌 glitch；答错＝红闪+ACCESS DENIED+选项抖动+正确项点亮+震屏+我牌 glitch
+   ========================================================================== */
+@font-face{font-family:'Orbitron';src:url('../assets/fonts/Orbitron-700-900.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'Orbitron';src:url('../assets/fonts/Orbitron-700-900.woff2')format('woff2');font-weight:900}
+@font-face{font-family:'Rajdhani';src:url('../assets/fonts/Rajdhani-500.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'Rajdhani';src:url('../assets/fonts/Rajdhani-600.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Rajdhani';src:url('../assets/fonts/Rajdhani-700.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+
+:root{--cy:#5ef6ff;--ye:#fcee0a;--rd:#ff2b4e;--bg:#04070c;--line:rgba(94,246,255,.22);--dim:#68809a;--txt:#cfeef7}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 16px 70px}
+.head{width:100%;max-width:1340px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.head h1{font-size:17px;margin:0;font-weight:900;white-space:nowrap}
+.head p{margin:0;font-size:12px;color:#6f6f6f}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.tabs button{font-family:'HOS';font-weight:700;font-size:12px;padding:6px 11px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#111;color:#fff;border-color:#111}
+.tabs.v button.on{background:#04121a;color:var(--cy);border-color:#0d3b46}
+.viewport{position:relative;width:100%;max-width:1340px}
+.stage{width:1280px;height:720px;transform-origin:top left;overflow:hidden;position:relative;
+  background:var(--bg);color:var(--txt);font-family:'Rajdhani','HOS',sans-serif;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.85}
+.notes b{font-weight:700}.notes code{font-family:'Rajdhani';font-size:12.5px;background:#f5f4f1;padding:1px 4px;border-radius:2px}
+.notes .k{color:#e2231a;font-weight:700}
+
+/* 背景：网格 + 扫描线 + 扫掠 + 暗角 */
+.bg{position:absolute;inset:0;pointer-events:none;z-index:0}
+.bg-grid{position:absolute;inset:0;opacity:.5;
+  background-image:linear-gradient(rgba(94,246,255,.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(94,246,255,.055) 1px,transparent 1px);background-size:46px 46px}
+.bg-scan{position:absolute;inset:0;opacity:.5;background:repeating-linear-gradient(0deg,rgba(0,0,0,.30) 0 1px,transparent 1px 3px)}
+.bg-sweep{position:absolute;left:0;right:0;height:180px;background:linear-gradient(180deg,transparent,rgba(94,246,255,.05),transparent);animation:sweep 7s linear infinite}
+@keyframes sweep{0%{top:-180px}100%{top:720px}}
+.bg-vig{position:absolute;inset:0;background:radial-gradient(ellipse 82% 72% at 50% 50%,transparent 46%,rgba(0,0,0,.72) 100%)}
+
+/* 立绘：两张成品图，最朴素的 <img> */
+.plateL{position:absolute;left:14px;top:160px;width:272px;height:264px;display:block;z-index:2}
+.plateR{position:absolute;left:994px;top:160px;width:272px;height:264px;display:block;z-index:2}
+/* 命中闪光层（纯色渐变 + 透明度动画，不用混合模式） */
+.glitch{position:absolute;top:160px;width:272px;height:264px;z-index:3;opacity:0;pointer-events:none;
+  background:linear-gradient(90deg,rgba(255,43,78,.5),rgba(94,246,255,.5))}
+.glitchL{left:14px}.glitchR{left:994px}
+.glitch.on{animation:gl .34s steps(2) 1}
+@keyframes gl{0%{opacity:.75}30%{opacity:.35}60%{opacity:.6}100%{opacity:0}}
+
+/* 页眉 */
+.top{position:absolute;left:0;top:0;width:1280px;height:52px;display:flex;align-items:center;gap:16px;padding:0 20px;border-bottom:1px solid var(--line);z-index:5}
+.top::after{content:'';position:absolute;left:20px;bottom:-1px;width:130px;height:2px;background:var(--ye)}
+.lvl{font-family:'Orbitron';font-weight:900;font-size:13px;letter-spacing:.14em;color:#04121a;background:var(--ye);padding:4px 12px}
+.stage-t{font-size:12.5px;color:var(--dim);letter-spacing:.06em;flex:1}
+.stage-t b{color:var(--cy);font-weight:700}.stage-t s{color:#3f5568;text-decoration:none;margin:0 6px}
+.topstats{display:flex;gap:22px;align-items:center}
+.ts{text-align:right;line-height:1.05}
+.ts label{display:block;font-size:9px;letter-spacing:.22em;color:#4a6178}
+.ts b{font-family:'Orbitron';font-size:15px;font-weight:700;color:var(--cy);font-variant-numeric:tabular-nums}
+.ts.hp b{color:var(--ye)}
+.btn-back{font-size:12px;letter-spacing:.1em;color:var(--cy);background:rgba(94,246,255,.07);border:1px solid var(--line);padding:6px 16px;width:104px;text-align:center}
+
+/* 名字 / 血条 / 数值（y 与游戏一致：446 / 472 / 494） */
+.meta{position:absolute;width:272px;z-index:5;top:160px;height:264px;pointer-events:none}
+.meta.l{left:14px}.meta.r{left:994px}
+.pname{position:absolute;top:278px;left:0;width:272px;font-family:'Orbitron';font-weight:700;font-size:15px;color:var(--cy);white-space:nowrap;overflow:hidden}
+.meta.r .pname{color:var(--rd)}
+.ptag{position:absolute;top:298px;left:0;font-size:9px;letter-spacing:.22em;color:#41586e}
+.php{position:absolute;top:312px;left:0;width:272px;height:11px;background:#0b131c;border:1px solid rgba(94,246,255,.16)}
+.php i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#1fb6d4,var(--cy));transition:width .42s cubic-bezier(.2,.8,.2,1)}
+.meta.r .php i{background:linear-gradient(90deg,#a8122f,var(--rd))}
+.pnum{position:absolute;top:332px;left:0;font-family:'Orbitron';font-size:18px;font-variant-numeric:tabular-nums}
+.meta.l .pnum{color:var(--cy)}.meta.r .pnum{color:var(--rd)}
+.pnum em{font-style:normal;font-size:9px;letter-spacing:.2em;color:#4a6178;margin-left:8px;font-family:'Rajdhani'}
+
+/* 中栏 */
+.word{position:absolute;left:300px;top:219px;width:680px;transform:translateY(-50%);text-align:center;z-index:5;
+  font-family:'Orbitron';font-weight:900;font-size:74px;letter-spacing:.03em;line-height:1;color:#eafcff;
+  /* 方案③ 纯外发光：无描边、无红/青错位，长时间看不累眼 */
+  text-shadow:0 0 12px rgba(94,246,255,.85),0 0 28px rgba(94,246,255,.45);
+  animation:wordglitch 4.6s infinite}
+/* ① 每 4.6s 一次的色差抽搐（原型同款，幅度加大一档） */
+@keyframes wordglitch{
+  0%,86%,100%{transform:translateY(-50%);text-shadow:0 0 12px rgba(94,246,255,.85),0 0 28px rgba(94,246,255,.45);opacity:1}
+  88%{transform:translate(-4px,calc(-50% + 1px)) skewX(-1deg);text-shadow:0 0 26px rgba(94,246,255,1),0 0 54px rgba(94,246,255,.7);opacity:.94}
+  90%{transform:translate(3px,calc(-50% - 2px));text-shadow:0 0 30px rgba(94,246,255,1),0 0 62px rgba(94,246,255,.75);opacity:.9}
+  92%{transform:translate(-2px,-50%);text-shadow:0 0 16px rgba(94,246,255,.9),0 0 36px rgba(94,246,255,.55);opacity:1}
+  94%{transform:translateY(-50%)}}
+/* ② 幽灵层：JS 随机取一条切片做"撕裂"错位（默认不显示） */
+.word.ghost{display:none;animation:none;z-index:6;pointer-events:none;text-shadow:0 0 16px currentColor}
+.cardrule{position:absolute;left:348px;top:271px;width:584px;height:1px;background:rgba(94,246,255,.12);z-index:5}
+.hint{position:absolute;left:322px;top:289px;font-size:12.5px;letter-spacing:.06em;color:var(--dim);z-index:5}
+.cd{position:absolute;left:320px;top:307px;width:640px;height:12px;background:#0b131c;border-left:2px solid rgba(252,238,10,.6);z-index:5}
+.cd i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--ye),#fff8a0)}
+.cdnum{position:absolute;right:322px;top:289px;font-family:'Orbitron';font-size:20px;color:var(--ye);font-variant-numeric:tabular-nums;z-index:5}
+.combo{position:absolute;right:322px;top:246px;font-family:'Orbitron';font-weight:900;font-size:26px;line-height:1;color:var(--cy);text-shadow:0 0 18px rgba(94,246,255,.6);z-index:5}
+.combo.pop{animation:pop .34s ease-out}
+@keyframes pop{0%{transform:scale(1.65);color:#fff}100%{transform:scale(1)}}
+.combolabel{position:absolute;right:322px;top:228px;font-size:9px;letter-spacing:.22em;color:#4a6178;z-index:5}
+
+/* 选项 320×84，中心 cx±172，行 y=436 / 536 */
+.opts{position:absolute;inset:0;z-index:5;pointer-events:none}
+/* ★ 选项＝**无框**（与游戏一致）：只有得意黑文字 + 一条细下划线；
+   之前的"填色切角面板"会让四块在深色底上连成一大片（用户反馈"四个按钮太大 / 一块巨带"）。 */
+.opt{position:absolute;width:320px;height:84px;display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:10px 20px 16px;font-family:'Smiley';font-size:21px;letter-spacing:.10em;color:#cfeef7;cursor:pointer;pointer-events:auto;
+  background:transparent;border:none;border-bottom:1px solid #1b3b46;line-height:1.3;
+  text-shadow:0 0 12px rgba(94,246,255,.55);transition:border-color .13s,color .13s,transform .13s}
+.opt::after{content:attr(data-idx);position:absolute;right:10px;bottom:8px;font-family:'Orbitron';font-size:9px;color:rgba(94,246,255,.38)}
+.opt:hover:not(:disabled){border-bottom-color:var(--cy);color:#eafcff;transform:translateX(3px)}
+.opt:disabled{cursor:default;opacity:.5}
+.opt.right{border-bottom-color:var(--cy);color:#eafcff;opacity:1;animation:okpulse .5s ease-out}
+@keyframes okpulse{0%{transform:scale(1.03)}100%{transform:scale(1)}}
+.opt.wrong{border-bottom-color:var(--rd);color:#ffd9e0;opacity:1;animation:badshake .3s}
+@keyframes badshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}45%{transform:translateX(7px)}70%{transform:translateX(-4px)}}
+
+/* 底栏（分离线 y=656） */
+.foot{position:absolute;left:80px;top:656px;width:1120px;height:1px;background:var(--line);z-index:5}
+.footitems{position:absolute;left:80px;top:668px;display:flex;align-items:center;gap:8px;z-index:5}
+.footitems label{font-size:9px;letter-spacing:.24em;color:#41586e;margin-right:2px}
+.chip{font-family:'Orbitron';font-weight:700;font-size:12px;color:var(--cy);background:rgba(94,246,255,.06);border:1px solid rgba(94,246,255,.26);padding:6px 13px}
+.chip small{color:#4a6178;font-size:9px;margin-left:5px;font-family:'Rajdhani'}
+
+/* 反馈层 */
+.flash{position:absolute;inset:0;z-index:60;pointer-events:none;opacity:0;transition:opacity .28s}
+.flash.ok{background:radial-gradient(ellipse at 50% 55%,rgba(94,246,255,.30),transparent 62%);opacity:1;transition:opacity .05s}
+.flash.bad{background:radial-gradient(ellipse at 50% 55%,rgba(255,43,78,.34),transparent 62%);opacity:1;transition:opacity .05s}
+/* 赛博警示条（与游戏内实现一致：横幅 + 角标 + 上下亮线 + 扫描线 + 主字/副行） */
+.accwrap{position:absolute;left:0;top:0;width:1280px;height:720px;z-index:70;pointer-events:none;opacity:0;transition:opacity .12s}
+.accwrap.on{opacity:1}
+.accband{position:absolute;left:50%;top:235px;transform:translate(-50%,-50%);width:880px;height:96px;
+  background:rgba(4,7,12,.93);border:2px solid var(--cy);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.accband::before,.accband::after{content:'';position:absolute;left:0;right:0;height:3px;background:var(--cy);opacity:.85}
+.accband::before{top:-2px}.accband::after{bottom:-2px}
+.accband .tk{position:absolute;width:26px;height:5px;background:var(--cy)}
+.accband .tk.tl{left:0;top:0}.accband .tk.tr{right:0;top:0}.accband .tk.bl{left:0;bottom:0}.accband .tk.br{right:0;bottom:0}
+.accband .scan{position:absolute;top:0;bottom:0;width:3px;background:var(--cy);opacity:.3;left:0}
+.accwrap.on .accband .scan{animation:accscan .42s ease-out 1}
+@keyframes accscan{from{left:0}to{left:100%}}
+.accmain{font-family:'Orbitron';font-weight:900;font-size:42px;letter-spacing:.06em;line-height:1;color:#eafcff;
+  text-shadow:0 0 14px rgba(94,246,255,.95),0 0 34px rgba(94,246,255,.5)}
+.accsub{font-family:'Rajdhani';font-size:13.5px;letter-spacing:.14em;color:var(--cy);opacity:.9}
+.accwrap.bad .accband{border-color:var(--rd)}
+.accwrap.bad .accband::before,.accwrap.bad .accband::after{background:var(--rd)}
+.accwrap.bad .accband .tk{background:var(--rd)}
+.accwrap.bad .accband .scan{background:var(--rd)}
+.accwrap.bad .accmain{color:#ffe3e8;text-shadow:0 0 14px rgba(255,43,78,.95),0 0 34px rgba(255,43,78,.5)}
+.accwrap.bad .accsub{color:#ff7d93}
+.arena{position:absolute;inset:0;z-index:2}
+.arena.shake{animation:shake .3s}
+@keyframes shake{0%,100%{transform:translate(0)}18%{transform:translate(-7px,3px)}38%{transform:translate(6px,-4px)}58%{transform:translate(-4px,2px)}78%{transform:translate(3px,3px)}}
+</style>
+</head>
+<body>
+
+<div class="desk">
+  <div class="head">
+    <h1>亚当重锤 · 夜之城皮肤 · 立绘变式</h1>
+    <p>只作用于这一场；<b>其他敌人保持 E3 不变</b>。立绘已定稿：双全息（逻各斯＝青／亚当重锤＝红）。无音效。</p>
+  </div>
+  <div class="head">
+    <div class="tabs">
+      <button id="btnNext">换一题</button>
+      <button id="btnRight">▶ 演示答对</button>
+      <button id="btnWrong">▶ 演示答错</button>
+      <button id="btnReset">重置血量</button>
+    </div>
+  </div>
+  <div class="viewport">
+    <div class="stage" id="stage">
+      <div class="bg"><div class="bg-grid"></div><div class="bg-scan"></div><div class="bg-sweep"></div><div class="bg-vig"></div></div>
+
+      <!-- ★ 两张成品立绘图（最朴素的 img） -->
+      <img class="plateL" id="plateL" src="_plate_logos_holo.png" width="272" height="264" alt="">
+      <img class="plateR" id="plateR" src="_plate_adam_holo.png" width="272" height="264" alt="">
+      <div class="glitch glitchL" id="glL"></div>
+      <div class="glitch glitchR" id="glR"></div>
+
+      <div class="arena" id="arena">
+        <div class="top">
+          <div class="lvl">B1 / 01</div>
+          <div class="stage-t"><b>// 回声层 · 待定（测试暂存）</b><s>|</s>普通作战<s>·</s>选择正确的中文释义</div>
+          <div class="topstats">
+            <div class="ts hp"><label>目标生命</label><b id="goalHp">10 / 10</b></div>
+            <div class="ts"><label>残页</label><b id="pages">15</b></div>
+          </div>
+          <div class="btn-back">返回</div>
+        </div>
+
+        <div class="meta l">
+          <div class="pname">逻各斯</div><div class="ptag">LOGOS // 真词代理人</div>
+          <div class="php"><i id="pHpFill"></i></div>
+          <div class="pnum"><span id="pHpNum">10 / 10</span><em>目标生命</em></div>
+        </div>
+        <div class="meta r">
+          <div class="pname">亚当重锤</div><div class="ptag">ARASAKA // 精英护卫</div>
+          <div class="php"><i id="eHpFill"></i></div>
+          <div class="pnum"><span id="eHpNum">5 / 5</span><em>ENEMY HP</em></div>
+        </div>
+
+        <div class="word" id="word">WORD</div>
+        <div class="word ghost" id="ghost">WORD</div>
+        <div class="cardrule"></div>
+        <div class="hint">选择正确的中文释义</div>
+        <div class="cdnum" id="cdNum">15</div>
+        <div class="combolabel">COMBO</div>
+        <div class="combo" id="combo">0</div>
+        <div class="cd"><i id="cdFill"></i></div>
+        <div class="opts" id="opts"></div>
+
+        <div class="foot"></div>
+        <div class="footitems">
+          <label>藏品</label>
+          <span class="chip">巨力之页<small>伤害+1</small></span>
+          <span class="chip">迅捷之羽<small>时限+4s</small></span>
+          <span class="chip">从容之印<small>缓冲1.5s</small></span>
+        </div>
+      </div>
+
+      <div class="flash" id="flash"></div>
+      <div class="accwrap" id="accwrap"><div class="accband">
+        <span class="tk tl"></span><span class="tk tr"></span><span class="tk bl"></span><span class="tk br"></span>
+        <span class="scan"></span>
+        <div class="accmain" id="accmain">ACCESS GRANTED</div>
+        <div class="accsub" id="accsub">// 认证通过 · 数据写入完成</div>
+      </div></div>
+    </div>
+  </div>
+  <div class="notes" id="notes"></div>
+</div>
+
+<script src="../src/data/gaokaoWords.js"></script>
+<script>
+const GLYPH = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/#%&*<>';
+const BANK = (window.Babel && window.Babel.GAOKAO_WORDS) ? window.Babel.GAOKAO_WORDS : [['COMEDY','喜剧'],['MEMORY','记忆'],['LANGUAGE','语言']];
+const S = { pHp:10, pMax:10, pages:15, combo:0, eHp:5, eMax:5, q:null, locked:true, timeLimit:15, t:0, timer:null };
+
+const $ = (id) => document.getElementById(id);
+const wordEl = $('word'), optsEl = $('opts'), comboEl = $('combo'), flashEl = $('flash'), arenaEl = $('arena');
+const logs = [];
+function log(m) { logs.push(m); if (logs.length > 5) logs.shift(); renderNotes(); }
+
+/* 动画① 逐字解码 420ms（原型 scramble） */
+function scramble(el, text, ms) {
+  const t0 = performance.now(), n = text.length;
+  (function step(now) {
+    const p = Math.min(1, (now - t0) / ms);
+    let out = '';
+    for (let i = 0; i < n; i++) out += (i / n < p) ? text[i] : GLYPH[(Math.random() * GLYPH.length) | 0];
+    el.textContent = out;
+    if (p < 1) requestAnimationFrame(step); else el.textContent = text;
+  })(t0);
+}
+/* 动画② 答对 / 答错 */
+const accWrap = $('accwrap'), accMain = $('accmain'), accSub = $('accsub');
+function toast(t, ok) {
+  accWrap.classList.remove('on'); void accWrap.offsetWidth;
+  accWrap.classList.toggle('bad', !ok);
+  accSub.textContent = ok ? '// 认证通过 · 数据写入完成' : '// 认证失败 · 连接被切断';
+  accWrap.classList.add('on');
+  scramble(accMain, t, 200);                       // 主字也是"解"出来的，不是淡入
+  clearTimeout(toast._t); toast._t = setTimeout(function () { accWrap.classList.remove('on'); }, 1080);
+  [0, 1].forEach(function (n) {                    // 故障抖动两次
+    setTimeout(function () { accWrap.style.transform = 'translateX(' + (n % 2 === 0 ? -7 : 6) + 'px)'; setTimeout(function () { accWrap.style.transform = ''; }, 55); }, 200 + n * 170);
+  });
+}
+function flash(k) { flashEl.className = 'flash ' + k; setTimeout(() => { flashEl.className = 'flash'; }, 90); }
+function shake() { arenaEl.classList.remove('shake'); void arenaEl.offsetWidth; arenaEl.classList.add('shake'); }
+function glitch(el) { el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); }
+
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function nextQuestion() {
+  const e = BANK[(Math.random() * BANK.length) | 0];
+  const others = shuffle(BANK.filter(x => x[1] !== e[1])).slice(0, 3).map(x => x[1]);
+  const opts = shuffle([{ t: e[1], ok: true }].concat(others.map(t => ({ t: t, ok: false }))));
+  S.q = { word: String(e[0]).toUpperCase(), options: opts };
+  scramble(wordEl, S.q.word, 420);
+  log('新题「' + S.q.word + '」→ 逐字解码 420ms');
+  const XY = [[468,436],[812,436],[468,536],[812,536]];
+  optsEl.innerHTML = '';
+  S.q.options.forEach((o, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt'; b.textContent = o.t; b.dataset.ok = o.ok ? '1' : '0'; b.dataset.idx = '0' + (i + 1);
+    b.style.left = (XY[i][0] - 160) + 'px'; b.style.top = (XY[i][1] - 42) + 'px';
+    b.addEventListener('click', () => answer(b, o.ok));
+    optsEl.appendChild(b);
+  });
+  S.locked = false; startCd();
+}
+function startCd() {
+  if (S.timer) clearInterval(S.timer);
+  S.t = S.timeLimit; $('cdFill').style.width = '100%'; $('cdNum').textContent = S.t;
+  S.timer = setInterval(() => {
+    S.t = Math.max(0, S.t - 0.1); $('cdFill').style.width = (S.t / S.timeLimit * 100) + '%'; $('cdNum').textContent = Math.ceil(S.t);
+    if (S.t <= 0) { clearInterval(S.timer); answer(null, false, true); }
+  }, 100);
+}
+function answer(btn, ok, isTimeout) {
+  if (S.locked) return;
+  S.locked = true;
+  if (S.timer) clearInterval(S.timer);
+  Array.from(optsEl.children).forEach(b => { b.disabled = true; });
+  if (ok) {
+    if (btn) btn.classList.add('right');
+    flash('ok'); toast('ACCESS GRANTED', true);
+    S.combo++; comboEl.textContent = S.combo; comboEl.classList.remove('pop'); void comboEl.offsetWidth; comboEl.classList.add('pop');
+    S.eHp = Math.max(0, S.eHp - 1); glitch($('glR')); renderHp();
+    log('答对 → 青闪 + ACCESS GRANTED + 选项发光 + COMBO ' + S.combo + ' + 敌牌 glitch');
+    setTimeout(nextQuestion, 900);
+  } else {
+    if (btn) btn.classList.add('wrong');
+    Array.from(optsEl.children).forEach(b => { if (b.dataset.ok === '1') b.classList.add('right'); });
+    flash('bad'); shake(); toast('ACCESS DENIED', false);
+    S.combo = 0; comboEl.textContent = '0';
+    S.pHp = Math.max(0, S.pHp - 1); glitch($('glL')); renderHp(); renderTop();
+    log((isTimeout ? '超时' : '答错') + ' → 红闪 + ACCESS DENIED + 选项抖动 + 正确项点亮 + 震屏 + 我牌 glitch');
+    setTimeout(nextQuestion, 1300);
+  }
+}
+function renderHp() {
+  $('pHpFill').style.width = (S.pHp / S.pMax * 100) + '%';
+  $('pHpNum').textContent = S.pHp + ' / ' + S.pMax;
+  $('eHpFill').style.width = (S.eHp / S.eMax * 100) + '%';
+  $('eHpNum').textContent = S.eHp + ' / ' + S.eMax;
+}
+function renderTop() { $('goalHp').textContent = S.pHp + ' / ' + S.pMax; $('pages').textContent = S.pages; }
+function renderNotes() {
+  $('notes').innerHTML =
+    '<b>立绘（已定稿 · 只此一套）</b>：两边都上<b>全息工艺</b> —— 染色 + 强辉光 + 边缘提亮 + 每 3px 扫描线；' +
+    '<span class="k">逻各斯＝青色全息</span>（青描边＋黄角标）／<span class="k">亚当重锤＝红色全息</span>（红描边＋红角标）；' +
+    '角色裁紧到包围盒放到 175×208（与机甲 160×234 相当），纯黑底（立绘自带的不透明黑底完全融掉、没有方块）。' +
+    '<br><b>做法</b>：立绘是"预合成成品图 + 最朴素的 &lt;img&gt;"（不套 clip-path／伪元素／混合模式／filter），' +
+    '因为那些叠加会让浏览器只画出图的一部分。<span class="k">游戏里的立绘素材一个字节都没改</span>。' +
+    '<br><b>单词的间歇故障闪烁</b>：① 每 4.6s 一次色差抽搐（红/青 ±7~8px 错位 + 轻微 skew/位移）；' +
+    '② 另有一层随机「切片撕裂」——把同一串字复制到幽灵层，随机取一条水平切片横向错位并用红/青闪光，45ms 一帧、闪 3 帧即灭，' +
+    '间隔随机 3.2~7s，所以是"时不时"而不是固定节奏。' +
+    (logs.length ? '<br><br><b>动画日志</b>：<br>· ' + logs.slice().reverse().join('<br>· ') : '');
+}
+
+/* ===== 单词的"间歇故障闪烁"（原型 wordglitch 的加强版）=====
+   ① CSS 每 4.6s 一次「发光骤增 + 横向抖」（方案③ 纯外发光，无描边/无红青错位；见 .word 的 wordglitch）
+   ② 下面这段 JS 再叠一层随机"切片撕裂"：把同一串字复制到幽灵层，
+      随机取一条水平切片、横向错位并染成红/青，45ms 一帧闪 3~4 帧后消失；
+      触发间隔随机 3.2~7s，所以是"时不时"而不是固定节奏。 */
+const ghost = $('ghost');
+function glitchWord() {
+  if (!ghost || !S.q) return;
+  ghost.textContent = wordEl.textContent;
+  ghost.style.display = 'block';
+  let n = 0;
+  const iv = setInterval(() => {
+    const top = Math.random() * 55, h = 5 + Math.random() * 20;
+    ghost.style.clipPath = 'inset(' + top + '% 0 ' + Math.max(0, 100 - top - h) + '% 0)';
+    ghost.style.transform = 'translate(' + ((Math.random() * 2 - 1) * 9).toFixed(1) + 'px, calc(-50% + ' + ((Math.random() * 2 - 1) * 3).toFixed(1) + 'px))';
+    ghost.style.color = Math.random() < 0.5 ? '#ff2b4e' : '#5ef6ff';
+    if (++n > 3) { clearInterval(iv); ghost.style.display = 'none'; }
+  }, 45);
+  log('单词故障闪烁：切片撕裂 3 帧');
+}
+(function loopGlitch() { setTimeout(() => { glitchWord(); loopGlitch(); }, 3200 + Math.random() * 3800); })();
+
+$('btnNext').addEventListener('click', () => { if (!S.locked) nextQuestion(); });
+$('btnRight').addEventListener('click', () => { if (S.locked) return; answer(Array.from(optsEl.children).find(x => x.dataset.ok === '1'), true); });
+$('btnWrong').addEventListener('click', () => { if (S.locked) return; answer(Array.from(optsEl.children).find(x => x.dataset.ok === '0'), false); });
+$('btnReset').addEventListener('click', () => { S.pHp = S.pMax; S.eHp = S.eMax; S.combo = 0; comboEl.textContent = '0'; renderHp(); renderTop(); log('重置血量'); });
+
+renderHp(); renderTop(); renderNotes();
+setTimeout(nextQuestion, 300);
+const vp = document.querySelector('.viewport'), stage = $('stage');
+function fit() { const k = Math.min(vp.clientWidth / 1280, Math.max(.42, (window.innerHeight - 250) / 720)); stage.style.transform = 'scale(' + k + ')'; vp.style.height = (720 * k) + 'px'; }
+window.addEventListener('resize', fit);
+document.fonts && document.fonts.ready.then(fit);
+fit();
+</script>
+</body>
+</html>

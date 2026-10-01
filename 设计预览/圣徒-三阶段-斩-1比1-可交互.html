@@ -1,0 +1,220 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒 · 三阶段「斩」预览（1:1 · 可交互）</title>
+<style>
+/* ============================================================================
+   三阶段候选 · 「斩」（2026-09-21 用户点名试 ① ✓）
+   ★ 玩法：屏幕上方给出一个**英文词** ✓
+       下面竖着一排**词条**（像经卷 ✓）—— 其中有**它真正的生义** ✓ 也有**别的词的生义**（干扰 ✗）
+       ★ 你**按住鼠标划出一条轨迹** ✗✓ —— **划中几个就斩几个** ✓✓（不用一笔一笔点 ✓）
+       划中对的 → 那条**炸裂发光** ✓✓ 划中错的 → **误伤**，扣血 ✓
+       把它的生义**全部斩掉** → 过关 ✓✓ 白鸽从正中炸开 ✓
+   ★ 为什么它刺激 ✓：一笔横跨全屏 ✓✓ 划过即结算 ✓ 沿途炸裂 ✓✓ 划错当场掉血 ✓✓
+   ★ 素材全部现成 ✓：bg（众生行记 ✓）＋ glass（月行水上 ✓）＋ dove（众生行记 ✓）
+   ============================================================================ */
+:root{--ink:#12232e;--muted:#6f7f8a;--slate:#54686a;--red:#e2231a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;color:#fff;font-family:'HarmonyOS Sans SC','Microsoft YaHei',sans-serif;padding:18px 0 40px}
+.lab{width:1280px;margin:0 auto 8px;font-size:13px;line-height:20px}
+.lab b{font-size:16px}.lab i{font-style:normal;color:#a9c6d6}.lab u{text-decoration:none;color:#ffd9a0}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto;overflow:hidden;background:#eaf2f7;cursor:crosshair;user-select:none}
+.stage .bg{position:absolute;inset:0;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.stage .veil{position:absolute;inset:0;background:#fff;opacity:.52}
+.stage .grid{position:absolute;inset:0;opacity:.13;
+  background-image:linear-gradient(#54686a 1px,transparent 1px),linear-gradient(90deg,#54686a 1px,transparent 1px);background-size:40px 40px}
+canvas{position:absolute;inset:0}
+.prompt{position:absolute;left:0;top:78px;width:1280px;text-align:center;font-family:'Space Grotesk',monospace;
+        font-size:54px;font-weight:700;color:var(--ink)}
+.hint{position:absolute;left:0;top:146px;width:1280px;text-align:center;font-size:14px;color:var(--slate)}
+.scroll{position:absolute;width:150px;height:150px;background:rgba(255,255,255,.5);border:1px solid var(--slate);
+        display:flex;align-items:center;justify-content:center;padding:12px;text-align:center;
+        font-size:17px;color:var(--ink);line-height:24px}
+.scroll.cut{border-color:var(--red);background:rgba(226,35,26,.12);color:#8d1a14}
+.scroll.gone{opacity:0;transition:opacity .25s}
+.hud{position:absolute;left:24px;top:20px;font-size:13px;color:var(--slate);font-family:monospace}
+.hud2{position:absolute;right:24px;top:20px;font-size:13px;color:var(--slate);font-family:monospace}
+.win{position:absolute;left:0;top:300px;width:1280px;text-align:center;font-size:64px;font-weight:700;color:var(--slate);opacity:0;transition:opacity .3s}
+</style></head><body>
+
+<div class="lab"><b>三阶段 · 「斩」</b>　<i>按住鼠标划一条轨迹 ✓ 划中几个斩几个 ✓</i>
+　<u>提示里写的「它的 2 个意思」</u> ✓ 你要一笔（或几笔）把那些意思**全划掉** ✓　划到**别人的意思** → 误伤扣血 ✗</div>
+
+<div class="stage" id="stage">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <canvas id="cv" width="1280" height="720"></canvas>
+
+  <div class="hud" id="hud">斩中 0 / 2　　误伤 0</div>
+  <div class="hud2">按住左键划过去 ✓</div>
+  <div class="prompt" id="prompt">address</div>
+  <div class="hint">斩掉「address」的<b>所有生义</b>（共 2 个）　·　画面上有 9 个词条 ← 其余是别的词的</div>
+  <div class="win" id="win">全斩 ✓</div>
+  <!-- ★ 布局改成「三条带 ＋ 中间通道」（2026-09-21 用户指出：原来肩并肩铺满 ✗ 任何一笔都躲不开 ✓）
+       上带 150~300（干扰）／**中带 340~490（目标 2 个）**／下带 530~680（干扰）
+       词条高度 330 → **150** ✓ 三条带之间各留 40px 干净通道 ✓✓
+       → 一条穿过中带的横线正好斩中两个目标 ✓ 不碰任何干扰 ✓✓ ＝ 「一刀斩」的路 ✓
+       → 无脑横扫会碰到上下带 ✗ → 整刀作废 ✓✓（机制这才成立 ✓）-->
+  <div class="scroll" data-ok="0" style="left:120px;top:150px">讲演；演说</div>
+  <div class="scroll" data-ok="0" style="left:520px;top:160px">地址；住址</div>
+  <div class="scroll" data-ok="0" style="left:920px;top:150px">一套；适合</div>
+
+  <div class="scroll" data-ok="1" style="left:320px;top:340px">向……讲话</div>
+  <div class="scroll" data-ok="1" style="left:720px;top:346px">称呼；头衔</div>
+
+  <div class="scroll" data-ok="0" style="left:220px;top:530px">陪伴；同伴</div>
+  <div class="scroll" data-ok="0" style="left:620px;top:540px">持续的；最后的</div>
+  <div class="scroll" data-ok="0" style="left:1020px;top:530px">碎片；破片</div>
+</div>
+
+<script>
+/* 与游戏同款实现 ✓：轨迹 ＝ 一串点 ✓ 判定 ＝ 线段与矩形相交 ✓
+   斩中 → 现成的 glass 素材从词条上炸开 ✓✓ 全斩 → 白鸽从正中炸开 ✓✓ */
+(function () {
+  var stage = document.getElementById('stage'), cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  var hud = document.getElementById('hud'), winEl = document.getElementById('win');
+  var scrolls = Array.prototype.slice.call(stage.querySelectorAll('.scroll'));
+  var total = scrolls.filter(function (s) { return s.dataset.ok === '1'; }).length;
+  var hitOk = 0, hurt = 0, drawing = false, pts = [], fx = [], trail = [];
+  /* ★ 刀数统计 ＋ **本刀记账**（2026-09-21 用户两次指出后定稿 ✓）
+   *   问题 ✗：无惩罚 → 无脑横扫一刀就能全斩 ✗✓ 没有挑战 ✓
+   *   正解 ✓：**一刀作废** —— 这一刀只要碰过任何一个**错的** ✗ → 整刀作废 ✗✓
+   *           （本刀斩中的目标**全部复原** ✓ 不计数 ✗；只有**干净的一刀**才算 ✓✓）
+   *   → 无脑横扫 ＝ 一刀碰一堆错的 → 0 分 ✓✓✓
+   *   → 必须**先认出哪几个是对的** ✓ 再**规划一条只经过它们的路径** ✓✓
+   *   ★ 于是"1 刀斩完全部"变成了真正的高手动作 ✓✓✓ */
+  var strokeNo = 0, strokeHits = 0;
+  var strokeCuts = [], strokeDirty = false;
+
+  var IMG = {};
+  ['../素材/月行水上/glass_1.png', '../素材/月行水上/glass_3.png', '../素材/月行水上/glass_5.png', '../素材/月行水上/glass_7.png',
+   '../素材/众生行记/bird_left1.png', '../素材/众生行记/bird_right.png'].forEach(function (u) {
+    var im = new Image(); im.src = u; IMG[u] = im;
+  });
+
+  function rect(el) {
+    var r = el.getBoundingClientRect(), s = stage.getBoundingClientRect();
+    return { x: r.left - s.left, y: r.top - s.top, w: r.width, h: r.height, cx: r.left - s.left + r.width / 2, cy: r.top - s.top + r.height / 2 };
+  }
+  /* 线段与矩形相交（采样法 ✓ 够用 ✓）*/
+  function segHitsRect(x1, y1, x2, y2, r) {
+    for (var i = 0; i <= 10; i++) {
+      var t = i / 10, px = x1 + (x2 - x1) * t, py = y1 + (y2 - y1) * t;
+      if (px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h) return true;
+    }
+    return false;
+  }
+  function pos(e) { var s = stage.getBoundingClientRect(); return { x: e.clientX - s.left, y: e.clientY - s.top }; }
+
+  stage.addEventListener('mousedown', function (e) {
+    if (e.button !== 0) return;
+    drawing = true; pts = [pos(e)];
+    strokeNo++; strokeHits = 0;                    // ★ 新的一刀开始 ✓ 本刀斩中数清零 ✓✓
+    hud.textContent = '本刀斩中 0　　总计 ' + hitOk + ' / ' + total + '　　已用 ' + strokeNo + ' 刀';
+    e.preventDefault();
+  });
+  stage.addEventListener('mousemove', function (e) {
+    if (!drawing) return;
+    var p = pos(e), last = pts[pts.length - 1];
+    if (Math.hypot(p.x - last.x, p.y - last.y) < 7) return;
+    pts.push(p);
+    /* 边划边判定 ✓✓ —— 划到就当场结算 ✓（这就是"划过即斩"的手感 ✓）*/
+    scrolls.forEach(function (el) {
+      if (el.dataset.ok === 'gone') return;
+      if (segHitsRect(last.x, last.y, p.x, p.y, rect(el))) slash(el);
+    });
+  });
+  /* ★ 松手 → 走 endStroke() 结算 ✓✓（干净才落地 ✓ 脏了整刀复原 ✓）*/
+  document.addEventListener('mouseup', function () { endStroke(); });
+
+  function slash(el) {
+    var r = rect(el), ok = el.dataset.ok === '1';
+    el.dataset.ok = 'gone';
+    if (!ok) {
+      /* ★ 碰到**错的** → 只标记"这一刀脏了" ✗ 不扣血 ✓ 但整刀会作废 ✓✓ */
+      strokeDirty = true;
+      el.classList.add('cut');
+      setTimeout(function () { el.classList.remove('cut'); }, 260);
+      fx.push({ img: '../素材/月行水上/glass_5.png', x: r.cx, y: r.cy, vx: 0, vy: -60, rot: 0, life: .5, size: 40 });
+      return;
+    }
+    /* ★ 目标是"待定"状态 ✓ 松手时才决定算不算 ✓✓（干净才落地 ✓）*/
+    el.classList.add('gone');
+    strokeCuts.push({ el: el, r: r });
+    strokeHits++;
+    hud.textContent = '本刀斩中 ' + strokeHits + '　　' + (strokeDirty ? '✗ 这一刀脏了' : '✓ 干净') +
+                      '　　总计 ' + hitOk + ' / ' + total + '　　已用 ' + strokeNo + ' 刀';
+    var keys = ['../素材/月行水上/glass_1.png', '../素材/月行水上/glass_3.png', '../素材/月行水上/glass_5.png', '../素材/月行水上/glass_7.png'];
+    for (var i = 0; i < 5; i++) {
+      var d = (i - 2) * .7;
+      fx.push({ img: keys[i % 4], x: r.cx, y: r.cy, vx: Math.cos(d) * 300, vy: Math.sin(d) * 300 - 60, rot: 0, life: 1, size: 54 });
+    }
+  }
+  /* ★ 松手结算（2026-09-21 ✓）：干净 → 落地计数 ✓；脏了 → **整刀复原** ✗✓ */
+  function endStroke() {
+    if (!drawing) return;
+    drawing = false;
+    trail.push({ pts: pts.slice(), t: 1 });
+    pts = [];
+    if (strokeDirty) {
+      strokeCuts.forEach(function (c) {
+        c.el.classList.remove('gone');
+        c.el.dataset.ok = '1';
+        c.el.classList.add('cut');
+        setTimeout(function () { c.el.classList.remove('cut'); }, 420);
+      });
+      hud.textContent = '✗ 这一刀不干净（碰到了别的词）→ **本刀作废**　　总计 ' + hitOk + ' / ' + total + '　　已用 ' + strokeNo + ' 刀';
+    } else if (strokeCuts.length) {
+      strokeCuts.forEach(function (c) { c.el.dataset.ok = 'gone'; });
+      hitOk += strokeCuts.length;
+      hud.textContent = strokeCuts.length + ' 刀斩中 ' + strokeCuts.length + ' 个 ✓　　总计 ' + hitOk + ' / ' + total + '　　已用 ' + strokeNo + ' 刀';
+      if (hitOk >= total) {
+        winEl.textContent = (strokeNo <= 1) ? '一刀斩 ✓✓' : ('全斩 ✓　用了 ' + strokeNo + ' 刀');
+        winEl.style.opacity = 1;
+        for (var k = 0; k < 12; k++) {
+          var a = (k / 12) * Math.PI * 2;
+          fx.push({ img: (Math.cos(a) >= 0 ? '../素材/众生行记/bird_right.png' : '../素材/众生行记/bird_left1.png'),
+                    x: 640, y: 360, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, rot: 0, life: 1, size: 48 });
+        }
+      }
+    }
+    strokeCuts = []; strokeDirty = false; strokeHits = 0;
+  }
+
+  var lastT = performance.now();
+  function draw(now) {
+    var dt = Math.min((now - lastT) / 1000, .05); lastT = now;
+    ctx.clearRect(0, 0, 1280, 720);
+    /* 轨迹（白亮 ✓ 慢慢淡出 ✓ 像真的斩痕 ✓）*/
+    trail.forEach(function (tr) {
+      tr.t -= dt * 1.6;
+      if (tr.t <= 0) return;
+      ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 10 * tr.t + 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.globalAlpha = Math.max(0, tr.t); ctx.beginPath();
+      tr.pts.forEach(function (p, i) { i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); });
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(84,104,106,.85)'; ctx.lineWidth = 2;
+      ctx.beginPath(); tr.pts.forEach(function (p, i) { i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); }); ctx.stroke();
+      ctx.globalAlpha = 1;
+    });
+    trail = trail.filter(function (t) { return t.t > 0; });
+    /* 正在划的那一笔 ✓ */
+    if (drawing && pts.length > 1) {
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 12; ctx.globalAlpha = .95; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.beginPath(); pts.forEach(function (p, i) { i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); }); ctx.stroke();
+      ctx.strokeStyle = '#54686a'; ctx.lineWidth = 2;
+      ctx.beginPath(); pts.forEach(function (p, i) { i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); }); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    /* 碎片 / 白鸽 */
+    fx.forEach(function (f) {
+      f.life -= dt * 1.3; f.x += f.vx * dt; f.y += f.vy * dt; f.vy += 260 * dt; f.rot += dt * 5;
+      if (f.life <= 0) return;
+      var im = IMG[f.img];
+      if (!im || !im.complete) return;
+      ctx.save(); ctx.globalAlpha = Math.max(0, f.life); ctx.translate(f.x, f.y); ctx.rotate(f.rot);
+      ctx.drawImage(im, -f.size / 2, -f.size / 2, f.size, f.size); ctx.restore();
+    });
+    fx = fx.filter(function (f) { return f.life > 0 && f.y < 860; });
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+</body></html>

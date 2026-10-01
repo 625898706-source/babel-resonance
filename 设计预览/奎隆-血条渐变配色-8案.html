@@ -1,0 +1,185 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8">
+<title>奎隆血条 · 渐变配色 · 8 案</title>
+<style>
+  html,body{margin:0;background:#08080b;font-family:"HarmonyOS Sans SC","Microsoft YaHei",sans-serif;color:#c8c8d2}
+  #root{width:1280px;padding:26px 34px 40px;box-sizing:border-box}
+  h1{font-size:19px;font-weight:500;letter-spacing:.24em;color:#c8a24a;margin:0 0 6px}
+  .sub{font-size:12px;color:#5f5f6c;letter-spacing:.1em;margin-bottom:4px}
+  .sub2{font-size:11px;color:#4a4a56;letter-spacing:.06em;margin-bottom:20px;line-height:1.7}
+  .case{display:flex;gap:28px;padding:18px 0;border-top:1px solid #17171e}
+  .head{width:392px;flex:0 0 auto;padding-top:3px}
+  .no{font:12px monospace;color:#c8a24a;letter-spacing:.16em}
+  .cname{font-size:16px;color:#efe7d8;margin:5px 0 7px;letter-spacing:.08em}
+  .desc{font-size:12px;line-height:1.7;color:#7c7c8a}
+  .desc b{color:#c8c8d2;font-weight:500}
+  .stops{font:10px monospace;color:#4f4f5c;margin-top:8px;letter-spacing:.02em}
+  .mock{flex:1 1 auto;padding-top:2px}
+  .rulerlabel{font-size:10px;color:#5f5f6c;letter-spacing:.14em;margin:0 0 5px}
+  .rulerlabel + .ladder{margin-bottom:13px}
+  .ladder{width:272px;display:flex;flex-direction:column;gap:3px}
+  .full,.inner{height:16px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+  .cut{position:relative;height:16px}
+  .inner{width:272px}
+  .cut .inner{position:absolute;left:0;top:0}
+  .foot{margin-top:26px;font-size:11px;color:#4f4f5c;line-height:1.95;border-top:1px solid #17171e;padding-top:14px}
+  .foot code{color:#8a8a98;background:#12121a;padding:1px 5px}
+</style></head><body>
+<div id="root">
+  <h1>奎 隆 血 条 · 渐 变 配 色 · 八 案</h1>
+  <div class="sub">1280×720 真实几何 · 条宽 272px · 条高 16px · 不跨阶段变色</div>
+  <div class="sub2">
+    机制＝现有的倒计时条渐变做法：<b>68 段 Graphics 画满整条 ＋ GeometryMask 裁出"剩余量"</b><br>
+    → 渐变<b>不缩放</b>，血少时只从右往左裁掉；左端深色恒在（缩放会把渐变压扁，血越少颜色越挤 ✗）
+  </div>
+  
+  <div class="case">
+    <div class="head">
+      <div class="no">案 1</div>
+      <div class="cname">凝 血</div>
+      <div class="desc">最正统的萨卡兹血。左端几乎黑、右端朱红，满血那截最亮。</div>
+      <div class="stops">#3c0c24 → #6c2424 → #b43c3c → #cc543c</div>
+    </div>
+    <div class="mock">
+      <div class="rulerlabel">满条（100%）</div>
+      <div class="ladder">
+        <div class="full" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 34.0%, #b43c3c 68.0%, #cc543c 100.0%)"></div>
+      </div>
+      <div class="rulerlabel">不同血量（渐变**不缩放**，从右往左裁）</div>
+      <div class="ladder">
+        <div class="cut" style="width:100%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 34.0%, #b43c3c 68.0%, #cc543c 100.0%)"></div></div><div class="cut" style="width:75%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 34.0%, #b43c3c 68.0%, #cc543c 100.0%)"></div></div><div class="cut" style="width:50%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 34.0%, #b43c3c 68.0%, #cc543c 100.0%)"></div></div><div class="cut" style="width:25%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 34.0%, #b43c3c 68.0%, #cc543c 100.0%)"></div></div><div class="cut" style="width:8%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 34.0%, #b43c3c 68.0%, #cc543c 100.0%)"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="case">
+    <div class="head">
+      <div class="no">案 2</div>
+      <div class="cname">血 与 骨</div>
+      <div class="desc">末端收在**骨白**——满血时像刀刃反光。萨卡兹的红白对比最正。</div>
+      <div class="stops">#3c0c24 → #6c2424 → #cc543c → #f8f8f8</div>
+    </div>
+    <div class="mock">
+      <div class="rulerlabel">满条（100%）</div>
+      <div class="ladder">
+        <div class="full" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 40.0%, #cc543c 78.0%, #f8f8f8 100.0%)"></div>
+      </div>
+      <div class="rulerlabel">不同血量（渐变**不缩放**，从右往左裁）</div>
+      <div class="ladder">
+        <div class="cut" style="width:100%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 40.0%, #cc543c 78.0%, #f8f8f8 100.0%)"></div></div><div class="cut" style="width:75%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 40.0%, #cc543c 78.0%, #f8f8f8 100.0%)"></div></div><div class="cut" style="width:50%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 40.0%, #cc543c 78.0%, #f8f8f8 100.0%)"></div></div><div class="cut" style="width:25%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 40.0%, #cc543c 78.0%, #f8f8f8 100.0%)"></div></div><div class="cut" style="width:8%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 40.0%, #cc543c 78.0%, #f8f8f8 100.0%)"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="case">
+    <div class="head">
+      <div class="no">案 3</div>
+      <div class="cname">锈 与 血</div>
+      <div class="desc">红转到**暗铜**。血条像一根锈掉的铜条，与皮肤的青铜线同族。</div>
+      <div class="stops">#6c2424 → #c01d22 → #cc543c → #b4b49c</div>
+    </div>
+    <div class="mock">
+      <div class="rulerlabel">满条（100%）</div>
+      <div class="ladder">
+        <div class="full" style="background:linear-gradient(90deg,#6c2424 0.0%, #c01d22 42.0%, #cc543c 76.0%, #b4b49c 100.0%)"></div>
+      </div>
+      <div class="rulerlabel">不同血量（渐变**不缩放**，从右往左裁）</div>
+      <div class="ladder">
+        <div class="cut" style="width:100%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #c01d22 42.0%, #cc543c 76.0%, #b4b49c 100.0%)"></div></div><div class="cut" style="width:75%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #c01d22 42.0%, #cc543c 76.0%, #b4b49c 100.0%)"></div></div><div class="cut" style="width:50%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #c01d22 42.0%, #cc543c 76.0%, #b4b49c 100.0%)"></div></div><div class="cut" style="width:25%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #c01d22 42.0%, #cc543c 76.0%, #b4b49c 100.0%)"></div></div><div class="cut" style="width:8%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #c01d22 42.0%, #cc543c 76.0%, #b4b49c 100.0%)"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="case">
+    <div class="head">
+      <div class="no">案 4</div>
+      <div class="cname">焚 余</div>
+      <div class="desc">从黑血烧到阶段橙再收到铜。**最"火"**——与一阶段的尼卢火呼应。</div>
+      <div class="stops">#3c0c24 → #6c2424 → #ff4f08 → #cc543c → #9c846c</div>
+    </div>
+    <div class="mock">
+      <div class="rulerlabel">满条（100%）</div>
+      <div class="ladder">
+        <div class="full" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 30.0%, #ff4f08 62.0%, #cc543c 86.0%, #9c846c 100.0%)"></div>
+      </div>
+      <div class="rulerlabel">不同血量（渐变**不缩放**，从右往左裁）</div>
+      <div class="ladder">
+        <div class="cut" style="width:100%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 30.0%, #ff4f08 62.0%, #cc543c 86.0%, #9c846c 100.0%)"></div></div><div class="cut" style="width:75%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 30.0%, #ff4f08 62.0%, #cc543c 86.0%, #9c846c 100.0%)"></div></div><div class="cut" style="width:50%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 30.0%, #ff4f08 62.0%, #cc543c 86.0%, #9c846c 100.0%)"></div></div><div class="cut" style="width:25%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 30.0%, #ff4f08 62.0%, #cc543c 86.0%, #9c846c 100.0%)"></div></div><div class="cut" style="width:8%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #6c2424 30.0%, #ff4f08 62.0%, #cc543c 86.0%, #9c846c 100.0%)"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="case">
+    <div class="head">
+      <div class="no">案 5</div>
+      <div class="cname">朱 与 铜（最贴现有皮肤）</div>
+      <div class="desc">从酒红到古铜金。**改动风险最小**——与现在皮肤的青铜线/褪色金同色系。</div>
+      <div class="stops">#6c2424 → #cc543c → #9c846c → #b4b49c</div>
+    </div>
+    <div class="mock">
+      <div class="rulerlabel">满条（100%）</div>
+      <div class="ladder">
+        <div class="full" style="background:linear-gradient(90deg,#6c2424 0.0%, #cc543c 36.0%, #9c846c 72.0%, #b4b49c 100.0%)"></div>
+      </div>
+      <div class="rulerlabel">不同血量（渐变**不缩放**，从右往左裁）</div>
+      <div class="ladder">
+        <div class="cut" style="width:100%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #cc543c 36.0%, #9c846c 72.0%, #b4b49c 100.0%)"></div></div><div class="cut" style="width:75%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #cc543c 36.0%, #9c846c 72.0%, #b4b49c 100.0%)"></div></div><div class="cut" style="width:50%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #cc543c 36.0%, #9c846c 72.0%, #b4b49c 100.0%)"></div></div><div class="cut" style="width:25%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #cc543c 36.0%, #9c846c 72.0%, #b4b49c 100.0%)"></div></div><div class="cut" style="width:8%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #cc543c 36.0%, #9c846c 72.0%, #b4b49c 100.0%)"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="case">
+    <div class="head">
+      <div class="no">案 6</div>
+      <div class="cname">紫 血</div>
+      <div class="desc">多一段紫。最阴、最不像常规 BOSS 条。</div>
+      <div class="stops">#3c0c24 → #5a1030 → #b43c3c → #cc543c</div>
+    </div>
+    <div class="mock">
+      <div class="rulerlabel">满条（100%）</div>
+      <div class="ladder">
+        <div class="full" style="background:linear-gradient(90deg,#3c0c24 0.0%, #5a1030 46.0%, #b43c3c 80.0%, #cc543c 100.0%)"></div>
+      </div>
+      <div class="rulerlabel">不同血量（渐变**不缩放**，从右往左裁）</div>
+      <div class="ladder">
+        <div class="cut" style="width:100%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #5a1030 46.0%, #b43c3c 80.0%, #cc543c 100.0%)"></div></div><div class="cut" style="width:75%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #5a1030 46.0%, #b43c3c 80.0%, #cc543c 100.0%)"></div></div><div class="cut" style="width:50%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #5a1030 46.0%, #b43c3c 80.0%, #cc543c 100.0%)"></div></div><div class="cut" style="width:25%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #5a1030 46.0%, #b43c3c 80.0%, #cc543c 100.0%)"></div></div><div class="cut" style="width:8%"><div class="inner" style="background:linear-gradient(90deg,#3c0c24 0.0%, #5a1030 46.0%, #b43c3c 80.0%, #cc543c 100.0%)"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="case">
+    <div class="head">
+      <div class="no">案 7</div>
+      <div class="cname">残 响（冷银收尾）</div>
+      <div class="desc">末端冷银。与皮肤的 `silverN` 描边同色，整条像"未完成的仪式"。</div>
+      <div class="stops">#6c2424 → #c01d22 → #cc543c → #b8b8c8</div>
+    </div>
+    <div class="mock">
+      <div class="rulerlabel">满条（100%）</div>
+      <div class="ladder">
+        <div class="full" style="background:linear-gradient(90deg,#6c2424 0.0%, #c01d22 44.0%, #cc543c 78.0%, #b8b8c8 100.0%)"></div>
+      </div>
+      <div class="rulerlabel">不同血量（渐变**不缩放**，从右往左裁）</div>
+      <div class="ladder">
+        <div class="cut" style="width:100%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #c01d22 44.0%, #cc543c 78.0%, #b8b8c8 100.0%)"></div></div><div class="cut" style="width:75%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #c01d22 44.0%, #cc543c 78.0%, #b8b8c8 100.0%)"></div></div><div class="cut" style="width:50%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #c01d22 44.0%, #cc543c 78.0%, #b8b8c8 100.0%)"></div></div><div class="cut" style="width:25%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #c01d22 44.0%, #cc543c 78.0%, #b8b8c8 100.0%)"></div></div><div class="cut" style="width:8%"><div class="inner" style="background:linear-gradient(90deg,#6c2424 0.0%, #c01d22 44.0%, #cc543c 78.0%, #b8b8c8 100.0%)"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="case">
+    <div class="head">
+      <div class="no">案 8</div>
+      <div class="cname">灰 烬</div>
+      <div class="desc">从冷灰蓝烧起来。**最"低饱和"**——不抢画面，但萨卡兹味仍在。</div>
+      <div class="stops">#181828 → #3c0c24 → #6c2424 → #b43c3c → #cc543c</div>
+    </div>
+    <div class="mock">
+      <div class="rulerlabel">满条（100%）</div>
+      <div class="ladder">
+        <div class="full" style="background:linear-gradient(90deg,#181828 0.0%, #3c0c24 30.0%, #6c2424 62.0%, #b43c3c 86.0%, #cc543c 100.0%)"></div>
+      </div>
+      <div class="rulerlabel">不同血量（渐变**不缩放**，从右往左裁）</div>
+      <div class="ladder">
+        <div class="cut" style="width:100%"><div class="inner" style="background:linear-gradient(90deg,#181828 0.0%, #3c0c24 30.0%, #6c2424 62.0%, #b43c3c 86.0%, #cc543c 100.0%)"></div></div><div class="cut" style="width:75%"><div class="inner" style="background:linear-gradient(90deg,#181828 0.0%, #3c0c24 30.0%, #6c2424 62.0%, #b43c3c 86.0%, #cc543c 100.0%)"></div></div><div class="cut" style="width:50%"><div class="inner" style="background:linear-gradient(90deg,#181828 0.0%, #3c0c24 30.0%, #6c2424 62.0%, #b43c3c 86.0%, #cc543c 100.0%)"></div></div><div class="cut" style="width:25%"><div class="inner" style="background:linear-gradient(90deg,#181828 0.0%, #3c0c24 30.0%, #6c2424 62.0%, #b43c3c 86.0%, #cc543c 100.0%)"></div></div><div class="cut" style="width:8%"><div class="inner" style="background:linear-gradient(90deg,#181828 0.0%, #3c0c24 30.0%, #6c2424 62.0%, #b43c3c 86.0%, #cc543c 100.0%)"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    ★ 色值全部取自项目现有色板：<code>plumN</code> <code>wineN</code> <code>crimsonN</code> <code>uiRedN</code>
+      <code>vermN</code> <code>stageN</code> <code>bronzeN</code> <code>bronzeHi</code> <code>ivoryN</code>
+      <code>silverN</code> <code>deepBlue2</code>，没有新编颜色 ✓<br>
+    ★ 下面的"不同血量"一排是<b>同一张渐变</b>被裁到 100/75/50/25/8% —— 看的就是它在低血量时还认不认得出 ✓
+  </div>
+</div></body></html>

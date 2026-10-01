@@ -1,0 +1,432 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>亚当重锤 · 弹幕识别（战斗界面预览）</title>
+<style>
+/* ============================================================================
+   亚当重锤 · 二阶段机制：**弹幕识别**（放在真实战斗界面里看）
+   ----------------------------------------------------------------------------
+   玩法：亚当重锤从右侧依次"发射"若干词条飞向左侧的逻各斯；
+        其中**只有一个是真词**，其余是形近假词（字母打乱 / 换一个字母）。
+        · 点中**真词** → HIT：敌人 −1 血，本次弹幕清空，开始下一击
+        · 点错 / 不点 → 词条继续飞；**任意一个词碰到逻各斯**（真假都算）→ 你 −1 血，开始下一击
+   视觉与 素材/sandevistan-text.html 同源：残影（HSL 色带 + falloff）、色散双绘、爆冲脉冲、抽帧、地平线网格
+   ========================================================================== */
+@font-face{font-family:'Orbitron';src:url('../assets/fonts/Orbitron-700-900.woff2')format('woff2');font-weight:700 900}
+@font-face{font-family:'Rajdhani';src:url('../assets/fonts/Rajdhani-500.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'Rajdhani';src:url('../assets/fonts/Rajdhani-600.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Smiley Sans';src:url('../assets/fonts/SmileySans-Oblique.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111}
+.desk{min-height:100vh;padding:14px 14px 60px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.head{width:100%;max-width:1340px}
+.head h1{font-size:17px;font-weight:900;margin-bottom:3px}
+.head p{font-size:12.5px;color:#6f6f6f;line-height:1.7}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.tabs button{font-family:'HOS';font-weight:700;font-size:13px;padding:7px 14px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#04121a;color:#7df9ff;border-color:#0d3b46}
+.wrap{width:100%;max-width:1340px;display:flex;gap:12px;align-items:flex-start}
+.stageBox{position:relative;flex:1 1 auto}
+canvas#stage{width:1280px;height:720px;display:block;background:#04070c;transform-origin:top left}
+.panel{flex:0 0 292px;background:#fff;border:1px solid #e2e0dc;border-radius:6px;padding:12px 14px;font-size:12px}
+.panel h3{font-size:12px;letter-spacing:.14em;color:#9aa1a8;font-weight:700;margin:10px 0 6px;border-top:1px solid #eee;padding-top:9px}
+.panel h3:first-child{margin-top:0;border-top:none;padding-top:0}
+.row{display:grid;grid-template-columns:1fr auto;gap:4px 8px;align-items:center;margin-bottom:7px}
+.row label{color:#3b4148}.row b{color:#0b6f86;font-variant-numeric:tabular-nums}
+input[type=range]{grid-column:1/-1;width:100%;height:16px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:linear-gradient(90deg,#7df9ff55,#ff2bd655)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;margin-top:-5px;border-radius:50%;background:#fff;border:2px solid #0b6f86}
+.btns{display:flex;gap:6px;margin:8px 0 4px}
+.btns button{flex:1;padding:7px 0;border-radius:6px;border:1px solid #c9c6bd;background:#fff;cursor:pointer;font-family:'HOS';font-size:12px}
+.btns button:hover{border-color:#0b6f86;color:#0b6f86}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:6px;padding:12px 14px;font-size:12.5px;line-height:1.8}
+.notes b{font-weight:700}.notes code{font-family:Consolas,monospace;font-size:12px;background:#f5f4f1;padding:1px 4px;border-radius:2px}
+</style>
+</head>
+<body>
+<div class="desk">
+  <div class="head">
+    <h1>亚当重锤 · 弹幕识别（战斗界面）</h1>
+    <p>词条从<b>重锤</b>飞向<b>逻各斯</b>；<b>点中真词 = 命中</b>，<b>任意词碰到逻各斯（真假都算）= 你掉 1 血</b>，两种情况都会开始下一击。右边滑杆和 sandevistan 预览同源。</p>
+    <div class="tabs">
+      <button id="restart">↻ 重开（R）</button>
+      <button id="burst">▶ 强制爆冲（B）</button>
+      <button id="pause">⏸ 暂停（空格）</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="stageBox"><canvas id="stage" width="1280" height="720"></canvas></div>
+    <div class="panel">
+      <h3>弹 幕</h3>
+      <div class="row"><label>飞行速度</label><b id="v-speed">150 px/s</b><input id="speed" type="range" min="50" max="420" step="10" value="150"></div>
+      <div class="row"><label>每击词数</label><b id="v-count">3</b><input id="count" type="range" min="2" max="5" step="1" value="3"></div>
+      <div class="row"><label>发射间隔</label><b id="v-stag">260 ms</b><input id="stag" type="range" min="0" max="800" step="20" value="260"></div>
+      <div class="row"><label>假词类型</label><b id="v-fake">混合</b><input id="fake" type="range" min="0" max="2" step="1" value="2"></div>
+
+      <h3>字 形</h3>
+      <div class="row"><label>字号</label><b id="v-size">44 px</b><input id="size" type="range" min="28" max="78" step="2" value="44"></div>
+
+      <h3>残 影</h3>
+      <div class="row"><label>层数</label><b id="v-layers">22</b><input id="layers" type="range" min="1" max="44" step="1" value="22"></div>
+      <div class="row"><label>间隔</label><b id="v-gap">22 px</b><input id="gap" type="range" min="2" max="90" step="1" value="22"></div>
+      <div class="row"><label>衰减</label><b id="v-fall">0.90</b><input id="fall" type="range" min="50" max="97" step="1" value="90"></div>
+      <div class="row"><label>色散</label><b id="v-ab">6</b><input id="ab" type="range" min="0" max="20" step="1" value="6"></div>
+
+      <h3>斯 安 威 斯 坦</h3>
+      <div class="row"><label>爆冲强度</label><b id="v-boost">2.6×</b><input id="boost" type="range" min="0" max="450" step="10" value="260"></div>
+      <div class="row"><label>抽帧</label><b id="v-fps">关</b><input id="fps" type="range" min="0" max="30" step="2" value="0"></div>
+
+      <h3>颜 色</h3>
+      <div class="row"><label>色A（头）</label><b></b><input id="colA" type="color" value="#7fc8f0"></div>
+      <div class="row"><label>色B（尾）</label><b></b><input id="colB" type="color" value="#7ff2e0"></div>
+
+      <div class="btns"><button id="again">再发一击</button></div>
+    </div>
+  </div>
+  <div class="notes" id="notes"></div>
+</div>
+
+<script src="../src/data/gaokaoWords.js"></script>
+<script>
+(function () {
+  'use strict';
+  const B = window.Babel;
+  const BANK = (B && B.GAOKAO_WORDS) ? B.GAOKAO_WORDS.filter(w => /^[a-zA-Z]{4,10}$/.test(w[0])) : [['become','变成'],['window','窗户'],['picture','图片']];
+  const REAL = new Set(BANK.map(w => String(w[0]).toLowerCase()));
+
+  const P = { speed:150, count:3, stag:260, fakeType:2, size:44, layers:22, gap:22, fall:0.90, ab:6,
+              boost:2.6, fps:0, colA:'#7fc8f0', colB:'#7ff2e0' };
+  const cvs = document.getElementById('stage'), ctx = cvs.getContext('2d', { alpha:false });
+  const W = cvs.width, H = cvs.height;
+
+  /* ---- 战斗界面几何（与游戏一致） ---- */
+  const LV = { hudH:52, plateTop:160, plateW:272, plateH:264, leftX:14, rightX:994, footY:656 };
+  const FIELD = { x0: 322, x1: 962, lanes: [212, 300, 388] };   // 词条从重锤(右)飞向逻各斯(左)
+  const PLAYER_HP_MAX = 10, ENEMY_HP_MAX = 40;
+
+  /* ---- 颜色（HSL 插值，与参考文件同源） ---- */
+  const hex2rgb = h => { h=h.replace('#',''); if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2]; const n=parseInt(h,16); return [(n>>16)&255,(n>>8)&255,n&255]; };
+  const rgb2hsl = (r,g,b) => { r/=255;g/=255;b/=255; const mx=Math.max(r,g,b),mn=Math.min(r,g,b); let h=0,s=0; const l=(mx+mn)/2,d=mx-mn;
+    if(d!==0){ s=l>0.5?d/(2-mx-mn):d/(mx+mn); if(mx===r)h=(g-b)/d+(g<b?6:0); else if(mx===g)h=(b-r)/d+2; else h=(r-g)/d+4; h/=6; } return [h,s,l]; };
+  const hsl2rgb = (h,s,l) => { h=((h%1)+1)%1; if(s===0){const v=l*255;return [v,v,v];}
+    const f=(p,q,t)=>{ if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; };
+    const q=l<0.5?l*(1+s):l+s-l*s, p=2*l-q; return [f(p,q,h+1/3)*255,f(p,q,h)*255,f(p,q,h-1/3)*255]; };
+  let hslA = rgb2hsl(127,200,240), hslB = rgb2hsl(127,242,224);
+  const syncColors = () => { const a=hex2rgb(P.colA), b=hex2rgb(P.colB); hslA=rgb2hsl(a[0],a[1],a[2]); hslB=rgb2hsl(b[0],b[1],b[2]); };
+  function grad(t, alpha){
+    let dh=hslB[0]-hslA[0]; if(dh>0.5)dh-=1; if(dh<-0.5)dh+=1;
+    const c = hsl2rgb(hslA[0]+dh*t, hslA[1]+(hslB[1]-hslA[1])*t, hslA[2]+(hslB[2]-hslA[2])*t);
+    return 'rgba('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+','+(alpha===undefined?1:alpha)+')';
+  }
+
+  /* ---- 字体 ---- */
+  const fontStr = () => '900 ' + P.size + 'px "Smiley Sans","PingFang SC","Microsoft YaHei",Impact,sans-serif';
+  const CN = (px, w) => w + ' ' + px + 'px "Smiley Sans","HarmonyOS Sans SC",sans-serif';
+  const NUM = (px, w) => w + ' ' + px + 'px Orbitron, "Space Grotesk", monospace';
+  function textW(t, font){ ctx.save(); ctx.font = font; const w = ctx.measureText(t).width; ctx.restore(); return w; }
+  function drawStr(t, x, y, font, color, alpha, glow, align){
+    ctx.save(); ctx.globalAlpha = alpha == null ? 1 : alpha; ctx.font = font;
+    ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = color; if (glow){ ctx.shadowColor = color; ctx.shadowBlur = 14; }
+    ctx.fillText(t, x, y); ctx.restore();
+  }
+
+  /* ---- 状态 ---- */
+  let playerHP = PLAYER_HP_MAX, enemyHP = ENEMY_HP_MAX, wave = 0, hits = 0, hurts = 0;
+  let words = [], nextShotAt = 0.4, queued = [], done = true, flash = 0, flashOk = true, toast = null, shake = 0;
+  let clock = 0, forced = 0, paused = false;
+
+  function newShot(){
+    const pick = BANK[(Math.random()*BANK.length)|0];
+    const real = String(pick[0]).toUpperCase();
+    const n = P.count;
+    const realIdx = (Math.random()*n)|0;
+    const lanes = FIELD.lanes.slice();
+    for (let i=lanes.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; const t=lanes[i];lanes[i]=lanes[j];lanes[j]=t; }
+    queued = [];
+    for (let i=0;i<n;i++){
+      const text = (i===realIdx) ? real : fakeWord(real);
+      queued.push({ text, real: i===realIdx, lane: lanes[i % lanes.length], delay: i*P.stag/1000 });
+    }
+    wave++;
+    log('第 ' + wave + ' 击：真词「' + real + '」（' + pick[1] + '）· 共 ' + n + ' 个');
+    done = false;
+  }
+  const scramble = w => { const a=w.split(''); for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;const t=a[i];a[i]=a[j];a[j]=t;} return a.join(''); };
+  function fakeWord(real){
+    const mode = P.fakeType;   // 0=整词打乱 1=换一个字母 2=混合
+    const kind = mode === 2 ? (Math.random()<0.5?0:1) : mode;
+    if (kind === 0){
+      for (let t=0;t<40;t++){ const s = scramble(real); if (!REAL.has(s.toLowerCase()) && s.toLowerCase() !== real.toLowerCase()) return s; }
+    }
+    // 换一个字母（形近）→ 最像真词、最难认
+    for (let t=0;t<40;t++){
+      const i = 1 + ((Math.random()*(real.length-2))|0);
+      const c = String.fromCharCode(97 + ((Math.random()*26)|0));
+      const s = (real.slice(0,i) + c + real.slice(i+1));
+      if (!REAL.has(s.toLowerCase()) && s !== real) return s;
+    }
+    return scramble(real);
+  }
+
+  /* ---- 爆冲 ---- */
+  const boostAmt = () => { const l = clock % 6.0; const base = l > 1.25 ? 0 : Math.pow(Math.sin(Math.PI*(l/1.25)), 0.75); return forced>0 ? Math.max(base, forced) : base; };
+
+  /* ---- 背景（地平线网格 + 粒子 + 扫描线） ---- */
+  let scan = null;
+  (function(){ const p=document.createElement('canvas');p.width=1;p.height=4;const g=p.getContext('2d');
+    g.fillStyle='rgba(0,0,0,0.5)';g.fillRect(0,0,1,1); g.fillStyle='rgba(130,220,255,0.05)';g.fillRect(0,2,1,1);
+    scan = ctx.createPattern(p,'repeat'); })();
+  const parts = []; for (let i=0;i<60;i++) parts.push({x:Math.random(),y:Math.random(),r:Math.random()*1.3+0.3,v:Math.random()*0.05+0.01,o:Math.random()*0.4+0.1,b:Math.random()});
+  function drawBg(dt, b){
+    const bg = ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'#04060e'); bg.addColorStop(0.5,b>0.02?'#0a1326':'#080e1c'); bg.addColorStop(1,'#03050c');
+    ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+    ctx.save(); ctx.globalCompositeOperation='lighter';
+    const vpX = W*0.5, vpY = H*0.62;
+    const hz = ctx.createLinearGradient(0,vpY-50,0,vpY+50);
+    hz.addColorStop(0,'rgba(125,249,255,0)'); hz.addColorStop(0.5,'rgba(125,249,255,'+(0.10+b*0.28)+')');
+    hz.addColorStop(0.53,'rgba(255,43,214,'+(0.07+b*0.2)+')'); hz.addColorStop(1,'rgba(255,43,214,0)');
+    ctx.fillStyle = hz; ctx.fillRect(0,vpY-50,W,100);
+    ctx.lineWidth = 1;
+    for (let i=0;i<=12;i++){ const f=i/12; const y=vpY+(H-vpY)*Math.pow(f,2.2);
+      ctx.strokeStyle='rgba(90,200,255,'+(0.03+f*0.05+b*0.05)+')'; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+    for (let k=-12;k<=12;k++){ ctx.strokeStyle='rgba(90,200,255,0.035)'; ctx.beginPath(); ctx.moveTo(vpX,vpY); ctx.lineTo(vpX+k*(W/9),H); ctx.stroke(); }
+    for (const pt of parts){ pt.x -= pt.v*dt*(1+b*4); if(pt.x<-0.02){pt.x=1.02;pt.y=Math.random();}
+      ctx.globalAlpha=pt.o*(0.5+b*0.5); ctx.fillStyle=pt.b>0.66?'#ff7ad0':'#7df9ff';
+      ctx.beginPath(); ctx.arc(pt.x*W,pt.y*H,pt.r*(1+b*0.8),0,Math.PI*2); ctx.fill(); }
+    ctx.globalAlpha=1; ctx.restore();
+  }
+
+  /* ---- 战斗界面（页眉 / 立绘牌 / 底栏，与游戏一致） ---- */
+  function drawChrome(){
+    const s = 1;
+    // 页眉
+    ctx.save();
+    ctx.fillStyle = '#04070c'; ctx.fillRect(0,0,W,LV.hudH);
+    ctx.fillStyle = '#fcee0a'; ctx.fillRect(20,13,84,26);
+    drawStr('B1 / 01', 62, 26, NUM(12,900), '#04121a', 1, false);
+    drawStr('// 回声层 · 待定   |   弹幕识别 · 点中真词', 116, 26, CN(12,400), '#68809a', 1, false, 'left');
+    drawStr('目标生命', W-386, 17, CN(11,400), '#4a6178', 1, false, 'right');
+    drawStr(playerHP + ' / ' + PLAYER_HP_MAX, W-386, 37, NUM(15,700), playerHP<=3?'#ff2b4e':'#fcee0a', 1, false, 'right');
+    drawStr('残页', W-244, 17, CN(11,400), '#4a6178', 1, false, 'right');
+    drawStr('15', W-244, 37, NUM(15,700), '#5ef6ff', 1, false, 'right');
+    ctx.strokeStyle='#0a1620'; ctx.fillStyle='#0a1620'; ctx.fillRect(W-118,9,104,34);
+    ctx.strokeStyle='#1b3b46'; ctx.strokeRect(W-118,9,104,34);
+    drawStr('返回', W-66, 26, CN(14,400), '#5ef6ff', 1, false);
+    ctx.fillStyle='#1b3b46'; ctx.fillRect(0,LV.hudH-1,W,1);
+    ctx.fillStyle='#fcee0a'; ctx.fillRect(20,LV.hudH-2,130,2);
+    // 立绘牌（用成品牌图）
+    const pl = window.__plateL, pa = window.__plateA;
+    if (pl) ctx.drawImage(pl, LV.leftX, LV.plateTop, LV.plateW, LV.plateH);
+    if (pa) ctx.drawImage(pa, LV.rightX, LV.plateTop, LV.plateW, LV.plateH);
+    // 名字 / 血条 / 数值
+    const nameL = LV.leftX, nameR = LV.rightX;
+    drawStr('逻各斯', nameL, 444, CN(19,400), '#5ef6ff', 1, false, 'left');
+    drawStr('亚当重锤', nameR, 444, CN(19,400), '#ff2b4e', 1, false, 'left');
+    // 血条
+    const barY = 466, barW = LV.plateW, barH = 11;
+    ctx.fillStyle='#0b131c'; ctx.fillRect(nameL,barY,barW,barH); ctx.strokeStyle='#1b3b46'; ctx.strokeRect(nameL,barY,barW,barH);
+    ctx.fillStyle='#5ef6ff'; ctx.fillRect(nameL,barY,barW*playerHP/PLAYER_HP_MAX,barH);
+    ctx.fillStyle='#0b131c'; ctx.fillRect(nameR,barY,barW,barH); ctx.strokeStyle='#1b3b46'; ctx.strokeRect(nameR,barY,barW,barH);
+    ctx.fillStyle='#ff2b4e'; ctx.fillRect(nameR,barY,barW*enemyHP/ENEMY_HP_MAX,barH);
+    drawStr(playerHP+' / '+PLAYER_HP_MAX, nameL, 488, NUM(18,700), '#5ef6ff', 1, false, 'left');
+    drawStr('目标生命', nameL+barW, 490, CN(11,400), '#4a6178', 1, false, 'right');
+    drawStr(enemyHP+' / '+ENEMY_HP_MAX, nameR, 488, NUM(18,700), '#ff2b4e', 1, false, 'left');
+    drawStr('ENEMY HP', nameR+barW, 490, CN(11,400), '#4a6178', 1, false, 'right');
+    // 底栏
+    ctx.fillStyle='#1b3b46'; ctx.fillRect(300,LV.footY,680,1);
+    drawStr('藏品', 300, LV.footY+22, CN(11.5,400), '#41586e', 1, false, 'left');
+    ['巨力之页','从容之印'].forEach((nm,i)=>{
+      const x = 344 + i*72;
+      ctx.fillStyle='rgba(10,22,32,.85)'; ctx.fillRect(x, LV.footY+10, textW(nm, CN(14,400))+20, 24);
+      ctx.strokeStyle='#2a5f6e'; ctx.strokeRect(x, LV.footY+10, textW(nm, CN(14,400))+20, 24);
+      drawStr(nm, x + (textW(nm, CN(14,400))+20)/2, LV.footY+22, CN(14,400), '#5ef6ff', 1, false);
+    });
+    // 中栏提示 + 计数
+    drawStr('从重锤飞来的词条里，点中那个真词', W/2, 108, CN(14,400), '#7fe9ff', 1, false);
+    drawStr('HIT ' + hits + '　·　被击中 ' + hurts + '　·　第 ' + wave + ' 击', W/2, 132, CN(13,400), '#4a6178', 1, false);
+    ctx.restore();
+  }
+
+  /* ---- 词条 ---- */
+  /* 按**时间**采样历史位置（参考文件 sampleS 的做法）：
+     层 i 取 now − i×(间隔px ÷ 速度) 时刻的 x → 相邻残影间距**恒等于**滑杆上的像素值，与帧率无关。
+     （原先按"帧"取样：帧率一波动实际间距就从 22px 变成 60+px，层数一多就超出屏幕、全被截断堆在一起
+       → 拖影又短又花。） */
+  function sampleX(hist, tq){
+    const n = hist.length; if (!n) return null;
+    if (tq <= hist[0].t) return hist[0].x;
+    if (tq >= hist[n-1].t) return hist[n-1].x;
+    let lo = 0, hi = n-1;
+    while (hi - lo > 1){ const mid = (lo+hi)>>1; if (hist[mid].t <= tq) lo = mid; else hi = mid; }
+    const a = hist[lo], c = hist[hi];
+    const f = (tq - a.t) / Math.max(1e-6, c.t - a.t);
+    return a.x + (c.x - a.x) * f;
+  }
+  function stepWords(dt, b){
+    // 排队发射
+    if (!done && queued.length){
+      queued.forEach(q => { q.delay -= dt; });
+      while (queued.length && queued[0].delay <= 0){
+        const q = queued.shift();
+        words.push({ text:q.text, real:q.real, y:q.lane, x:FIELD.x1, hist:[], alive:true, born:clock });
+      }
+    }
+    const sp = -P.speed;   // 匀速：不受爆冲影响
+    const delay = P.gap / Math.max(1, P.speed);   // 每层之间的时间间隔（秒）→ 间距恰好 = gap 像素
+    let hitPlayer = false;
+    for (const w of words){
+      if (!w.alive) continue;
+      w.x += sp*dt;
+      w.hist.push({ t: clock, x: w.x });
+      while (w.hist.length > 2 && clock - w.hist[0].t > P.layers*delay + 0.35) w.hist.shift();
+      if (w.x <= FIELD.x0){ w.alive = false; hitPlayer = true; }
+    }
+    // 残影 + 主体
+    for (const w of words){
+      if (!w.alive) continue;
+      const f = fontStr();
+      for (let i=P.layers;i>=1;i--){
+        const a = 0.92*Math.pow(P.fall,i); if (a<0.012) continue;
+        const hx = sampleX(w.hist, clock - i*delay);
+        if (hx == null) continue;
+        drawStr(w.text, hx, w.y - i*0.4, f, grad(i/P.layers), a, false);
+      }
+      const dx = P.ab*(0.3+0.7*b);
+      if (dx>0.3){ ctx.save(); ctx.globalCompositeOperation='lighter';
+        drawStr(w.text, w.x+dx, w.y, f, 'rgba(255,45,95,.8)', .75, false);
+        drawStr(w.text, w.x-dx, w.y, f, 'rgba(0,255,205,.8)', .75, false); ctx.restore(); }
+      drawStr(w.text, w.x, w.y, f, 'hsl('+((hslA[0]*360+8)%360).toFixed(0)+',100%,94%)', 1, true);
+    }
+    // 被击中 → 掉血 + 下一击
+    if (hitPlayer){
+      playerHP = Math.max(0, playerHP-1); hurts++; shake = 0.35; flash = 0.3; flashOk = false;
+      toast = { t:'ACCESS DENIED · 被击中', ok:false, life:1.0 }; forced = 1;
+      log('被击中 → 逻各斯 −1（剩 ' + playerHP + '）');
+      words = []; queued = [];
+      if (playerHP <= 0){ done = true; log('逻各斯倒下了 → 点「重开」再来'); }
+      else setTimeout(()=>{ if(!paused) newShot(); }, 700);
+      done = true;
+    }
+  }
+
+  /* ---- 点击判定 ---- */
+  function click(mx,my){
+    if (done) return;
+    for (const w of words){
+      if (!w.alive) continue;
+      const halfW = textW(w.text, fontStr())/2 + 14;
+      if (my > w.y - P.size*0.75 && my < w.y + P.size*0.75 && mx > w.x-halfW && mx < w.x+halfW){
+        if (w.real){
+          w.alive = false; hits++; enemyHP = Math.max(0, enemyHP-1);
+          flash = 0.3; flashOk = true; forced = 1;
+          toast = { t:'ACCESS GRANTED', ok:true, life:1.0 };
+          log('命中真词「' + w.text + '」→ 敌人 −1（剩 ' + enemyHP + '）');
+          words = []; queued = []; done = true;
+          if (enemyHP <= 0){ log('亚当重锤倒下 → 点「重开」再来'); }
+          else setTimeout(()=>{ if(!paused) newShot(); }, 750);
+        } else {
+          w.miss = 0.4; toast = { t:'这不是真词', ok:false, life:0.7 };
+          log('点到了假词「' + w.text + '」（它继续飞）');
+        }
+        return;
+      }
+    }
+  }
+
+  /* ---- 主循环 ---- */
+  let last = 0, posterT = 0;
+  function frame(now){
+    const t = now/1000; const dt = last ? Math.min(t-last, .05) : .016; last = t;
+    if (!paused) clock += dt;
+    const b = boostAmt(); if (forced>0) forced = Math.max(0, forced - dt*0.9);
+    if (P.fps > 0){ posterT += dt; if (posterT < 1/P.fps){ requestAnimationFrame(frame); return; } posterT = 0; }
+    drawBg(dt*(1-b*0.96), b);
+    ctx.save();
+    if (!done && clock >= nextShotAt && words.length===0 && queued.length===0) newShot();
+    drawChrome();
+    if (!done || words.length) stepWords(dt, b);
+    ctx.restore();
+    // 全屏闪 + 大字 + 爆冲条
+    if (flash > 0){
+      flash -= dt*2.2;
+      ctx.save(); ctx.globalAlpha = Math.max(0, flash);
+      const g2 = ctx.createRadialGradient(W/2,H*0.55,40,W/2,H*0.55,W*0.62);
+      g2.addColorStop(0, flashOk ? 'rgba(94,246,255,.34)' : 'rgba(255,43,78,.36)');
+      g2.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle = g2; ctx.fillRect(0,0,W,H); ctx.restore();
+    }
+    if (toast){
+      toast.life -= dt;
+      const a = Math.min(1, Math.max(0, toast.life*1.6));
+      drawStr(toast.t, W/2, H*0.44, NUM(34,900), toast.ok ? '#eafcff' : '#ffe3e8', a, true);
+      if (toast.life <= 0) toast = null;
+    }
+    ctx.save();
+    ctx.fillStyle = 'rgba(125,249,255,'+(0.18+b*0.7)+')';
+    ctx.fillRect(W/2-150, H-26, 300*Math.min(1,b), 2);
+    drawStr('S A N D E V I S T A N  //  弹幕识别', W/2, H-38, NUM(11,600), 'rgba(125,249,255,'+(0.25+b*0.7)+')', 1, false);
+    ctx.restore();
+    requestAnimationFrame(frame);
+  }
+
+  /* ---- 贴图与 UI ---- */
+  const logs = [];
+  function log(m){ logs.push(m); if(logs.length>6) logs.shift(); renderNotes(); }
+  function renderNotes(){
+    document.getElementById('notes').innerHTML =
+      '<b>玩法</b>：亚当重锤从右侧依次发射 <b>N 个词条</b>（间距由"发射间隔"控制），飞向左侧的逻各斯。' +
+      '其中<b>只有一个真词</b>，其余是形近假词（整词打乱 / 换一个字母，可用"假词类型"滑杆切换）。<br>' +
+      '<b>判定</b>：点中真词 → <b>HIT，敌人 −1</b>；<b>任意词碰到逻各斯（真假都算）→ 你 −1</b>；两种情况都立刻开始下一击。' +
+      '点到假词不扣血，但它**继续飞**（所以乱点会更危险）。<br>' +
+      '<b>残影</b>：与 <code>sandevistan-text.html</code> 同源（历史位置采样 + HSL 色带 + falloff + 色散双绘 + 爆冲 + 抽帧）；' +
+      '落地 Phaser 时会换成 <code>RenderTexture</code> 自衰减缓冲（只有 1 个文字对象，不会重影）。<br>' +
+      '<b>操作</b>：点词作答 · <code>B</code> 强制爆冲 · <code>R</code> 重开 · <code>空格</code> 暂停。<br>' +
+      (logs.length ? '<br><b>日志</b>：<br>· ' + logs.slice().reverse().join('<br>· ') : '');
+  }
+  const $ = id => document.getElementById(id);
+  function bind(id,label,fmt,apply){ const el=$(id),lb=$(label); const upd=()=>{const v=parseFloat(el.value);apply(v);lb.textContent=fmt(v);};
+    el.addEventListener('input',upd); upd(); }
+  bind('speed','v-speed', v=>v+' px/s', v=>P.speed=v);
+  bind('count','v-count', v=>v, v=>P.count=v);
+  bind('stag','v-stag', v=>v+' ms', v=>P.stag=v);
+  bind('fake','v-fake', v=>['整词打乱','换一个字母','混合'][v], v=>P.fakeType=v);
+  bind('size','v-size', v=>v+' px', v=>P.size=v);
+  bind('layers','v-layers', v=>v, v=>P.layers=v);
+  bind('gap','v-gap', v=>v+' px', v=>P.gap=v);
+  bind('fall','v-fall', v=>(v/100).toFixed(2), v=>P.fall=v/100);
+  bind('ab','v-ab', v=>v, v=>P.ab=v);
+  bind('boost','v-boost', v=>(v/100).toFixed(1)+'×', v=>P.boost=v/100);
+  bind('fps','v-fps', v=>v?v+' fps':'关', v=>P.fps=v);
+  $('colA').addEventListener('input', e=>{P.colA=e.target.value;syncColors();});
+  $('colB').addEventListener('input', e=>{P.colB=e.target.value;syncColors();});
+  const reset = () => { playerHP=PLAYER_HP_MAX; enemyHP=ENEMY_HP_MAX; wave=0; hits=0; hurts=0; words=[]; queued=[]; done=true; toast=null; flash=0;
+    log('重新开始：逻各斯 10 / 亚当重锤 40'); newShot(); };
+  $('restart').addEventListener('click', reset);
+  $('again').addEventListener('click', ()=>{ if(done) newShot(); });
+  $('burst').addEventListener('click', ()=>{ forced = 1; });
+  $('pause').addEventListener('click', e=>{ paused=!paused; e.target.textContent = paused ? '▶ 继续（空格）' : '⏸ 暂停（空格）'; });
+  cvs.addEventListener('click', e=>{ const r=cvs.getBoundingClientRect();
+    click((e.clientX-r.left)*(W/r.width), (e.clientY-r.top)*(H/r.height)); });
+  window.addEventListener('keydown', e=>{
+    if (e.key==='b'||e.key==='B') forced=1;
+    else if (e.key==='r'||e.key==='R') reset();
+    else if (e.code==='Space'){ paused=!paused; $('pause').textContent = paused ? '▶ 继续（空格）' : '⏸ 暂停（空格）'; e.preventDefault(); }
+  });
+  function fit(){ const box=document.querySelector('.stageBox');
+    const k = Math.min(box.clientWidth/W, Math.max(.45,(window.innerHeight-220)/H));
+    cvs.style.transform='scale('+k+')'; box.style.height=(H*k)+'px'; }
+  window.addEventListener('resize', fit);
+
+  function loadPlate(key, url){ return new Promise(res => { const im=new Image(); im.onload=()=>{ window[key]=im; res(true); }; im.onerror=()=>res(false); im.src=url; }); }
+  syncColors(); renderNotes(); fit();
+  Promise.all([ loadPlate('__plateL','../assets/img/plate-logos-holo.png'), loadPlate('__plateA','../assets/img/plate-adam-holo.png') ])
+    .then(()=>{ document.fonts && document.fonts.ready.then(()=>{ fit(); reset(); requestAnimationFrame(frame); }); });
+})();
+</script>
+</body>
+</html>

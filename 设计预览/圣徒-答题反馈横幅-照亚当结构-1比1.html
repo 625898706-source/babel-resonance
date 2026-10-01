@@ -1,0 +1,210 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒 · 答题反馈横幅（照亚当 _toast 结构 · 1:1）</title>
+<style>
+/* ============================================================================
+   ★ 结构**照抄亚当的 `_toast`**（nightcity.js L440-493 ✓ 用户点名"像亚当一样"✓）
+       ① 全屏闪（亚当 alpha .30/.34 ✓ 我们色调淡 → 收到 .12/.14 ✓）
+       ② 正中横幅：**角标 ＋ 上下细线** ✓ 从 scaleX .62 **横向展开**（Back.easeOut ✓）
+       ③ **扫描线**从左扫到右（420ms ✓）
+       ④ 主字**逐字解码**（这里用"左→右揭示 ＋ 扫描线"表达同一效果 ✓）
+       ⑤ 副行小字「// 词条校验通过」✓（亚当是「// 认证通过 · 数据写入完成」✓）
+       ⑥ **故障抖动**两次（横向 ±7px ✓）
+       ⑦ 停 780ms 后淡出 ✓
+   ★ 差别只有两处（都是按你的口味 ✓）：
+       · 配色：赛博霓虹 → **深青灰 #54686a**（与选项角标同一套语言 ✓✓）／错时才用红 #e2231a ✓
+       · 横幅的**角标与四格选项的角标同款** ✓✓ 所以整场语言统一 ✓
+   ★ 可复现 ✓：矩形 ＋ 1px 线 ＋ 文字 ＋ tween（scaleX / x / alpha ✓）全部 Phaser 原生 ✓
+   ============================================================================ */
+:root{--deep:#12232e;--acc:#54686a;--red:#e2231a;--ice:#8fa8bd}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.lab{width:1280px;margin:24px auto 8px;color:#fff;font-size:13px;line-height:21px}
+.lab b{font-size:16px}.lab i{font-style:normal;color:#a9c6d6}.lab code{font-family:'Space Grotesk',monospace;font-size:12px;color:#dfe9ee}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto 10px;overflow:hidden;background:#eaf2f7}
+.stage *{position:absolute;box-sizing:border-box}
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.veil{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:.52}
+.grid{left:0;top:0;width:1280px;height:720px;background-image:linear-gradient(#54686a 1px,transparent 1px),linear-gradient(90deg,#54686a 1px,transparent 1px);background-size:40px 40px;opacity:.13}
+.plate{top:160px;width:272px;height:264px;background:#141a20;border:1px solid #3d5a70}
+.plateL{left:14px}.plateR{left:994px}
+.sprL{left:49px;top:160px;width:202px;height:264px;background:url('../assets/img/logos-idle.png') 0 0/3030px 2640px no-repeat}
+.sprR{left:1020px;top:182px;width:220px;height:220px;background:url('../assets/img/saint-idle.png') 0 0/1760px 4840px no-repeat;transform:scaleX(-1)}
+.nmL{left:14px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.nmR{left:994px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.bar{top:488px;width:272px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.barL{left:14px}.barR{left:994px}
+.bar i{left:0;top:0;height:10px;display:block}
+.card{left:420px;top:150px;width:440px;height:180px;background:rgba(255,255,255,.86);border:1px solid var(--ice)}
+.cardtag{left:436px;top:161px;font-family:'Novecento Wide',sans-serif;font-size:10px;letter-spacing:.18em;color:var(--acc)}
+.word{left:440px;top:200px;width:400px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:700;color:var(--deep)}
+.cdlab{left:420px;top:96px;font-size:13px;color:var(--deep)}
+.cd{left:420px;top:126px;width:440px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.cdfill{left:0;top:0;height:10px;width:62%;background:var(--acc)}
+.cdtxt{left:872px;top:120px;width:64px;text-align:right;font-size:16px;font-weight:700;color:var(--acc);font-family:'Space Grotesk',sans-serif}
+.hudr{right:44px;top:26px;font-size:14px;color:var(--deep)}
+.opt{width:320px;height:84px;transform:translate(-50%,-50%)}
+.a1{left:468px;top:436px}.a2{left:812px;top:436px}.a3{left:468px;top:536px}.a4{left:812px;top:536px}
+.opt .paper{left:0;top:0;width:320px;height:84px;background:#fff;opacity:.45}
+.opt .t{left:0;top:0;width:320px;height:84px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:20px;color:var(--deep);line-height:26px}
+.opt .fr{left:0;top:0;width:320px;height:84px;border:1px solid var(--acc);opacity:.9}
+.opt .tk{width:9px;height:9px;border:1px solid var(--acc)}
+.opt .tk1{left:-4.5px;top:-4.5px}.opt .tk2{left:315.5px;top:-4.5px}.opt .tk3{left:-4.5px;top:79.5px}.opt .tk4{left:315.5px;top:79.5px}
+.opt .id{left:8px;top:70px;font-family:'Novecento Wide',sans-serif;font-size:9px;letter-spacing:.16em;color:var(--acc)}
+
+/* ===== 反馈层 ===== */
+.fx{left:0;top:0;width:1280px;height:720px;pointer-events:none}
+/* ① 全屏闪 */
+.fscreen{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:0;animation:fs .9s ease-out infinite}
+.fscreen.bad{background:#e2231a;animation:fsb .9s ease-out infinite}
+@keyframes fs{0%{opacity:.12}30%{opacity:0}100%{opacity:0}}
+@keyframes fsb{0%{opacity:.14}30%{opacity:0}100%{opacity:0}}
+/* ② 横幅（角标＋上下细线 ✓ 横向展开 ✓）—— 位置在词卡下方中央 ✓ */
+.band{left:380px;top:356px;width:520px;height:96px;transform-origin:50% 50%;opacity:0}
+.band .fill{left:0;top:0;width:520px;height:96px;background:rgba(255,255,255,.92);border:1px solid var(--acc)}
+.band .tl{left:0;top:0;width:520px;height:1px;background:var(--acc)}
+.band .bl{left:0;top:95px;width:520px;height:1px;background:var(--acc)}
+.band .tk{width:9px;height:9px;border:1px solid var(--acc)}
+.band .k1{left:-4.5px;top:-4.5px}.band .k2{left:515.5px;top:-4.5px}.band .k3{left:-4.5px;top:91.5px}.band .k4{left:515.5px;top:91.5px}
+.band .scan{left:0;top:0;width:2px;height:96px;background:var(--acc);opacity:.55}
+.band .main{left:0;top:22px;width:520px;text-align:center;font-size:34px;font-weight:700;letter-spacing:.2em;color:var(--acc)}
+.band .sub{left:0;top:64px;width:520px;text-align:center;font-family:'Space Grotesk',monospace;font-size:14px;color:#6f7f8a}
+.band.bad .fill,.band.bad .tl,.band.bad .bl,.band.bad .tk,.band.bad .scan{border-color:var(--red);background-color:var(--red)}
+.band.bad .fill{background:rgba(255,255,255,.92)}
+.band.bad .tl,.band.bad .bl{background:var(--red)}
+.band.bad .scan{background:var(--red)}
+.band.bad .main{color:var(--red)}
+/* ---- 加的细节（2026-09-21 用户：太素了 ✗）---- */
+.band .outer{left:-7px;top:-7px;width:534px;height:110px;border:1px solid var(--acc);opacity:.45}
+.band .grid{left:0;top:0;width:520px;height:96px;opacity:.07;
+           background-image:linear-gradient(var(--acc) 1px,transparent 1px),linear-gradient(90deg,var(--acc) 1px,transparent 1px);
+           background-size:20px 20px}
+/* 四角 L 形裁切标 */
+.band .cm{width:16px;height:16px;border:0}
+.band .cm::before,.band .cm::after{content:"";position:absolute;background:var(--acc)}
+.band .cm::before{width:16px;height:1px;top:0}
+.band .cm::after{width:1px;height:16px;left:0}
+.band .c1{left:-1px;top:-1px}
+.band .c2{left:504px;top:-1px;transform:scaleX(-1)}
+.band .c3{left:-1px;top:80px;transform:scaleY(-1)}
+.band .c4{left:504px;top:80px;transform:scale(-1,-1)}
+/* 上下刻度排（每 10px 一根 6px 短线 ✓ 像尺子 ✓）*/
+.band .ticks{left:0;width:520px;height:7px;opacity:.7}
+.band .ticks i{position:absolute;width:1px;height:6px;background:var(--acc)}
+.band .tk-top{top:-7px}
+.band .tk-bot{bottom:-7px}
+.band .tk-bot i{top:1px}
+/* 主字下的分隔线 ＋ 左侧图层方块 */
+.band .rule{left:150px;top:60px;width:220px;height:1px;background:var(--acc);opacity:.6}
+.band .bullet{left:158px;top:24px;width:8px;height:8px;background:var(--acc)}
+/* 副行闪烁光标 */
+.band .caret{display:inline-block;width:8px;height:13px;background:var(--acc);vertical-align:-2px;margin-right:6px;animation:blink 1s steps(1) infinite}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+/* 扫描残影两条 */
+.band .scan2{left:0;top:0;width:1px;height:96px;background:var(--acc);opacity:.22}
+.band .scan3{left:0;top:0;width:1px;height:96px;background:var(--acc);opacity:.12}
+.band .scan2{animation:scan2 1.35s cubic-bezier(.2,.9,.3,1) infinite}
+.band .scan3{animation:scan3 1.35s cubic-bezier(.2,.9,.3,1) infinite}
+@keyframes scan2{0%{left:0;opacity:0}12%{opacity:.22}24%{left:516px;opacity:0}100%{left:516px;opacity:0}}
+@keyframes scan3{0%{left:0;opacity:0}14%{opacity:.12}26%{left:516px;opacity:0}100%{left:516px;opacity:0}}
+/* 错误态这些线也转红 ✓ */
+.band.bad .outer,.band.bad .cm::before,.band.bad .cm::after,.band.bad .ticks i,
+.band.bad .rule,.band.bad .bullet,.band.bad .caret,.band.bad .scan2,.band.bad .scan3{border-color:var(--red);background:var(--red)}
+.band.bad .grid{background-image:linear-gradient(var(--red) 1px,transparent 1px),linear-gradient(90deg,var(--red) 1px,transparent 1px)}
+
+/* 动画：展开 → 扫描 → 抖动 → 停 → 淡出（总约 1.3s ✓ 与亚当一致 ✓）*/
+.band.ok{animation:bandin 1.35s cubic-bezier(.2,1.5,.4,1) infinite}
+.band.bad{animation:bandin .03s linear infinite,bandin 1.35s cubic-bezier(.2,1.5,.4,1) infinite}
+@keyframes bandin{
+  0%{opacity:0;transform:scaleX(.62) translateX(0)}
+  6%{opacity:1;transform:scaleX(1) translateX(0)}
+  60%{opacity:1;transform:scaleX(1) translateX(0)}
+  66%{transform:scaleX(1) translateX(-7px)}
+  72%{transform:scaleX(1) translateX(6px)}
+  78%{transform:scaleX(1) translateX(0)}
+  88%{opacity:1}
+  100%{opacity:0;transform:scaleX(1) translateX(0)}
+}
+.band .scan{animation:scan 1.35s cubic-bezier(.2,.9,.3,1) infinite}
+@keyframes scan{0%{left:0;opacity:0}10%{opacity:.55}22%{left:516px;opacity:0}100%{left:516px;opacity:0}}
+/* ③ 选项反馈：答对微放大 ✓ 答错左右抖 3 次 ✓（照亚当 _paintOption ✓）*/
+.opt.ok{animation:pulse .5s ease-out infinite}
+@keyframes pulse{0%{transform:translate(-50%,-50%) scale(1)}35%{transform:translate(-50%,-50%) scale(1.035)}100%{transform:translate(-50%,-50%) scale(1)}}
+.opt.bad{animation:shake .5s ease-out infinite}
+@keyframes shake{0%{transform:translate(-50%,-50%)}12%{transform:translate(calc(-50% - 9px),-50%)}24%{transform:translate(calc(-50% + 9px),-50%)}
+ 36%{transform:translate(calc(-50% - 7px),-50%)}48%{transform:translate(calc(-50% + 7px),-50%)}60%{transform:translate(-50%,-50%)}100%{transform:translate(-50%,-50%)}}
+.opt.ok .fr{border-color:var(--acc);opacity:1}
+.opt.ok .t{color:var(--acc)}
+.opt.bad .fr{border-color:var(--red);opacity:1}
+.opt.bad .t{color:var(--red)}
+.ruler{left:44px;top:664px;width:1192px;height:22px;font-size:11px;color:var(--acc);font-family:'Novecento Wide',sans-serif;letter-spacing:.14em}
+</style></head><body>
+
+<div class="lab"><b>答对</b>　全屏闪（白 ✓ .12）→ 横幅<b>横向展开</b>（Back.easeOut ✓ 0.15s）→ <b>扫描线</b>划过（0.42s）→ 主字「正确」✓ 副行「// 词条校验通过」✓ → <b>抖动两次</b> → 停 <b>0.78s</b> → 淡出 ✓　<b>被点的那格</b>微放大 1.035 ✓</div>
+<div class="stage">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#8fa8bd;width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN</div><div class="word">suit</div>
+  <div class="opt a1"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A1</div><div class="t">诉讼；恳求</div></div>
+  <div class="opt a2 ok"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B1</div><div class="t">快乐；希望</div></div>
+  <div class="opt a3"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A2</div><div class="t">月亮；月球</div></div>
+  <div class="opt a4"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B2</div><div class="t">除了；要不是</div></div>
+  <div class="fx">
+    <div class="fscreen"></div>
+    <div class="band ok">
+      <div class="fill"></div><div class="grid"></div><div class="outer"></div>
+      <div class="tl"></div><div class="bl"></div>
+      <div class="ticks tk-top"><i style="left:0px"></i><i style="left:10px"></i><i style="left:20px"></i><i style="left:30px"></i><i style="left:40px"></i><i style="left:50px"></i><i style="left:60px"></i><i style="left:70px"></i><i style="left:80px"></i><i style="left:90px"></i><i style="left:100px"></i><i style="left:110px"></i><i style="left:120px"></i><i style="left:130px"></i><i style="left:140px"></i><i style="left:150px"></i><i style="left:160px"></i><i style="left:170px"></i><i style="left:180px"></i><i style="left:190px"></i><i style="left:200px"></i><i style="left:210px"></i><i style="left:220px"></i><i style="left:230px"></i><i style="left:240px"></i><i style="left:250px"></i><i style="left:260px"></i><i style="left:270px"></i><i style="left:280px"></i><i style="left:290px"></i><i style="left:300px"></i><i style="left:310px"></i><i style="left:320px"></i><i style="left:330px"></i><i style="left:340px"></i><i style="left:350px"></i><i style="left:360px"></i><i style="left:370px"></i><i style="left:380px"></i><i style="left:390px"></i><i style="left:400px"></i><i style="left:410px"></i><i style="left:420px"></i><i style="left:430px"></i><i style="left:440px"></i><i style="left:450px"></i><i style="left:460px"></i><i style="left:470px"></i><i style="left:480px"></i><i style="left:490px"></i><i style="left:500px"></i><i style="left:510px"></i><i style="left:520px"></i></div>
+      <div class="ticks tk-bot"><i style="left:0px"></i><i style="left:10px"></i><i style="left:20px"></i><i style="left:30px"></i><i style="left:40px"></i><i style="left:50px"></i><i style="left:60px"></i><i style="left:70px"></i><i style="left:80px"></i><i style="left:90px"></i><i style="left:100px"></i><i style="left:110px"></i><i style="left:120px"></i><i style="left:130px"></i><i style="left:140px"></i><i style="left:150px"></i><i style="left:160px"></i><i style="left:170px"></i><i style="left:180px"></i><i style="left:190px"></i><i style="left:200px"></i><i style="left:210px"></i><i style="left:220px"></i><i style="left:230px"></i><i style="left:240px"></i><i style="left:250px"></i><i style="left:260px"></i><i style="left:270px"></i><i style="left:280px"></i><i style="left:290px"></i><i style="left:300px"></i><i style="left:310px"></i><i style="left:320px"></i><i style="left:330px"></i><i style="left:340px"></i><i style="left:350px"></i><i style="left:360px"></i><i style="left:370px"></i><i style="left:380px"></i><i style="left:390px"></i><i style="left:400px"></i><i style="left:410px"></i><i style="left:420px"></i><i style="left:430px"></i><i style="left:440px"></i><i style="left:450px"></i><i style="left:460px"></i><i style="left:470px"></i><i style="left:480px"></i><i style="left:490px"></i><i style="left:500px"></i><i style="left:510px"></i><i style="left:520px"></i></div>
+      <i class="cm c1"></i><i class="cm c2"></i><i class="cm c3"></i><i class="cm c4"></i>
+      <div class="scan"></div><div class="scan2"></div><div class="scan3"></div>
+      <div class="bullet"></div>
+      <div class="main">正确</div><div class="rule"></div>
+      <div class="sub"><span class="caret"></span>// 词条校验通过</div>
+    </div>
+  </div>
+  <div class="ruler">0.00 弹现　0.15 展开完　0.42 扫描完　0.90 抖动　0.78 后淡出　≈1.35s 结束</div>
+</div>
+
+<div class="lab"><b>答错</b>　同一套结构 ✓ 只有两处不同：<b>全屏红闪</b>（.14 ✓）＋ 主字与线用<b>项目唯一的红 #e2231a</b> ✓；副行「// 词条校验失败」✓　<b>被点的那格</b>左右抖 3 次 ✓</div>
+<div class="stage">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#8fa8bd;width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN</div><div class="word">suit</div>
+  <div class="opt a1"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A1</div><div class="t">诉讼；恳求</div></div>
+  <div class="opt a2"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B1</div><div class="t">快乐；希望</div></div>
+  <div class="opt a3 bad"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A2</div><div class="t">月亮；月球</div></div>
+  <div class="opt a4"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B2</div><div class="t">除了；要不是</div></div>
+  <div class="fx">
+    <div class="fscreen bad"></div>
+    <div class="band bad">
+      <div class="fill"></div><div class="grid"></div><div class="outer"></div>
+      <div class="tl"></div><div class="bl"></div>
+      <div class="ticks tk-top"><i style="left:0px"></i><i style="left:10px"></i><i style="left:20px"></i><i style="left:30px"></i><i style="left:40px"></i><i style="left:50px"></i><i style="left:60px"></i><i style="left:70px"></i><i style="left:80px"></i><i style="left:90px"></i><i style="left:100px"></i><i style="left:110px"></i><i style="left:120px"></i><i style="left:130px"></i><i style="left:140px"></i><i style="left:150px"></i><i style="left:160px"></i><i style="left:170px"></i><i style="left:180px"></i><i style="left:190px"></i><i style="left:200px"></i><i style="left:210px"></i><i style="left:220px"></i><i style="left:230px"></i><i style="left:240px"></i><i style="left:250px"></i><i style="left:260px"></i><i style="left:270px"></i><i style="left:280px"></i><i style="left:290px"></i><i style="left:300px"></i><i style="left:310px"></i><i style="left:320px"></i><i style="left:330px"></i><i style="left:340px"></i><i style="left:350px"></i><i style="left:360px"></i><i style="left:370px"></i><i style="left:380px"></i><i style="left:390px"></i><i style="left:400px"></i><i style="left:410px"></i><i style="left:420px"></i><i style="left:430px"></i><i style="left:440px"></i><i style="left:450px"></i><i style="left:460px"></i><i style="left:470px"></i><i style="left:480px"></i><i style="left:490px"></i><i style="left:500px"></i><i style="left:510px"></i><i style="left:520px"></i></div>
+      <div class="ticks tk-bot"><i style="left:0px"></i><i style="left:10px"></i><i style="left:20px"></i><i style="left:30px"></i><i style="left:40px"></i><i style="left:50px"></i><i style="left:60px"></i><i style="left:70px"></i><i style="left:80px"></i><i style="left:90px"></i><i style="left:100px"></i><i style="left:110px"></i><i style="left:120px"></i><i style="left:130px"></i><i style="left:140px"></i><i style="left:150px"></i><i style="left:160px"></i><i style="left:170px"></i><i style="left:180px"></i><i style="left:190px"></i><i style="left:200px"></i><i style="left:210px"></i><i style="left:220px"></i><i style="left:230px"></i><i style="left:240px"></i><i style="left:250px"></i><i style="left:260px"></i><i style="left:270px"></i><i style="left:280px"></i><i style="left:290px"></i><i style="left:300px"></i><i style="left:310px"></i><i style="left:320px"></i><i style="left:330px"></i><i style="left:340px"></i><i style="left:350px"></i><i style="left:360px"></i><i style="left:370px"></i><i style="left:380px"></i><i style="left:390px"></i><i style="left:400px"></i><i style="left:410px"></i><i style="left:420px"></i><i style="left:430px"></i><i style="left:440px"></i><i style="left:450px"></i><i style="left:460px"></i><i style="left:470px"></i><i style="left:480px"></i><i style="left:490px"></i><i style="left:500px"></i><i style="left:510px"></i><i style="left:520px"></i></div>
+      <i class="cm c1"></i><i class="cm c2"></i><i class="cm c3"></i><i class="cm c4"></i>
+      <div class="scan"></div><div class="scan2"></div><div class="scan3"></div>
+      <div class="bullet"></div>
+      <div class="main">错误</div><div class="rule"></div>
+      <div class="sub"><span class="caret"></span>// 词条校验失败</div>
+    </div>
+  </div>
+  <div class="ruler">同一套节奏 ✓ 只换色与副行 ✓</div>
+</div>
+
+<div class="lab" style="height:76px">
+<b>可复现性</b> ✓：矩形 ＋ 1px 细线 ＋ 角标 ＋ 文字 ＋ tween（<code>scaleX / x / alpha</code> ✓）＋ 一次 <code>delayedCall</code> 控制停留 ✓
+—— 与亚当 `_toast` 的实现方式**完全一样** ✓ 零图片 ✗ 零模糊 ✗<br>
+<b>可调</b>：横幅宽度（520 ✓）与位置（词卡下方 ✓）／主字措辞（正确·错误 ✓ 可换 命中·未中 ✓ 校验通过·校验失败 ✓）／副行文字 ✓／抖动幅度与次数 ✓／停留时长（0.78s ✓）／全屏闪强度（.12/.14 ✓）
+</div>
+</body></html>

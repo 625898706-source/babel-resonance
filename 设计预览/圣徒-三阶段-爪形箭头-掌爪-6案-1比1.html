@@ -1,0 +1,506 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒 · 三阶段「爪形箭头」掌爪 6 案（画出来的 · 1:1 · 可交互）</title>
+<style>
+/* ============================================================================
+   圣徒 三阶段 · 它的线「箭头 → 爪子」（2026-09-23 **第二次重做** ✓）
+   ── 上一版为什么丑（我认 ✓ 已改）──
+     ① 趾又短又粗（长 34 / 根宽 8.8 ＝ 4:1）＋ 根部一个大圆 → 三趾粘成一坨"香蕉" ✗
+     ② 三趾都从**同一个点**长出来 → 看着像蜘蛛脚 / 鱼尾 ✗
+     ③ 只有 5px 宽、4px 缝 → 一缩到游戏尺寸就全糊掉 ✗ 只剩一个带锯齿的块 ✗
+   ── 这一版的做法（**自己渲染成图、一张张看、改了 8 轮** ✓）──
+     · 趾 ＝ **一条弯曲的脊线**（二次贝塞尔：趾根 → 尖端，带回勾 ✓）
+            ＋ **沿脊线渐细的宽度** w(t) = wBase ×(1 − t^2.6)^0.5
+              ← 这个指数是关键 ✗✓：**大部分长度都保持厚 ✓ 只在最后 ~25% 收成针** ✓
+                （上一版用 (1−t)^1.7 → 一出根就细 ✗ 所以像"拼出来的尖刺" ✗）
+     · **腕** ＝ 一道粗弧带（掌背 ✓）；**三根趾的根精确落在这道弧上** ✓ → 连成一体 ✓
+     · 整只爪 ≈ **70~95px**（词框 220×86 ✓ 这个比例才看得清 ✓）趾宽 9.6~15.5、缝 ≥6px ✓
+   ── 我看过并淘汰的（都在本轮里渲染过 ✓）──
+     细线拼的 / 蜘蛛脚 / 鱼尾 / 梳子 / 扇子 / 蟹钳（认得出但不是"爪子"）/ 单钩（像钩子）/ 后趾（像鸟）✗
+   ── 可直接搬进 Phaser ✓ ──
+     全部只输出**多边形点集** → 游戏里 `g.fillPoints(pts, true)` 一次填完 ✓ 不用贝塞尔 API ✓
+   ============================================================================ */
+:root{--ink:#12232e;--fg:#141414;--muted:#6b6f76;--slate:#54686a;--red:#e2231a;--cy:#3ce0e0;
+      --ice:#8fa8bd;--line:#e6e6e6;--card:#fffdf9;--crim:#ff625d}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;color:#fff;font-family:'HarmonyOS Sans SC','Microsoft YaHei',sans-serif;padding:14px 0 30px}
+.lab,.ctl,.note,.galwrap{width:1280px;margin:0 auto}
+.lab{font-size:13px;line-height:20px}.lab b{font-size:16px}.lab i{font-style:normal;color:#a9c6d6}.lab u{text-decoration:none;color:#ffd9a0}
+.galwrap{margin-top:8px;background:#eef4f8;border:1px solid #cdd9e2}
+#gal{display:block;width:1280px;height:200px}
+#st{position:relative;width:1280px;height:720px;margin:10px auto 0;overflow:hidden;background:#eaf2f7;user-select:none}
+#st>div,#st>canvas{position:absolute}
+.bg{inset:0;background:url('../assets/skin-saint/bg.png') center/cover no-repeat;z-index:0}
+.veil{inset:0;background:#fff;opacity:.52;z-index:1}
+.hair{inset:0;z-index:2;opacity:.10;background-image:repeating-linear-gradient(#8fa8bd 0 1px,transparent 1px 4px)}
+.grid{inset:0;z-index:3;opacity:.13;
+  background-image:linear-gradient(#54686a 1px,transparent 1px),linear-gradient(90deg,#54686a 1px,transparent 1px);
+  background-size:40px 40px}
+.plate{top:160px;width:272px;height:264px;background:#141519;border:2px solid #2a2b30;border-radius:4px;
+       box-shadow:3px 3px 0 rgba(31,32,36,.13);z-index:4}
+.plateL{left:14px}.plateR{left:994px}
+.flag{position:absolute;left:-2px;top:-2px;width:0;height:0;border-top:18px solid #fff44f;border-right:18px solid transparent}
+#spL{left:75px;top:194px;width:150px;height:196px;z-index:5}
+#spR{left:1020px;top:200px;width:220px;height:220px;z-index:5}
+.nm{top:436px;font-family:'Novecento Wide','HarmonyOS Sans SC';font-size:17px;font-weight:600;line-height:20px;z-index:6;white-space:nowrap}
+.nmL{left:14px;color:var(--fg)}.nmR{left:994px;color:var(--crim)}
+.bar{top:464px;width:272px;height:16px;background:var(--card);border:1px solid var(--line);z-index:6}
+.barL{left:14px}.barR{left:994px}
+.bar>i{position:absolute;left:0;top:0;bottom:0;display:block}
+.tk{position:absolute;top:2px;bottom:2px;width:1px;background:rgba(31,32,36,.22)}
+.hpn{top:484px;font-family:'Space Grotesk',monospace;font-size:20px;line-height:20px;color:var(--fg);z-index:6;white-space:nowrap}
+.hpl{top:489px;font-family:'Novecento Wide';font-size:10px;line-height:10px;color:var(--muted);z-index:6;letter-spacing:.06em;white-space:nowrap}
+.pill{left:20px;width:84px;height:26px;top:13px;background:#fff44f;border:1px solid #1f2024;display:flex;
+      align-items:center;justify-content:center;font-family:'Novecento Wide';font-size:12px;color:#1f2024;z-index:6}
+.hudl{top:16px;line-height:20px;z-index:6;white-space:nowrap}
+#hst{left:116px;font-family:'Novecento Wide';font-size:11px;color:var(--muted)}
+#hhp{right:386px;font-family:'Space Grotesk',monospace;font-size:15px;color:var(--fg)}
+#hcur{right:244px;font-family:'Space Grotesk',monospace;font-size:15px;color:var(--fg)}
+#quit{right:14px;top:9px;width:104px;height:34px;background:var(--card);border:1px solid var(--line);
+      display:flex;align-items:center;justify-content:center;font-size:14px;color:#24252a;z-index:6}
+.hudrule{left:0;right:0;top:52px;height:1px;background:var(--ice);opacity:.65;z-index:6}
+.footrule{left:300px;top:656px;width:680px;height:1px;background:var(--ice);opacity:.55;z-index:6}
+#ftl{left:300px;top:673px;font-family:'Novecento Wide';font-size:10.5px;line-height:10.5px;color:var(--muted);z-index:6}
+#ftc{left:344px;top:666px;display:flex;gap:8px;z-index:6}
+.chip{height:24px;padding:0 10px;display:flex;align-items:center;background:#fff;border:1px solid var(--line);font-size:12px;color:#24252a}
+#cdlab{left:320px;top:90px;font-size:13px;line-height:18px;color:var(--ink);z-index:6}
+#cd{left:320px;top:117px;width:640px;height:12px;background:#ececec;border:1px solid var(--line);z-index:6}
+#cdfill{position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--slate)}
+#cdnum{right:322px;top:82px;font-family:'Space Grotesk',monospace;font-size:22px;line-height:22px;color:var(--slate);z-index:6}
+#cvBack{inset:0;z-index:10}
+.node{position:absolute;width:220px;height:86px;background:rgba(255,255,255,.5);border:1px solid var(--slate);
+      display:flex;align-items:center;justify-content:center;padding:6px;text-align:center;color:var(--ink);
+      line-height:24px;z-index:30}
+.node.en{font-family:'Space Grotesk',monospace;font-weight:700;font-size:34px}
+.node:not(.en){font-family:'HarmonyOS Sans SC';font-size:17px}
+.node.sel{border-width:3px;background:rgba(255,255,255,.72)}
+#toast{left:0;top:250px;width:1280px;text-align:center;font-size:38px;font-weight:700;color:var(--slate);
+       opacity:0;transition:opacity .25s;z-index:50;line-height:46px;text-shadow:0 2px 0 rgba(255,255,255,.8)}
+.ctl{margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+.ctl button{font-family:'HarmonyOS Sans SC';font-size:13px;padding:7px 13px;background:#2c3439;color:#dfe9ee;
+            border:1px solid #4a565d;border-radius:3px;cursor:pointer}
+.ctl button:hover{background:#3a444a}
+.ctl button.on{background:#54686a;border-color:#8fb0b3;color:#fff}
+.ctl .sp{width:14px}
+.note{margin-top:8px;background:#2c3439;border-left:3px solid var(--slate);padding:8px 12px;color:#dfe9ee;
+      font-size:13px;line-height:20px}
+.note em{font-style:normal;color:#9fb3bd}.note b{color:#ffd9a0}
+</style></head><body>
+
+<div class="lab"><b>圣徒 · 三阶段「爪形箭头」掌爪 6 案</b>　<i>圆腕 ＋ 三根渐细的长趾　·　每格下排是<b>装在一根真红线上、1× 实际大小</b></i> ✓
+　<u>这次是一张张渲染出来看过的</u> ✓</div>
+
+<div class="galwrap"><canvas id="gal" width="2560" height="400"></canvas></div>
+
+<div id="st">
+  <div class="bg"></div><div class="veil"></div><div class="hair"></div><div class="grid"></div>
+  <canvas id="cvBack" width="1280" height="720"></canvas>
+  <div class="plate plateL"><div class="flag"></div></div>
+  <div class="plate plateR"><div class="flag"></div></div>
+  <canvas id="spL" width="300" height="392"></canvas>
+  <canvas id="spR" width="440" height="440"></canvas>
+  <div class="nm nmL">逻各斯</div><div class="nm nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#5cc5e8;width:100%"></i></div>
+  <div class="bar barR"><i style="background:#d8c9a3;width:100%"></i></div>
+  <div class="hpn" style="left:14px">10 / 10</div>
+  <div class="hpl" style="left:286px;transform:translateX(-100%)">目标生命</div>
+  <div class="hpn" style="left:994px">38</div>
+  <div class="hpl" style="left:1266px;transform:translateX(-100%)">ENEMY HP</div>
+  <div class="pill">B1 / 01</div>
+  <div class="hudl" id="hst">// 回声层 · 待定</div>
+  <div class="hudl" id="hhp">目标生命 10 / 10</div>
+  <div class="hudl" id="hcur">残页 15</div>
+  <div id="quit">退出</div>
+  <div class="hudrule"></div><div class="footrule"></div>
+  <div id="ftl">藏品</div><div id="ftc"><div class="chip">回响残片</div><div class="chip">定音锤</div></div>
+  <div id="cdlab">剩余时间</div><div id="cd"><i id="cdfill"></i></div><div id="cdnum">12</div>
+  <div id="toast"></div>
+</div>
+
+<div class="ctl">
+  <span style="color:#dfe9ee">爪形：</span>
+  <button class="v on" data-v="A">A 掌爪三趾</button>
+  <button class="v" data-v="B">B 掌爪四趾</button>
+  <button class="v" data-v="C">C 掌爪厚趾</button>
+  <button class="v" data-v="D">D 掌爪长趾</button>
+  <button class="v" data-v="E">E 爪痕三道</button>
+  <button class="v" data-v="F">F 三趾·大一号</button>
+  <span class="sp"></span>
+  <button id="bReplay">▶ 答对了（触发消散）</button>
+  <button id="bRelaunch">↺ 重新起飞</button>
+  <button id="bAuto" class="on">自动循环</button>
+  <button id="bSlow">慢放 0.35×</button>
+  <span id="readout" style="color:#dfe9ee"></span>
+</div>
+
+<div class="note">
+  <em><b>怎么画的</b>：每根趾＝一条弯曲的脊线（趾根 → 尖端，带回勾）＋ 沿脊线渐细的宽度
+  <code>w(t)=wBase×(1−t^2.6)^0.5</code> —— 这个指数是关键：<b>大部分长度都保持厚，只在最后约四分之一收成针</b>；
+  三根趾的根**精确落在一道粗弧（掌背）上**，所以整只爪连成一体。全部只输出多边形点集，游戏里 <code>fillPoints</code> 一次填完。</em><br>
+  <em><b>A 掌爪三趾</b>＝首选，比例最稳；<b>B 四趾</b>＝更像真爪；<b>C 厚趾</b>＝缝更大、最远也看得到；
+  <b>D 长趾</b>＝最"画"的一版、最秀气；<b>E 爪痕三道</b>＝另一路味道（不是爪子而是抓痕）；
+  <b>F</b>＝A 放大 1.32 倍，想更醒目就选它。</em><br>
+  <em>挑一个字母（或说"要 A 但趾再长点／腕再小点／缝再大点"），我就装进红线。</em>
+</div>
+
+<script>
+/* ============================================================================
+   ★★ 爪形引擎（第二版 · 掌爪）
+     talon()     一个趾：脊线（二次贝塞尔）+ 沿脊线渐细的宽度 → 闭合轮廓多边形
+     arcBand()   掌背：一道粗弧带
+     onArc()     取弧上一点 → 趾根就长在这儿（保证连成一体 ✓）
+     palmClaw()  弧 + 若干趾 = 一只掌爪
+   → 输出**多边形点集数组** ✓ 预览里 ctx.fill ✓ 游戏里 g.fillPoints(pts, true) ✓
+   ============================================================================ */
+(function () {
+  var RED = '#e2231a', D2R = Math.PI / 180;
+
+  function quad(p0, p1, p2, n) {
+    var out = [], i, t, mt;
+    for (i = 0; i <= n; i++) {
+      t = i / n; mt = 1 - t;
+      out.push([mt * mt * p0[0] + 2 * mt * t * p1[0] + t * t * p2[0],
+                mt * mt * p0[1] + 2 * mt * t * p1[1] + t * t * p2[1]]);
+    }
+    return out;
+  }
+  /* ★ 一个趾：powA/powB 决定"厚多久"（2.6 / 0.5 ＝ 厚钩 ✓）；tipW ＝ 尖端最小宽 ✓ */
+  function talon(ox, oy, dirDeg, len, curlDeg, wBase, bow, powA, powB, tipW) {
+    var A = powA == null ? 2.6 : powA, B = powB == null ? 0.5 : powB, tw = tipW == null ? 0 : tipW;
+    var tipD = dirDeg + curlDeg;
+    var tip = [ox + Math.cos(tipD * D2R) * len, oy + Math.sin(tipD * D2R) * len];
+    var midD = dirDeg + curlDeg * 0.3;
+    var ctrl = [ox + Math.cos(midD * D2R) * len * 0.6 - Math.sin(dirDeg * D2R) * bow,
+                oy + Math.sin(midD * D2R) * len * 0.6 + Math.cos(dirDeg * D2R) * bow];
+    var sp = quad([ox, oy], ctrl, tip, 18), L = [], R = [], i;
+    for (i = 0; i < sp.length; i++) {
+      var t = i / (sp.length - 1), w = wBase * Math.pow(1 - Math.pow(t, A), B) + tw;
+      var i0 = Math.max(i - 1, 0), i1 = Math.min(i + 1, sp.length - 1);
+      var dx = sp[i1][0] - sp[i0][0], dy = sp[i1][1] - sp[i0][1], d = Math.hypot(dx, dy) || 1;
+      var nx = -dy / d, ny = dx / d;
+      L.push([sp[i][0] + nx * w / 2, sp[i][1] + ny * w / 2]);
+      R.push([sp[i][0] - nx * w / 2, sp[i][1] - ny * w / 2]);
+    }
+    return L.concat(R.reverse());
+  }
+  function arcBand(cx, cy, r, t, deg0, deg1, n) {
+    var o = [], i, a, N = n || 22;
+    for (i = 0; i <= N; i++) { a = (deg0 + (deg1 - deg0) * i / N) * D2R; o.push([cx + Math.cos(a) * (r + t / 2), cy + Math.sin(a) * (r + t / 2)]); }
+    for (i = N; i >= 0; i--) { a = (deg0 + (deg1 - deg0) * i / N) * D2R; o.push([cx + Math.cos(a) * (r - t / 2), cy + Math.sin(a) * (r - t / 2)]); }
+    return o;
+  }
+  function onArc(cx, cy, r, deg) { var a = deg * D2R; return [cx + Math.cos(a) * r, cy + Math.sin(a) * r]; }
+  /* 弧（掌背）+ 长在弧上的趾 = 一只掌爪 ✓ */
+  function palmClaw(r0, talons, backX) {
+    var p = [arcBand(backX, 0, r0, 9.0, 96, 264, 26)];
+    talons.forEach(function (t) {
+      var root = onArc(backX, 0, r0, t[0]);
+      p.push(talon(root[0], root[1], t[0], t[1], t[2], t[3], t[4]));
+    });
+    return p;
+  }
+  function fillPolys(c, polys) {
+    polys.forEach(function (pts) {
+      c.beginPath();
+      for (var i = 0; i < pts.length; i++) { i ? c.lineTo(pts[i][0], pts[i][1]) : c.moveTo(pts[i][0], pts[i][1]); }
+      c.closePath(); c.fill();
+    });
+  }
+
+  /* ★ 6 个方案（原点＝箭尖那一点 ✓ +x ＝ 前进方向 ✓ 单位＝设计像素 ✓）
+   *   A 三趾 / B 四趾 / C 厚趾 / D 长趾 / E 爪痕三道 / F ＝ A 放 1.32 倍 */
+  var V = {
+    A: function () { return palmClaw(14, [[-50, 68, 32, 11.4, 1.8], [-2, 78, 14, 12.4, 0.8], [48, 66, -30, 11.4, -1.8]], -28); },
+    B: function () { return palmClaw(15, [[-60, 56, 32, 9.6, 1.6], [-24, 72, 20, 11.4, 1.0], [16, 76, 10, 11.6, 0.4], [54, 56, -28, 9.6, -1.6]], -28); },
+    C: function () { return palmClaw(16, [[-52, 64, 28, 14.5, 1.6], [-2, 74, 12, 15.5, 0.6], [48, 62, -26, 14.5, -1.6]], -30); },
+    D: function () { return palmClaw(13, [[-46, 80, 34, 9.6, 2.0], [-2, 92, 16, 10.4, 1.0], [44, 78, -32, 9.6, -2.0]], -26); },
+    E: function () {
+      return [
+        talon(-24, -30, 32, 72, 14, 12.4, 3.0, 2.2, 0.5, 1.0),
+        talon(-28, -5, 34, 84, 16, 14.0, 3.4, 2.2, 0.5, 1.0),
+        talon(-32, 20, 36, 62, 18, 11.2, 2.8, 2.2, 0.5, 0.9),
+      ];
+    },
+    F: function () {
+      return V.A().map(function (pts) { return pts.map(function (q) { return [q[0] * 1.32, q[1] * 1.32]; }); });
+    },
+  };
+  function claw(c, v, x, y, ang, k, alpha) {
+    c.save();
+    c.translate(x, y); c.rotate(ang); c.scale(k, k);
+    c.globalAlpha = Math.max(0, Math.min(1, alpha));
+    c.fillStyle = RED;
+    fillPolys(c, (V[v] || V.A)());
+    c.restore();
+  }
+  window.ClawDraw = claw;
+  window.ClawNames = { A: '掌爪三趾', B: '掌爪四趾', C: '掌爪厚趾', D: '掌爪长趾', E: '爪痕三道', F: '三趾·大一号' };
+  window.ClawWhy = {
+    A: '圆腕 + 三根渐细长趾 ✓ 比例最稳 ✓ 首选 ✓',
+    B: '四趾 ✓ 更像真爪 ✓ 细节最多 ✓',
+    C: '趾最厚、缝更大 ✓ 远看也认得出 ✓',
+    D: '趾最长最细 ✓ 最"画出来"的一版 ✓',
+    E: '三道斜排月牙 ✓ 不是爪子而是抓痕 ✓',
+    F: '＝A 放大 1.32 倍 ✓ 想更醒目就选它 ✓',
+  };
+})();
+</script>
+
+<script>
+/* ===== 下半页：游戏画面 1:1 ＋ 把选中的爪形装到红线上 ===== */
+function DIS_MS() { return 820; }        // 与游戏一致 ✓
+var DIS_ACC = 150, FLY_MS = 5400, GL_MS = 700, GL_ON = 180, EMIT_PER_S = 190, MIN_GAP = 2000;
+
+(function () {
+  var stage = document.getElementById('st');
+  var cb = document.getElementById('cvBack'), ctx = cb.getContext('2d');
+  var toastEl = document.getElementById('toast'), readout = document.getElementById('readout');
+  var bAuto = document.getElementById('bAuto'), bSlow = document.getElementById('bSlow');
+  var V = 'A', slow = false, auto = true;
+
+  var IMG = {};
+  ['../assets/skin-saint/bg.png', '../assets/img/logos-idle.png', '../assets/img/saint-idle.png'].forEach(function (u) {
+    var im = new Image(); im.src = u; IMG[u] = im;
+  });
+  var SPR = [
+    { cv: document.getElementById('spL'), url: '../assets/img/logos-idle.png', fw: 260, fh: 340, last: 149, flip: false, fps: 30 },
+    { cv: document.getElementById('spR'), url: '../assets/img/saint-idle.png', fw: 180, fh: 180, last: 174, flip: true, fps: 30 }
+  ];
+  SPR.forEach(function (p) { var c = p.cv.getContext('2d'); c.scale(2, 2); p.ctx = c; p.w = p.cv.width / 2; p.h = p.cv.height / 2; });
+  function drawSpr(p, now) {
+    var im = IMG[p.url];
+    if (!im || !im.complete || !im.naturalWidth) return;
+    if (!p.ready) { p.cols = Math.max(1, Math.round(im.naturalWidth / p.fw)); p.ready = true; }
+    var i = Math.floor(now / 1000 * p.fps) % (p.last + 1);
+    p.ctx.clearRect(0, 0, p.w, p.h);
+    p.ctx.save();
+    if (p.flip) { p.ctx.translate(p.w, 0); p.ctx.scale(-1, 1); }
+    p.ctx.drawImage(im, (i % p.cols) * p.fw, Math.floor(i / p.cols) * p.fh, p.fw, p.fh, 0, 0, p.w, p.h);
+    p.ctx.restore();
+  }
+
+  var CX = 640, CY = 360, LX = 400, RX = 880;
+  var dyL = 130, dyR = 104, y0L = CY - dyL, y0R = CY - 1.5 * dyR;
+  var nodes = [], air = [], parts = [], fired = false, cool = 0;
+  function mk(side, text, pair, x, y, isEn, phase) {
+    var d = document.createElement('div');
+    d.className = 'node' + (isEn ? ' en' : '');
+    d.textContent = text;
+    d.style.left = (x - 110) + 'px'; d.style.top = (y - 43) + 'px';
+    stage.appendChild(d);
+    nodes.push({ el: d, side: side, pair: pair, x: x, y: y, ph: phase, dur: 2 * (2100 + phase * 320) / 1000 });
+  }
+  var DEMO = [{ en: 'address', zh: '向……讲话；对……发表演说' }, { en: 'book', zh: '预订' }, { en: 'last', zh: '持续' }];
+  function build() {
+    nodes.forEach(function (n) { n.el.remove(); });
+    nodes = [];
+    DEMO.forEach(function (p, i) { mk('L', p.en, p.en, LX, y0L + i * dyL, true, i); });
+    var rights = DEMO.map(function (p) { return { zh: p.zh, pair: p.en }; });
+    rights.push({ zh: '把……归因于', pair: '__extra__' });
+    [1, 3, 0, 2].forEach(function (oi, i) { mk('R', rights[oi].zh, rights[oi].pair, RX, y0R + i * dyR, false, i); });
+  }
+  function rectOf(nd) {
+    var r = nd.el.getBoundingClientRect(), s2 = stage.getBoundingClientRect();
+    return { cx: r.left - s2.left + r.width / 2, cy: r.top - s2.top + r.height / 2 };
+  }
+  function nodeAt(side, pair) { return nodes.filter(function (n) { return n.side === side && n.pair === pair; })[0]; }
+  function wrongNear(nd) {
+    var a = rectOf(nd), best = null, bd = 1e9;
+    nodes.forEach(function (n) {
+      if (n.side === nd.side || n.pair === nd.pair) return;
+      var b = rectOf(n), d = Math.hypot(b.cx - a.cx, b.cy - a.cy);
+      if (d < bd) { bd = d; best = n; }
+    });
+    return best;
+  }
+  function launch() {
+    air = []; parts = []; fired = false; cool = 0;
+    nodes.forEach(function (n) { n.el.classList.remove('sel'); n.el.style.boxShadow = ''; });
+    var t1 = nodeAt('L', 'address'), t2 = nodeAt('L', 'book');
+    var s1 = wrongNear(t1), s2 = wrongNear(t2);
+    if (s1) { air.push({ src: s1, word: t1, pair: t1.pair, p: 0, dis: 0, dying: false, acc: 0 }); t1.el.classList.add('sel'); }
+    if (s2) { air.push({ src: s2, word: t2, pair: t2.pair, p: -MIN_GAP / FLY_MS, dis: 0, dying: false, acc: 0 }); t2.el.classList.add('sel'); }
+    toastEl.style.opacity = 0;
+  }
+  function dissolve() {
+    if (fired) return;
+    var live = air.filter(function (L) { return !L.dying; });
+    if (!live.length) return;
+    live.sort(function (a, b) { return b.p - a.p; });
+    var L = live[0];
+    fired = true; L.dying = true; L.dis = 0;
+    var a = rectOf(L.src), b = rectOf(L.word);
+    spray(a.cx + (b.cx - a.cx) * L.p, a.cy + (b.cy - a.cy) * L.p, 14);
+    toastEl.textContent = '答对 ✓ 消散最前面那根（爪形 ' + V + ' · ' + window.ClawNames[V] + '）';
+    toastEl.style.opacity = 1;
+  }
+  function spray(x, y, n) {
+    for (var i = 0; i < n; i++) {
+      var a = Math.random() * Math.PI * 2, sp = 90 + Math.random() * 300;
+      parts.push({ x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40, life: .3 + Math.random() * .45,
+                   size: 2.5 + Math.random() * 5, cy: Math.random() < .25 });
+    }
+  }
+  function frontOf(L) { return L.p * (1 - L.dis); }
+  function emit(L, dt) {
+    var a = rectOf(L.src), b = rectOf(L.word), t = frontOf(L);
+    var x = a.cx + (b.cx - a.cx) * t, y = a.cy + (b.cy - a.cy) * t;
+    var dx = b.cx - a.cx, dy = b.cy - a.cy, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+    L.acc = (L.acc || 0) + EMIT_PER_S * dt;
+    while (L.acc >= 1) {
+      L.acc -= 1;
+      var sp = 40 + Math.random() * 190;
+      parts.push({ x: x + (Math.random() - .5) * 7, y: y + (Math.random() - .5) * 7,
+                   vx: -ux * sp + (Math.random() - .5) * 130, vy: -uy * sp + (Math.random() - .5) * 130 - 30,
+                   life: .28 + Math.random() * .45, size: 2 + Math.random() * 5, cy: Math.random() < .22 });
+    }
+    if (parts.length > 260) parts.splice(0, parts.length - 260);
+  }
+  function seg(c, x0, y0, x1, y1, col, w) {
+    c.strokeStyle = col; c.lineWidth = w; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke();
+  }
+
+  var lastT = performance.now();
+  function loop(now) {
+    var raw = Math.min((now - lastT) / 1000, .05); lastT = now;
+    var dt = raw * (slow ? 0.35 : 1), tsec = now / 1000;
+    SPR.forEach(function (p) { drawSpr(p, now); });
+
+    for (var i = air.length - 1; i >= 0; i--) {
+      var L = air[i];
+      if (L.dying) {
+        L.dis = Math.min(1, L.dis + dt * 1000 / DIS_MS());
+        emit(L, dt);
+        if (L.dis >= 1) air.splice(i, 1);
+      } else {
+        L.p = Math.min(1, L.p + dt * 1000 / FLY_MS);
+        if (L.p >= 1) {
+          L.word.el.style.boxShadow = '0 0 0 6px rgba(226,35,26,.55)';
+          toastEl.textContent = '『' + L.word.pair + '』被它连上了 ✗';
+          toastEl.style.opacity = 1;
+          air.splice(i, 1);
+        }
+      }
+    }
+    parts.forEach(function (q) { q.life -= dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vy += 330 * dt; q.vx *= (1 - 1.6 * dt); });
+    parts = parts.filter(function (q) { return q.life > 0; });
+
+    if (auto) {
+      if (!fired) {
+        var lead = air.filter(function (x) { return !x.dying; }).sort(function (a, b) { return b.p - a.p; })[0];
+        if (lead && lead.p >= 0.8) dissolve();
+      } else if (!air.length) { cool += dt; if (cool > 2.6) launch(); }
+    }
+    var live = air.filter(function (x) { return !x.dying; }), dying = air.filter(function (x) { return x.dying; });
+    var fmt = function (x) { return x.word.pair + ' ' + (x.p <= 0 ? '排队中' : Math.round(x.p * 100) + '%'); };
+    readout.textContent = '爪形 ' + V + '　' + (fired
+      ? '消散中：' + dying.map(function (x) { return Math.round(x.dis * 100) + '%'; }).join('') + (live.length ? '　｜　还在飞：' + live.map(fmt).join('　·　') : '')
+      : '在飞：' + (live.length ? live.map(fmt).join('　·　') : '—'));
+
+    nodes.forEach(function (n) {
+      n.el.style.transform = 'translateY(' + (12 * Math.sin(2 * Math.PI * tsec / n.dur + n.ph * 1.1)).toFixed(2) + 'px)';
+    });
+
+    ctx.clearRect(0, 0, 1280, 720);
+    var gph = (now % GL_MS) < GL_ON;
+    air.forEach(function (L) {
+      var a = rectOf(L.src), b = rectOf(L.word);
+      var t = frontOf(L);
+      var hx = a.cx + (b.cx - a.cx) * t, hy = a.cy + (b.cy - a.cy) * t;
+      var dx = b.cx - a.cx, dy = b.cy - a.cy, len = Math.hypot(dx, dy) || 1;
+      var ux = dx / len, uy = dy / len, nx = -uy, ny = ux, ang = Math.atan2(dy, dx);
+      if (t > 0.002) {
+        if (gph && !L.dying) {
+          seg(ctx, a.cx + nx * 3, a.cy + ny * 3, hx + nx * 3, hy + ny * 3, 'rgba(60,224,224,.5)', 3);
+          seg(ctx, a.cx - nx * 3, a.cy - ny * 3, hx - nx * 3, hy - ny * 3, 'rgba(226,35,26,.5)', 3);
+        }
+        seg(ctx, a.cx, a.cy, hx, hy, '#e2231a', 3);
+        if (L.dying) {
+          var s10 = Math.min(42, len * t), fx0 = hx - ux * s10, fy0 = hy - uy * s10;
+          seg(ctx, fx0, fy0, hx, hy, 'rgba(255,120,90,.95)', 5);
+          ctx.globalAlpha = Math.min(1, L.dis * 4);
+          seg(ctx, fx0, fy0, hx, hy, '#fff2ee', 2);
+          ctx.globalAlpha = 1;
+        }
+      }
+      var gone = L.dying ? Math.min(1, (L.dis * DIS_MS()) / DIS_ACC) : 0;
+      if (gone < 0.98 && t > 0.02) window.ClawDraw(ctx, V, hx, hy, ang, 1 - 0.45 * gone, 1 - gone);
+    });
+    parts.forEach(function (q) {
+      ctx.globalAlpha = Math.min(1, q.life * 2.6);
+      ctx.fillStyle = q.cy ? '#3ce0e0' : '#e2231a';
+      ctx.fillRect(q.x - q.size / 2, q.y - q.size / 2, q.size, q.size);
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(loop);
+  }
+
+  /* 对照带：每格 上＝1.9× 看形状 ✓ 下＝**1× 装在一根真红线上**（右侧竖线＝词框边 ✓）*/
+  function drawGallery() {
+    var g = document.getElementById('gal'), c = g.getContext('2d'), dpr = 2;
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.clearRect(0, 0, 1280, 200);
+    var keys = ['A', 'B', 'C', 'D', 'E', 'F'], cw = 1280 / 6;
+    keys.forEach(function (k, i) {
+      var x0 = i * cw, active = (k === V);
+      c.strokeStyle = '#cdd9e2'; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(x0 + .5, 8); c.lineTo(x0 + .5, 192); c.stroke();
+      c.font = '600 13px "Novecento Wide", sans-serif';
+      c.fillStyle = active ? '#e2231a' : '#54686a';
+      c.fillText(k + '　' + window.ClawNames[k], x0 + 12, 26);
+      /* 上：1.9× 形状（贴在一条基准线上 ✓）*/
+      var cxp = x0 + 56, cyp = 78;
+      c.strokeStyle = '#e6e6e6'; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(x0 + 16, cyp + .5); c.lineTo(x0 + cw - 16, cyp + .5); c.stroke();
+      window.ClawDraw(c, k, cxp, cyp, 0, 1.9, 1);
+      /* 下：1× 装在真红线上 ✓ */
+      var ly = 140;
+      c.strokeStyle = '#e6e6e6'; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(x0 + 16, ly + .5); c.lineTo(x0 + cw - 16, ly + .5); c.stroke();
+      c.fillStyle = '#e2231a';
+      c.fillRect(x0 + 22, ly - 1.5, cw - 78, 3);
+      window.ClawDraw(c, k, x0 + cw - 56, ly, 0, 1, 1);
+      c.fillStyle = '#8fa8bd';
+      c.fillRect(x0 + cw - 18, ly - 30, 2, 60);                    // 词框边 ✓
+      c.fillStyle = '#6b6f76'; c.font = '11px "HarmonyOS Sans SC", sans-serif';
+      c.fillText('1×（游戏里就这么大）', x0 + 22, ly + 26);
+      wrap(c, window.ClawWhy[k], x0 + 12, 172, cw - 24, 16, active ? '#12232e' : '#6b6f76');
+      if (active) { c.strokeStyle = '#e2231a'; c.lineWidth = 2; c.strokeRect(x0 + 2, 6, cw - 4, 188); }
+    });
+  }
+  function wrap(c, txt, x, y, w, lh, col) {
+    c.fillStyle = col;
+    var line = '';
+    for (var i = 0; i < txt.length; i++) {
+      var t2 = line + txt[i];
+      if (c.measureText(t2).width > w && line) { c.fillText(line, x, y); y += lh; line = txt[i]; }
+      else line = t2;
+    }
+    c.fillText(line, x, y);
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('button.v'), function (b) {
+    b.onclick = function () {
+      V = b.getAttribute('data-v');
+      Array.prototype.forEach.call(document.querySelectorAll('button.v'), function (o) { o.className = 'v' + (o === b ? ' on' : ''); });
+      drawGallery(); launch();
+    };
+  });
+  document.getElementById('bReplay').onclick = function () { dissolve(); };
+  document.getElementById('bRelaunch').onclick = function () { launch(); };
+  bAuto.onclick = function () { auto = !auto; bAuto.className = auto ? 'on' : ''; };
+  bSlow.onclick = function () { slow = !slow; bSlow.className = slow ? 'on' : ''; bSlow.textContent = slow ? '慢放 0.35×（开）' : '慢放 0.35×'; };
+  stage.addEventListener('mousedown', function () { if (!fired) dissolve(); else launch(); });
+
+  ['barL', 'barR'].forEach(function (cls) {
+    var b = document.querySelector('.' + cls);
+    for (var i = 1; i < 9; i++) { var t = document.createElement('div'); t.className = 'tk'; t.style.left = (272 * i / 9) + 'px'; b.appendChild(t); }
+  });
+
+  build(); launch(); drawGallery();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body></html>

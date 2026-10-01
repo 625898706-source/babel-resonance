@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>亚当重锤 · 中文按钮/字体 赛博化变式</title>
+<style>
+/* ============================================================================
+   中文的"赛博朋克感"变式 —— 只影响亚当重锤那一场
+   新字体候选：得意黑 Smiley Sans（OFL 免费商用，天生斜体、字面紧凑、很有速度感）
+   已有字体：HarmonyOS Sans SC（Regular/Medium/Bold/Black 都在 assets/fonts 里）
+   ========================================================================== */
+@font-face{font-family:'Orbitron';src:url('../assets/fonts/Orbitron-700-900.woff2')format('woff2');font-weight:700 900}
+@font-face{font-family:'Rajdhani';src:url('../assets/fonts/Rajdhani-500.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'Rajdhani';src:url('../assets/fonts/Rajdhani-600.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2')format('woff2');font-weight:900}
+@font-face{font-family:'Smiley';src:url('../assets/fonts/SmileySans-Oblique.woff2')format('woff2');font-weight:400}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111}
+.desk{min-height:100vh;padding:16px 16px 70px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.head{width:100%;max-width:1240px}
+.head h1{font-size:17px;font-weight:900;margin-bottom:4px}
+.head p{font-size:12.5px;color:#6f6f6f;line-height:1.75}
+.sec{width:1240px;background:#04070c;border:1px solid #1b3b46;padding:10px 0 14px}
+.sec > h2{font-family:'Rajdhani';color:#5ef6ff;font-size:13px;letter-spacing:.16em;font-weight:600;padding:2px 18px 8px}
+.case{display:flex;align-items:center;gap:16px;padding:9px 18px;border-top:1px solid rgba(94,246,255,.10)}
+.lab{width:250px;flex:0 0 auto;font-family:'Rajdhani';font-size:12px;color:#68809a;line-height:1.4}
+.lab b{display:block;color:#5ef6ff;font-size:13px}
+.opts{display:flex;gap:14px;flex-wrap:wrap}
+
+/* 基底：和游戏里一致的选项按钮（320×84 深面板 + 左青边） */
+.opt{position:relative;width:320px;height:84px;display:flex;align-items:center;justify-content:center;text-align:center;
+  background:linear-gradient(180deg,rgba(9,16,24,.95),rgba(6,11,17,.95));border:1px solid rgba(94,246,255,.2);color:#cfeef7;
+  font-family:'HOS';font-size:19px;font-weight:500;line-height:1.3;padding:10px 18px}
+.opt::before{content:'';position:absolute;left:0;top:0;width:3px;height:100%;background:#5ef6ff;opacity:.5}
+.opt .idx{position:absolute;right:8px;bottom:4px;font-family:'Orbitron';font-size:10px;color:rgba(94,246,255,.35)}
+
+/* —— 变式 A1 现状 —— */
+.opt.a1{font-weight:500}
+/* —— 变式 A2 得意黑 + 拉字距 + 青发光 —— */
+.opt.a2{font-family:'Smiley';font-size:21px;letter-spacing:.10em;color:#eafcff;text-shadow:0 0 12px rgba(94,246,255,.75)}
+/* —— 变式 A3 得意黑 + 切角 + 编号水印 + 亮条更粗 —— */
+.opt.a3{font-family:'Smiley';font-size:21px;letter-spacing:.10em;color:#eafcff;text-shadow:0 0 12px rgba(94,246,255,.7);
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+.opt.a3::before{width:4px;opacity:1;box-shadow:0 0 12px #5ef6ff}
+/* —— 变式 A4 HarmonyOS Black + 上下细线（终端感） —— */
+.opt.a4{font-family:'HOS';font-weight:900;font-size:19px;letter-spacing:.06em;color:#eafcff;border-color:rgba(94,246,255,.35)}
+.opt.a4::after{content:'';position:absolute;left:14px;right:14px;top:9px;height:1px;background:rgba(94,246,255,.45);
+  box-shadow:0 62px 0 rgba(94,246,255,.45)}
+/* —— 变式 A5 得意黑 + 扫描线底纹 + 斜体感最强 —— */
+.opt.a5{font-family:'Smiley';font-size:22px;letter-spacing:.12em;color:#eafcff;
+  background:linear-gradient(180deg,rgba(9,16,24,.95),rgba(6,11,17,.95)),repeating-linear-gradient(0deg,rgba(94,246,255,.10) 0 1px,transparent 1px 3px);
+  text-shadow:0 0 14px rgba(94,246,255,.6)}
+/* —— 变式 A6 中文加方括号装饰 + 得意黑 —— */
+.opt.a6{font-family:'Smiley';font-size:20px;letter-spacing:.08em;color:#eafcff}
+.opt.a6 .br{color:#5ef6ff;font-family:'Orbitron';font-weight:900;margin:0 8px;text-shadow:0 0 10px rgba(94,246,255,.8)}
+/* —— 变式 A7 HOS Black + 青描边感（细字重+发光，最"硬"） —— */
+.opt.a7{font-family:'HOS';font-weight:900;font-size:20px;letter-spacing:.10em;color:#0b131c;background:#5ef6ff;border-color:#5ef6ff}
+
+/* 小字/标签变式 */
+.t{color:#68809a;font-family:'HOS';font-size:12.5px;letter-spacing:.06em}
+.t.b2{font-family:'Smiley';font-size:14px;letter-spacing:.12em;color:#7fe9ff}
+.t.b3{font-family:'HOS';font-weight:900;font-size:12.5px;letter-spacing:.10em;color:#9fe8ff}
+.t.b4{font-family:'Smiley';font-size:14px;letter-spacing:.14em;color:#5ef6ff;text-shadow:0 0 10px rgba(94,246,255,.5)}
+.name{font-family:'Smiley';font-size:17px;letter-spacing:.08em;color:#5ef6ff;text-shadow:0 0 12px rgba(94,246,255,.6)}
+.tagx{font-family:'Orbitron';font-size:10px;letter-spacing:.18em;color:#41586e}
+</style>
+</head>
+<body>
+<div class="desk">
+  <div class="head">
+    <h1>中文按钮 / 中文小字的赛博化变式</h1>
+    <p>现在的中文回落到 <b>HarmonyOS Sans SC</b>（现代无衬线，确实没有赛博味）。下面给两种路子：
+       <b>换字体</b>（新增候选 <b>得意黑 Smiley Sans</b>，OFL 免费商用、天生斜体、字面紧凑、速度感强，woff2 仅 1.1MB）
+       与 <b>不换字体只做处理</b>（拉字距／切角／扫描线／亮条／反白）。<br>
+       说编号即可（例如"A5 + B2"）。每个变式都只用 Phaser Text + 矩形能做到的手段，能 1:1 落到游戏里。</p>
+  </div>
+
+  <div class="sec">
+    <h2>一、中文选项按钮（四选一的释义）</h2>
+    <div class="case"><div class="lab"><b>A1 现状</b>HarmonyOS Medium 19px，无处理</div>
+      <div class="opts"><div class="opt a1">混沌；混乱<span class="idx">01</span></div><div class="opt a1">欺骗；作弊<span class="idx">02</span></div></div></div>
+    <div class="case"><div class="lab"><b>A2 得意黑 + 拉字距 + 青发光</b>最省事，立刻有未来感</div>
+      <div class="opts"><div class="opt a2">混沌；混乱<span class="idx">01</span></div><div class="opt a2">欺骗；作弊<span class="idx">02</span></div></div></div>
+    <div class="case"><div class="lab"><b>A3 得意黑 + 切角 + 粗亮条</b>像"数据项"</div>
+      <div class="opts"><div class="opt a3">混沌；混乱<span class="idx">01</span></div><div class="opt a3">欺骗；作弊<span class="idx">02</span></div></div></div>
+    <div class="case"><div class="lab"><b>A4 HarmonyOS Black + 上下细线</b>不换字体，终端感</div>
+      <div class="opts"><div class="opt a4">混沌；混乱</div><div class="opt a4">欺骗；作弊</div></div></div>
+    <div class="case"><div class="lab"><b>A5 得意黑 + 扫描线底纹</b>赛博最足</div>
+      <div class="opts"><div class="opt a5">混沌；混乱</div><div class="opt a5">欺骗；作弊</div></div></div>
+    <div class="case"><div class="lab"><b>A6 得意黑 + 方括号装饰</b>像"系统条目"</div>
+      <div class="opts"><div class="opt a6"><span class="br">[</span>混沌；混乱<span class="br">]</span></div><div class="opt a6"><span class="br">[</span>欺骗；作弊<span class="br">]</span></div></div></div>
+    <div class="case"><div class="lab"><b>A7 反白（黑字青底）</b>对比最狠，但改成"选中态"更合适</div>
+      <div class="opts"><div class="opt a7">混沌；混乱</div><div class="opt a7">欺骗；作弊</div></div></div>
+  </div>
+
+  <div class="sec">
+    <h2>二、中文小字 / 标签（提示行、藏品、目标生命…）</h2>
+    <div class="case"><div class="lab"><b>B1 现状</b>HarmonyOS 12.5px</div>
+      <div class="opts"><span class="t">选择正确的中文释义</span><span class="t">藏品</span><span class="t">目标生命</span></div></div>
+    <div class="case"><div class="lab"><b>B2 得意黑 + 字距 + 青</b></div>
+      <div class="opts"><span class="t b2">选择正确的中文释义</span><span class="t b2">藏品</span><span class="t b2">目标生命</span></div></div>
+    <div class="case"><div class="lab"><b>B3 HarmonyOS Black + 拉字距</b>不换字体</div>
+      <div class="opts"><span class="t b3">选择正确的中文释义</span><span class="t b3">藏品</span><span class="t b3">目标生命</span></div></div>
+    <div class="case"><div class="lab"><b>B4 得意黑 + 青发光</b>最亮</div>
+      <div class="opts"><span class="t b4">选择正确的中文释义</span><span class="t b4">藏品</span><span class="t b4">目标生命</span></div></div>
+    <div class="case"><div class="lab"><b>B5 名字（逻各斯 / 亚当重锤）用得意黑</b></div>
+      <div class="opts"><span class="name">逻各斯</span><span class="name" style="color:#ff2b4e;text-shadow:0 0 12px rgba(255,43,78,.6)">亚当重锤</span>
+        <span class="tagx">LOGOS</span><span class="tagx">ARASAKA</span></div></div>
+  </div>
+
+  <div class="head"><p>提示：<b>得意黑本身就是斜体</b>（人名/按钮用它会自带"速度感"）；若担心斜体看着累，用 <b>A4/B3</b> 这种"不换字体、只加终端线＋拉字距"的稳方案。
+     另外英文字体已切到 Orbitron，中文换得意黑后中英混排的对比会更强。</p></div>
+</div>
+</body>
+</html>

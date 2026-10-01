@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>战斗结算面板 · 重做 3 案</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --ink:#0a0b0d; --text:#141414; --muted:#6f6f6f; --line:#e6e6e6;
+    --red:#e2231a; --purple:#9d5cff; --green:#2f7d3a;
+    --gold:#c8a24a; --wine:#6c2424; --verm:#cc543c; --bronze:#9c846c; --bronzeHi:#b4b49c;
+    --card:#fffdf9;
+  }
+  body{background:#f2f2f0;color:var(--text);
+    font:14px/1.6 "HarmonyOS Sans SC","Microsoft YaHei",system-ui,sans-serif;
+    padding:26px 20px 60px;-webkit-font-smoothing:antialiased}
+  h1{font-size:23px;font-weight:800;letter-spacing:.01em}
+  .note{color:var(--muted);font-size:13px;margin:6px 0 4px}
+  .note b{color:var(--ink)}
+  .wrap{display:flex;gap:22px;flex-wrap:wrap;margin-top:20px}
+  .col{flex:1 1 460px;min-width:440px}
+  .cap{display:flex;align-items:baseline;gap:9px;margin-bottom:9px}
+  .cap .t{font-size:15px;font-weight:700}
+  .cap .d{font-size:12px;color:var(--muted)}
+  .stage{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;
+    border:1px solid #dcdcda;border-radius:8px;background:#fbfbf9}
+  /* 舞台里的"战斗残影"——用来验证 z-order */
+  .bg-fake{position:absolute;inset:0;
+    background:
+      radial-gradient(120% 90% at 18% 46%, #4a5560 0 21%, transparent 22%),
+      radial-gradient(120% 90% at 84% 46%, #55606a 0 21%, transparent 22%),
+      linear-gradient(180deg,#ffffff,#fafaf8)}
+  .bg-fake::after{content:"";position:absolute;left:6%;right:6%;top:8%;height:5px;background:#e4e4e2;border-radius:3px}
+  /* ★ 拼词场景：字母块（depth 50）+ 已拼方框（depth 0 ✗ 这个原来压不住 ✓）*/
+  .tiles-fake{position:absolute;left:50%;bottom:9%;transform:translateX(-50%);
+    display:flex;gap:7px}
+  .tiles-fake i{display:block;width:38px;height:38px;background:#fff;
+    border:1px solid #cfcfcf;border-radius:3px;
+    font-style:normal;font-size:19px;color:#111;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 1px 0 #e8e8e6}
+  .slots-fake{position:absolute;left:50%;top:44%;transform:translateX(-50%);display:flex;gap:7px}
+  .slots-fake i{display:block;width:34px;height:34px;background:#f7f7f7;
+    border:1px solid #cfcfcf;border-radius:3px} 
+
+  /* ============================== 方案 1 · 展签 ============================== */
+  .veil{position:absolute;inset:0;background:rgba(252,252,250,.90);backdrop-filter:blur(2px)}
+  .d1{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:64%;background:transparent}
+  .d1 .hd{display:flex;align-items:baseline;justify-content:space-between;
+    border-bottom:2px solid var(--ink);padding-bottom:7px}
+  .d1 .hd .k{font-size:11px;letter-spacing:.34em;color:var(--muted)}
+  .d1 .hd .r{font-size:11px;letter-spacing:.2em;color:var(--muted)}
+  .d1 .title{font-size:27px;font-weight:800;letter-spacing:.06em;margin:13px 0 2px}
+  .d1 .rows{margin-top:4px}
+  .d1 .row{display:flex;align-items:center;gap:14px;padding:8px 0;border-bottom:1px solid var(--line)}
+  .d1 .row:last-child{border-bottom:0}
+  .d1 .row .lab{width:112px;flex:0 0 112px;font-size:12px;color:var(--muted);letter-spacing:.04em}
+  .d1 .row .val{font-size:16px;font-weight:600}
+  .d1 .row.cur .val{color:var(--red);font-weight:800;font-size:20px}
+  .d1 .row.col .lab{color:#8a63d2}
+  .d1 .row.col .val{color:var(--purple);font-weight:500;font-size:14px}
+  .d1 .row.own .lab{color:var(--muted)}
+  .d1 .row.own .val{font-size:14px}
+  .d1 .rar{font-size:11px;letter-spacing:.1em;padding:1px 7px;border-radius:3px;margin-right:8px;
+    border:1px solid currentColor}
+  .d1 .bar{height:3px;width:100%;background:var(--ink);margin-top:14px;
+    transform-origin:left;animation:grow 1.7s linear forwards}
+  @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+  /* ============================== 方案 2 · 萨卡兹碑铭 ============================== */
+  .d2veil{position:absolute;inset:0;background:rgba(8,10,14,.86)}
+  .d2{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:66%;padding:22px 26px 20px;
+    background:linear-gradient(180deg,rgba(22,24,30,.96),rgba(14,16,20,.98));
+    border:1px solid rgba(200,162,74,.34);border-radius:3px;
+    box-shadow:0 20px 60px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.03)}
+  .d2::before,.d2::after{content:"";position:absolute;width:16px;height:16px;
+    border:1px solid rgba(200,162,74,.55)}
+  .d2::before{left:6px;top:6px;border-right:0;border-bottom:0}
+  .d2::after{right:6px;bottom:6px;border-left:0;border-top:0}
+  .d2 .hd{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .d2 .hd .rule{flex:1;height:1px;background:linear-gradient(90deg,rgba(200,162,74,.5),transparent)}
+  .d2 .hd .k{font-size:12px;letter-spacing:.4em;color:var(--gold)}
+  .d2 .row{display:flex;align-items:baseline;gap:14px;padding:7px 0}
+  .d2 .row .lab{width:120px;flex:0 0 120px;font-size:12px;color:#8c8f9a;letter-spacing:.1em}
+  .d2 .row .val{color:#f2efe4;font-size:15px}
+  .d2 .row.cur .val{color:var(--gold);font-size:22px;font-weight:700;letter-spacing:.02em}
+  .d2 .row.col .val{color:#b98cf0;font-size:14px}
+  .d2 .row.own .val{color:#b4b49c;font-size:13px}
+  .d2 .rar{border-color:currentColor}
+  .d2 .foot{margin-top:14px;padding-top:10px;border-top:1px solid rgba(200,162,74,.18);
+    display:flex;justify-content:space-between;font-size:11px;color:#6f7480;letter-spacing:.16em}
+
+  /* ============================== 方案 3 · 横幅 ============================== */
+  .d3veil{position:absolute;inset:0;background:rgba(252,252,250,.90)}
+  .d3{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:76%}
+  .d3 .band{background:var(--ink);color:#fff;padding:13px 22px 12px;
+    display:flex;align-items:center;justify-content:space-between;
+    border-radius:4px 4px 0 0}
+  .d3 .band .k{font-size:11px;letter-spacing:.36em;color:#b9b9b9}
+  .d3 .band .big{font-size:19px;font-weight:800;letter-spacing:.1em}
+  .d3 .body{background:#fff;border:1px solid var(--ink);border-top:0;padding:12px 22px 14px;
+    border-radius:0 0 4px 4px}
+  .d3 .row{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid #f0f0f0}
+  .d3 .row:last-child{border-bottom:0}
+  .d3 .row .ico{width:26px;flex:0 0 26px;text-align:center;font-size:13px}
+  .d3 .row .txt{font-size:15px}
+  .d3 .row.cur .txt{color:var(--red);font-weight:800;font-size:19px}
+  .d3 .row.col .txt{color:var(--purple);font-size:14px}
+  .d3 .row.own .txt{font-size:14px;color:#3f4145}
+  .d3 .rar{border-color:currentColor}
+
+  .legend{margin-top:9px;font-size:12px;color:var(--muted)}
+  .legend code{background:#e9e9e6;padding:1px 5px;border-radius:3px;font-size:11.5px}
+</style>
+</head>
+<body>
+
+<h1>战斗结算面板 · 重做 3 案</h1>
+<p class="note">场景：三层 BOSS 打赢（<b>35 血圣徒</b>）。数据是真实的一场：残页 +7 ／ 铁络之印 反打 7.5 ／ 缄口挡下 2 次 ／ 圣环破碎 2 次。</p>
+<p class="note">每张图里都放了<b>拼词的字母块与已拼方框</b> —— 就是你说"经常挡到"的那个场景。<b>三案都会把它们藏起来</b>（不是靠盖住）。</p>
+
+<div class="wrap">
+
+  <!-- ============ 案 1 ============ -->
+  <div class="col">
+    <div class="cap"><span class="t">案 1 ｜ 展签</span><span class="d">跟随 E3 主风格：细线 + 留白，无实心框</span></div>
+    <div class="stage">
+      <div class="bg-fake"></div>
+      <div class="slots-fake"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="tiles-fake"><i>s</i><i>i</i><i>l</i><i>e</i><i>n</i><i>c</i><i>e</i></div>
+      <div class="veil"></div>
+      <div class="d1">
+        <div class="hd"><span class="k">BATTLE CLEARED</span><span class="r">第 3 层 · 残响层</span></div>
+        <div class="title">战斗结算</div>
+        <div class="rows">
+          <div class="row cur"><span class="lab">残页</span><span class="val">+7</span></div>
+          <div class="row col"><span class="lab">铁络之印</span><span class="val">答错反打 7.5 伤害</span></div>
+          <div class="row col"><span class="lab">缄口</span><span class="val">挡下 2 次受击</span></div>
+          <div class="row col"><span class="lab">圣环</span><span class="val">破碎 2 次</span></div>
+        </div>
+        <div class="bar"></div>
+      </div>
+    </div>
+    <p class="legend">层次：<code>遮罩 .90</code> ＋ <code>细线</code>。最像现有 UI，改动最小。</p>
+  </div>
+
+  <!-- ============ 案 2 ============ -->
+  <div class="col">
+    <div class="cap"><span class="t">案 2 ｜ 萨卡兹碑铭</span><span class="d">跟随奎隆皮肤：暗底 + 鎏金 + 刻角</span></div>
+    <div class="stage">
+      <div class="bg-fake"></div>
+      <div class="slots-fake"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="tiles-fake"><i>s</i><i>i</i><i>l</i><i>e</i><i>n</i><i>c</i><i>e</i></div>
+      <div class="d2veil"></div>
+      <div class="d2">
+        <div class="hd"><span class="k">战 斗 结 算</span><span class="rule"></span></div>
+        <div class="row cur"><span class="lab">残 页</span><span class="val">+7</span></div>
+        <div class="row col"><span class="lab">铁络之印</span><span class="val">答错反打 7.5 伤害</span></div>
+        <div class="row col"><span class="lab">缄 口</span><span class="val">挡下 2 次受击</span></div>
+        <div class="row col"><span class="lab">圣 环</span><span class="val">破碎 2 次</span></div>
+        <div class="row own"><span class="lab">专属掉落</span><span class="val"><span class="rar">专属</span>军用斯安威斯坦</span></div>
+        <div class="foot"><span>ARCHIVE  RECORDED</span><span>NO.03</span></div>
+      </div>
+    </div>
+    <p class="legend">最有"终局感"，与三层 BOSS 的皮肤语言一致。代价：与浅色战斗画面反差大。</p>
+  </div>
+
+  <!-- ============ 案 3 ============ -->
+  <div class="col">
+    <div class="cap"><span class="t">案 3 ｜ 横幅</span><span class="d">黑条标题 + 白卡正文，最快读懂</span></div>
+    <div class="stage">
+      <div class="bg-fake"></div>
+      <div class="slots-fake"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="tiles-fake"><i>s</i><i>i</i><i>l</i><i>e</i><i>n</i><i>c</i><i>e</i></div>
+      <div class="d3veil"></div>
+      <div class="d3">
+        <div class="band"><span class="k">BATTLE CLEARED</span><span class="big">战斗结算</span></div>
+        <div class="body">
+          <div class="row cur"><span class="ico">◆</span><span class="txt">残页  +7</span></div>
+          <div class="row col"><span class="ico">◇</span><span class="txt">铁络之印　答错反打 7.5 伤害</span></div>
+          <div class="row col"><span class="ico">◇</span><span class="txt">缄口　挡下 2 次受击</span></div>
+          <div class="row col"><span class="ico">◇</span><span class="txt">圣环　破碎 2 次</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="legend">扫读最快：黑条一眼看到"结算"，白卡里逐行读收益。信息密度最高。</p>
+  </div>
+
+</div>
+
+<p class="note" style="margin-top:26px">
+  <b>共同修的两点（都是真 bug）</b>：<br>
+  ① <b>层级</b>：现在面板在 <code>depth 51/52</code>，而<b>拼词字母块是 <code>50</code></b>（几乎齐平）、
+  弹幕词 <code>80</code>、皮肤闪光 <code>60/62</code> → 所以会被压住。<b>三案都抬到 <code>300+</code></b>
+  （只在"退出确认框 900"之下）。<br>
+  ② <b>已拼方框压根没设 depth</b>（＝ <code>0</code>，恒在最底）→ 遮罩盖不干净，拼词时最明显。
+  <b>三案都在结算时把这些对象直接 <code>setVisible(false)</code> 藏掉</b> —— 比"靠遮罩盖住"干净得多。
+</p>
+
+</body>
+</html>

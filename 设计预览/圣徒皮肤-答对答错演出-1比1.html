@@ -1,0 +1,151 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒皮肤 · 答对／答错 中央弹现动画（1:1）</title>
+<style>
+/* ============================================================================
+   目标：像亚当重锤那样的**答题反馈演出** ✓ 但用「月行水上」的现成素材拼 ✓
+   素材（全部来自 素材/月行水上/ ✓ 已下载 ✓）：
+     · flassh_0..4.png   5 帧闪光 ✓        → 答对：中心炸开的白闪
+     · glass_1..7.png    7 片碎玻璃 ✓      → 答对：向外飞散的碎片
+     · water_3_line.png  线稿水波 ✓        → 答错：荡开的线稿波纹
+     · char_makoto.png / bkg_1.png         → 备用（本轮未用 ✓）
+   ★ 演出（约 0.55 秒 ✓ 不打断答题 ✓）：
+       答对：1) 中心白闪（flassh_3 ✓ 0.55→1.7 倍 ✓ alpha 1→0）
+             2) 6 片玻璃向外飞散 ＋ 旋转 ＋ 淡出
+             3) 中央「正确」二字（深青灰 ✓）弹出并上浮淡出
+       答错：1) 线稿水波从弹点荡开（1→2.4 倍 ✓ alpha .9→0）
+             2) 同点再叠两层错开的波纹（有节奏 ✓）
+             3) 中央「错误 ✕」弹出（用项目唯一的红 #e2231a ✓ 只在错时出现 ✓）
+   ★ 可复现性 ✓：全部是**真 PNG 精灵** ＋ 缩放/位移/旋转/alpha 的 tween ✓
+      （游戏里就是 scene.tweens.add ✓ 与 nightcity 那套皮肤同一手法 ✓）
+   ============================================================================ */
+:root{--deep:#12232e;--acc:#54686a;--red:#e2231a;--ice:#8fa8bd}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.lab{width:1280px;margin:24px auto 8px;color:#fff;font-size:13px;line-height:21px}
+.lab b{font-size:16px}.lab i{font-style:normal;color:#a9c6d6}.lab code{font-family:'Space Grotesk',monospace;font-size:12px;color:#dfe9ee}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto 10px;overflow:hidden;background:#eaf2f7}
+.stage *{position:absolute;box-sizing:border-box}
+/* 底：与游戏一致 ✓ */
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.veil{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:.52}
+.grid{left:0;top:0;width:1280px;height:720px;background-image:linear-gradient(#54686a 1px,transparent 1px),linear-gradient(90deg,#54686a 1px,transparent 1px);background-size:40px 40px;opacity:.13}
+.plate{top:160px;width:272px;height:264px;background:#141a20;border:1px solid #3d5a70}
+.plateL{left:14px}.plateR{left:994px}
+.sprL{left:49px;top:160px;width:202px;height:264px;background:url('../assets/img/logos-idle.png') 0 0/3030px 2640px no-repeat}
+.sprR{left:1020px;top:182px;width:220px;height:220px;background:url('../assets/img/saint-idle.png') 0 0/1760px 4840px no-repeat;transform:scaleX(-1)}
+.nmL{left:14px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.nmR{left:994px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.bar{top:488px;width:272px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.barL{left:14px}.barR{left:994px}
+.bar i{left:0;top:0;height:10px;display:block}
+.card{left:420px;top:150px;width:440px;height:180px;background:rgba(255,255,255,.86);border:1px solid var(--ice)}
+.cardtag{left:436px;top:161px;font-family:'Novecento Wide',sans-serif;font-size:10px;letter-spacing:.18em;color:var(--acc)}
+.word{left:440px;top:200px;width:400px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:700;color:var(--deep)}
+.cdlab{left:420px;top:96px;font-size:13px;color:var(--deep)}
+.cd{left:420px;top:126px;width:440px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.cdfill{left:0;top:0;height:10px;width:62%;background:var(--acc)}
+.cdtxt{left:872px;top:120px;width:64px;text-align:right;font-size:16px;font-weight:700;color:var(--acc);font-family:'Space Grotesk',sans-serif}
+.hudr{right:44px;top:26px;font-size:14px;color:var(--deep)}
+.opt{width:320px;height:84px;transform:translate(-50%,-50%)}
+.a1{left:468px;top:436px}.a2{left:812px;top:436px}.a3{left:468px;top:536px}.a4{left:812px;top:536px}
+.opt .paper{left:0;top:0;width:320px;height:84px;background:#fff;opacity:.45}
+.opt .t{left:0;top:0;width:320px;height:84px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:20px;color:var(--deep);line-height:26px}
+.opt .fr{left:0;top:0;width:320px;height:84px;border:1px solid var(--acc);opacity:.9}
+.opt .tk{width:9px;height:9px;border:1px solid var(--acc)}
+.opt .tk1{left:-4.5px;top:-4.5px}.opt .tk2{left:315.5px;top:-4.5px}.opt .tk3{left:-4.5px;top:79.5px}.opt .tk4{left:315.5px;top:79.5px}
+.opt .id{left:8px;top:70px;font-family:'Novecento Wide',sans-serif;font-size:9px;letter-spacing:.16em;color:var(--acc)}
+/* ===== 演出层（弹点在词卡正下方中央 ✓ 即 (640, 400) ✓）===== */
+.fx{left:0;top:0;width:1280px;height:720px;pointer-events:none}
+/* ① 白闪（flassh_3 ✓）*/
+.flash{left:640px;top:400px;width:260px;height:260px;margin:-130px 0 0 -130px;
+       background:url('../素材/月行水上/flassh_3.png') center/contain no-repeat;opacity:0;animation:flash .55s ease-out infinite}
+@keyframes flash{0%{transform:scale(.55);opacity:0}18%{opacity:1}100%{transform:scale(1.75);opacity:0}}
+/* ② 碎玻璃 6 片（glass_1..6 ✓ 向外飞散 ✓）*/
+.sh{width:64px;height:64px;background-position:center;background-size:contain;background-repeat:no-repeat;opacity:0}
+.s1{background-image:url('../素材/月行水上/glass_1.png');animation:fly1 .6s ease-out infinite}
+.s2{background-image:url('../素材/月行水上/glass_2.png');animation:fly2 .6s ease-out infinite}
+.s3{background-image:url('../素材/月行水上/glass_3.png');animation:fly3 .6s ease-out infinite}
+.s4{background-image:url('../素材/月行水上/glass_4.png');animation:fly4 .6s ease-out infinite}
+.s5{background-image:url('../素材/月行水上/glass_5.png');animation:fly5 .6s ease-out infinite}
+.s6{background-image:url('../素材/月行水上/glass_6.png');animation:fly6 .6s ease-out infinite}
+@keyframes fly1{0%{left:640px;top:400px;opacity:0;transform:scale(.4) rotate(0)}15%{opacity:1}100%{left:430px;top:230px;opacity:0;transform:scale(1.15) rotate(-70deg)}}
+@keyframes fly2{0%{left:640px;top:400px;opacity:0;transform:scale(.4) rotate(0)}15%{opacity:1}100%{left:850px;top:240px;opacity:0;transform:scale(1.1) rotate(64deg)}}
+@keyframes fly3{0%{left:640px;top:400px;opacity:0;transform:scale(.4) rotate(0)}15%{opacity:1}100%{left:470px;top:580px;opacity:0;transform:scale(1.1) rotate(58deg)}}
+@keyframes fly4{0%{left:640px;top:400px;opacity:0;transform:scale(.4) rotate(0)}15%{opacity:1}100%{left:830px;top:570px;opacity:0;transform:scale(1.15) rotate(-62deg)}}
+@keyframes fly5{0%{left:640px;top:400px;opacity:0;transform:scale(.4) rotate(0)}15%{opacity:1}100%{left:640px;top:180px;opacity:0;transform:scale(1) rotate(40deg)}}
+@keyframes fly6{0%{left:640px;top:400px;opacity:0;transform:scale(.4) rotate(0)}15%{opacity:1}100%{left:650px;top:620px;opacity:0;transform:scale(1) rotate(-44deg)}}
+/* ③ 判定字（正确＝深青灰 ✓ 错误＝项目唯一的红 ✓）*/
+.verdict{left:640px;top:352px;transform:translate(-50%,-50%);font-size:40px;font-weight:700;letter-spacing:.22em;opacity:0;animation:pop .55s ease-out infinite}
+.verdict.ok{color:var(--acc)}
+.verdict.bad{color:var(--red)}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.7)}22%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}45%{transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-62%) scale(1)}}
+/* ④ 波纹 3 层（water_3_line ✓ 错开出现 ✓）*/
+.rip{left:640px;top:400px;width:300px;height:300px;margin:-150px 0 0 -150px;
+     background:url('../素材/月行水上/water_3_line.png') center/contain no-repeat;opacity:0}
+.r1{animation:ripple .95s ease-out infinite}
+.r2{animation:ripple .95s ease-out infinite;animation-delay:.18s}
+.r3{animation:ripple .95s ease-out infinite;animation-delay:.36s}
+@keyframes ripple{0%{transform:scale(.35);opacity:0}12%{opacity:.9}100%{transform:scale(2.5);opacity:0}}
+/* ⑤ 词卡压暗一下（答错时 ✓ 表示"这个错了"）*/
+.tint{left:420px;top:150px;width:440px;height:180px;background:#e2231a;opacity:0;animation:tint .8s ease-out infinite}
+@keyframes tint{0%{opacity:0}18%{opacity:.14}100%{opacity:0}}
+.tint.ok{background:#54686a}
+.tint.ok{animation:tintok .8s ease-out infinite}
+@keyframes tintok{0%{opacity:0}18%{opacity:.10}100%{opacity:0}}
+/* 帧标尺（教你看节奏 ✓ 预览专用 ✓）*/
+.ruler{left:44px;top:664px;width:1192px;height:22px;font-size:11px;color:var(--acc);font-family:'Novecento Wide',sans-serif;letter-spacing:.14em}
+</style></head><body>
+
+<div class="lab"><b>答对 · 玻璃炸开</b>　素材＝<i>flassh_3（白闪 ✓）＋ glass_1~6（碎玻璃 ✓）</i>　节奏＝<b>0.55 秒</b> ✓ 弹点在词卡正下方中央 (640,400) ✓ 不打断答题 ✓</div>
+<div class="stage">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#8fa8bd;width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN</div><div class="word">suit</div>
+  <div class="opt a1"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A1</div><div class="t">诉讼；恳求</div></div>
+  <div class="opt a2"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B1</div><div class="t">快乐；希望</div></div>
+  <div class="opt a3"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A2</div><div class="t">月亮；月球</div></div>
+  <div class="opt a4"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B2</div><div class="t">除了；要不是</div></div>
+  <div class="fx">
+    <div class="tint ok"></div>
+    <div class="flash"></div>
+    <div class="sh s1"></div><div class="sh s2"></div><div class="sh s3"></div>
+    <div class="sh s4"></div><div class="sh s5"></div><div class="sh s6"></div>
+    <div class="verdict ok">正确</div>
+  </div>
+  <div class="ruler">0.00s 弹点　→　0.18s 白闪最亮＋碎片起飞　→　0.40s 碎片到位淡出　→　0.55s 结束</div>
+</div>
+
+<div class="lab"><b>答错 · 线稿水波荡开</b>　素材＝<i>water_3_line（线稿波纹 ✓ 三层错开 ✓）</i>　判定字用<b>项目唯一的红 #e2231a</b> ✓（只在"错"时出现 ✓ 与 E3 的约定一致 ✓）</div>
+<div class="stage">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#8fa8bd;width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="card"></div><div class="cardtag">LEXICAL DOMAIN</div><div class="word">suit</div>
+  <div class="opt a1"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A1</div><div class="t">诉讼；恳求</div></div>
+  <div class="opt a2"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B1</div><div class="t">快乐；希望</div></div>
+  <div class="opt a3"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">A2</div><div class="t">月亮；月球</div></div>
+  <div class="opt a4"><div class="paper"></div><div class="fr"></div><i class="tk tk1"></i><i class="tk tk2"></i><i class="tk tk3"></i><i class="tk tk4"></i><div class="id">B2</div><div class="t">除了；要不是</div></div>
+  <div class="fx">
+    <div class="tint"></div>
+    <div class="rip r1"></div><div class="rip r2"></div><div class="rip r3"></div>
+    <div class="verdict bad">错误</div>
+  </div>
+  <div class="ruler">0.00s 弹点　→　0.12s 第一层波纹可见　→　0.30s 第二层　→　0.48s 第三层　→　0.95s 结束</div>
+</div>
+
+<div class="lab" style="height:80px">
+<b>可复现性</b>（全部成立 ✓）：<i>真 PNG 精灵</i>（load.image ✓）＋ <b>缩放 / 位移 / 旋转 / alpha 的 tween</b> ✓
+—— 与 nightcity 皮肤同一手法 ✓ 全程不碰 row 容器 ✗ 不共用别人的 try ✗ 位置尺寸不动 ✓<br>
+<b>可调项</b>（你说一个我改一个 ✓）：白闪大小与时长 ✓ 玻璃片数与飞散距离 ✓ 判定字字号与措辞 ✓ 波纹层数与速度 ✓ 弹点位置 ✓（现在在词卡正下方中央 ✓ 也可改成"跟着被点的那格"✓）
+</div>
+</body></html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>巴别残响 · 大标题英文字体八版</title>
+<style>
+/* ============================================================================
+   大标题「Babel Resonance」八种排法 —— 只用项目内已有拉丁字体
+     Gilroy Light(300)/Medium(500) · Novecento Wide(600/700) · Space Grotesk(400-700) · Roboto(400)
+   落地映射（Phaser）：
+     Gilroy        → Babel.FONTS.latin   = '"Gilroy", sans-serif'
+     Novecento     → Babel.FONTS.display = '"Novecento Wide", ...'
+     Space Grotesk → Babel.FONTS.num / mono
+     大写 = 直接写大写；字距 = text.setLetterSpacing(n)（Phaser 3.60+ 支持）
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2')format('woff2');font-weight:900}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Light.9981d6.woff2')format('woff2');font-weight:300}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#e9e8e4;font-family:'HOS',sans-serif;color:#111;-webkit-font-smoothing:antialiased}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 16px 80px}
+.head{width:100%;max-width:1340px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.head h1{font-size:18px;margin:0;font-weight:900}
+.head p{margin:0;font-size:12.5px;color:#6f6f6f}
+.tabs{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;max-width:920px}
+.tabs button{font-weight:700;font-size:12px;padding:6px 11px;border-radius:3px;cursor:pointer;border:1px solid #c9c6bd;background:#fff;color:#24252a}
+.tabs button.on{background:#111;color:#fff;border-color:#111}
+.viewport{position:relative;width:100%;max-width:1340px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 18px 50px rgba(0,0,0,.18);overflow:hidden}
+.screen{position:absolute;inset:0;width:1280px;height:720px;background:#fff;display:none}
+.screen.on{display:block}
+.notes{width:100%;max-width:1340px;background:#fff;border:1px solid #e2e0dc;border-radius:4px;padding:13px 16px;font-size:12.5px;line-height:1.8}
+
+/* 页面共同部分 */
+.zh{position:absolute;left:80px;top:62px;font-size:14px;font-weight:700;letter-spacing:.04em}
+.rl{position:absolute;left:80px;width:180px;height:3px;background:#e2231a}
+.list{position:absolute;left:80px;right:80px;top:330px}
+.row{display:flex;align-items:center;gap:26px;height:72px;border-top:1px solid #e6e6e6}
+.row .no{font-family:'Grotesk';font-weight:600;font-size:14px;color:#e2231a;width:40px}
+.row .nm{font-size:28px;font-weight:500;flex:1}
+.row .en{font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#6f6f6f}
+.foot{position:absolute;left:80px;bottom:44px;font-size:11.5px;color:#6f6f6f}
+.vr{position:absolute;right:80px;bottom:44px;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#6f6f6f}
+
+/* ============ E1 Gilroy Light（小写紧字距，现版加强） ============ */
+#e1 .t{position:absolute;left:78px;top:96px;font-family:'Gilroy';font-weight:300;font-size:100px;letter-spacing:-.03em;line-height:1}
+/* ============ E2 Gilroy Light 大写 + 宽字距 ============ */
+#e2 .t{position:absolute;left:78px;top:104px;font-family:'Gilroy';font-weight:300;font-size:78px;letter-spacing:.16em;line-height:1;text-transform:uppercase}
+/* ============ E3 Novecento Wide Bold 大写 ============ */
+#e3 .t{position:absolute;left:78px;top:104px;font-family:'Novecento';font-weight:700;font-size:74px;letter-spacing:.04em;line-height:1;text-transform:uppercase}
+/* ============ E4 Novecento Wide DemiBold 大写 + 紧字距 ============ */
+#e4 .t{position:absolute;left:78px;top:104px;font-family:'Novecento';font-weight:600;font-size:78px;letter-spacing:-.01em;line-height:1;text-transform:uppercase}
+/* ============ E5 Space Grotesk 粗 + 宽字距 ============ */
+#e5 .t{position:absolute;left:78px;top:104px;font-family:'Grotesk';font-weight:700;font-size:76px;letter-spacing:.1em;line-height:1;text-transform:uppercase}
+/* ============ E6 双行错位（两款字体混排） ============ */
+#e6 .t1{position:absolute;left:78px;top:88px;font-family:'Novecento';font-weight:700;font-size:86px;letter-spacing:.02em;line-height:1;text-transform:uppercase}
+#e6 .t2{position:absolute;left:82px;top:186px;font-family:'Gilroy';font-weight:300;font-size:52px;letter-spacing:.24em;line-height:1;text-transform:uppercase;color:#6f6f6f}
+/* ============ E7 双色（后半红） ============ */
+#e7 .t{position:absolute;left:78px;top:96px;font-family:'Gilroy';font-weight:300;font-size:96px;letter-spacing:-.02em;line-height:1}
+#e7 .t i{font-style:normal;color:#e2231a}
+/* ============ E8 空心描边（细线感） ============ */
+#e8 .t{position:absolute;left:78px;top:96px;font-family:'Gilroy';font-weight:500;font-size:96px;letter-spacing:.01em;line-height:1;
+  color:transparent;-webkit-text-stroke:1.5px #111}
+</style>
+</head>
+<body>
+
+<div class="desk">
+  <div class="head">
+    <h1>大标题英文字体八版</h1>
+    <p>只用项目内已有拉丁字体：Gilroy / Novecento Wide / Space Grotesk</p>
+    <div class="tabs" id="tabs">
+      <button data-s="e1" class="on">E1 Gilroy Light</button>
+      <button data-s="e2">E2 Gilroy 大写宽距</button>
+      <button data-s="e3">E3 Novecento Bold</button>
+      <button data-s="e4">E4 Novecento 紧距</button>
+      <button data-s="e5">E5 Grotesk 粗宽距</button>
+      <button data-s="e6">E6 双行错位</button>
+      <button data-s="e7">E7 双色</button>
+      <button data-s="e8">E8 空心描边</button>
+    </div>
+  </div>
+  <div class="viewport"><div class="stage" id="stage"></div></div>
+  <div class="notes" id="notes"></div>
+</div>
+
+<script>
+const ROWS = [['01','开始探索','NEW RUN'],['02','继续上次','CONTINUE'],['03','战斗测试','SANDBOX'],['04','声音：开','SOUND'],['05','退出游戏','QUIT']];
+const LIST = `<div class="list">${ROWS.map(([a,b,c]) => `<div class="row"><span class="no">${a}</span><span class="nm">${b}</span><span class="en">${c}</span></div>`).join('')}</div>`;
+const FOOT = `<div class="foot">词句即武器：把正确的义钉进对手的名字里。</div><div class="vr">v0.1</div>`;
+const TOP = `<div class="zh">巴别残响</div>`;
+/* 红线的位置随标题高度微调（各版标题块高度不同） */
+const BODIES = {
+ e1: `${TOP}<div class="t">Babel Resonance</div><div class="rl" style="top:236px"></div>${LIST}${FOOT}`,
+ e2: `${TOP}<div class="t">Babel Resonance</div><div class="rl" style="top:226px"></div>${LIST}${FOOT}`,
+ e3: `${TOP}<div class="t">Babel Resonance</div><div class="rl" style="top:222px"></div>${LIST}${FOOT}`,
+ e4: `${TOP}<div class="t">Babel Resonance</div><div class="rl" style="top:226px"></div>${LIST}${FOOT}`,
+ e5: `${TOP}<div class="t">Babel Resonance</div><div class="rl" style="top:224px"></div>${LIST}${FOOT}`,
+ e6: `${TOP}<div class="t1">Babel</div><div class="t2">Resonance</div><div class="rl" style="top:262px"></div>${LIST}${FOOT}`,
+ e7: `${TOP}<div class="t">Babel <i>Resonance</i></div><div class="rl" style="top:232px"></div>${LIST}${FOOT}`,
+ e8: `${TOP}<div class="t">Babel Resonance</div><div class="rl" style="top:232px"></div>${LIST}${FOOT}`,
+};
+['e1','e2','e3','e4','e5','e6','e7','e8'].forEach(id => {
+  const d = document.createElement('div');
+  d.className = 'screen' + (id === 'e1' ? ' on' : '');
+  d.id = id; d.innerHTML = BODIES[id];
+  document.querySelector('.stage').appendChild(d);
+});
+
+const NOTES = {
+ e1:'<b>E1 Gilroy Light（现版加强）</b>：小写、<b>100px、字距 −0.03em</b>。细几何无衬线＋紧字距＝现代、克制、有呼吸感。最稳的一版，只是把原来 88px 放大、字距收更紧。',
+ e2:'<b>E2 Gilroy 大写 + 宽字距</b>：全大写、78px、<b>字距 +0.16em</b>。字母被"拉开"，立刻有题签/建筑标高感，与美术馆语言最贴（也和页面上那些 0.22em 小标签同族）。',
+ e3:'<b>E3 Novecento Wide Bold</b>：最"工业/宽体"的一版，<b>74px 全大写</b>。Novecento 是宽体几何，字母占位大、字腔方正，气质最硬，和"黑白工业"路线配。',
+ e4:'<b>E4 Novecento 紧字距</b>：同 Novecento 但降到 DemiBold 并<b>轻微负字距（−0.01em）</b>，比 E3 收一点，稳重而不闷。',
+ e5:'<b>E5 Space Grotesk 粗 + 宽字距</b>：76px 全大写、字距 +0.1em。Grotesk 的字形更"技术/终端"，比 Gilroy 有性格，比 Novecento 秀气。',
+ e6:'<b>E6 双行错位</b>：<b>BABEL</b>（Novecento Bold 86px）+ <b>RESONANCE</b>（Gilroy Light 52px 宽字距灰字）错开两行。层级最丰富，像刊头/海报，也最"设计"。',
+ e7:'<b>E7 双色</b>：<b>Babel 墨黑 + Resonance 红</b>（Gilroy Light 96px）。用唯一强调色点题，与战斗页红线、地图当前位置的用法一致。',
+ e8:'<b>E8 空心描边</b>：Gilroy Medium 96px 做 <b>1.5px 描边空心字</b>。极轻、像线框，和地图那套"线框角标"是同族语言；缺点是远看偏弱。',
+};
+const tabs = document.getElementById('tabs'), notes = document.getElementById('notes');
+function setV(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.s === id));
+  notes.innerHTML = NOTES[id] || '';
+}
+tabs.addEventListener('click', e => { if (e.target.dataset.s) setV(e.target.dataset.s); });
+setV('e1');
+const stage = document.getElementById('stage'), vp = document.querySelector('.viewport');
+function fit(){const k=Math.min(vp.clientWidth/1280,Math.max(.42,(window.innerHeight-320)/720));
+  stage.style.transform='scale('+k+')';vp.style.height=(720*k)+'px';}
+window.addEventListener('resize',fit);document.fonts&&document.fonts.ready.then(fit);fit();
+</script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒 · 三阶段「抢线」预览（1:1 · 可交互）</title>
+<style>
+/* ============================================================================
+   三阶段 · 「抢线」（2026-09-21 用户选定方向 ④ ✓ 默认按建议：反抢要 ✓ 斩断要 ✓ 只锁词不掉血 ✓）
+   ★ 玩法：
+       · 它从右侧伸出 **红色的线** ✗ 缓慢爬向画面上的词条（初始 14 秒到 ✓）
+       · 你要**抢在它之前**把「英文词 ↔ 它的生义」连掉 ✓（**点一下起点 / 再点一下终点** ✓）
+       · **拖动鼠标**（划一下）可以**斩断它的线** ✓✓ → 那个词得救 ✓ 但其余线 +10% 速度 ✗
+       · 被抢走的词变红**不可连** ✗✓；按住它 **2 秒**可以**反抢**（夺回来 ✓ 它会在背后拽 ✓）
+       · 抢到越多 → 它的线**越快**（+15% ✓）→ 雪崩 ✓ 逼你主动 ✓✓
+       · 三对全连 → 白鸽从正中炸开 ✓✓ （被抢走的如果是**干扰词** → 白赚 ✓✓）
+   ★ 素材全现成 ✓：bg（众生行记 ✓）＋ dove（众生行记 ✓）＋ glass（月行水上 ✓）
+   ============================================================================ */
+:root{--ink:#12232e;--muted:#6f7f8a;--slate:#54686a;--red:#e2231a;--cy:#3ce0e0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;color:#fff;font-family:'HarmonyOS Sans SC','Microsoft YaHei',sans-serif;padding:18px 0 40px}
+.lab{width:1280px;margin:0 auto 8px;font-size:13px;line-height:20px}
+.lab b{font-size:16px}.lab i{font-style:normal;color:#a9c6d6}.lab u{text-decoration:none;color:#ffd9a0}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto;overflow:hidden;background:#eaf2f7;cursor:crosshair;user-select:none}
+.stage .bg{position:absolute;inset:0;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.stage .veil{position:absolute;inset:0;background:#fff;opacity:.52}
+.stage .grid{position:absolute;inset:0;opacity:.13;
+  background-image:linear-gradient(#54686a 1px,transparent 1px),linear-gradient(90deg,#54686a 1px,transparent 1px);background-size:40px 40px}
+canvas{position:absolute;inset:0}
+.slip{position:absolute;width:190px;height:86px;background:rgba(255,255,255,.55);border:1px solid var(--slate);
+      display:flex;align-items:center;justify-content:center;padding:8px;text-align:center;font-size:17px;color:var(--ink)}
+.slip.en{font-family:'Space Grotesk',monospace;font-weight:700;font-size:24px}
+.slip.sel{border-width:3px}
+.slip.locked{border-width:3px;background:rgba(255,255,255,.92)}
+.slip.stolen{border-color:var(--red);background:rgba(226,35,26,.14);color:#8d1a14}
+.slip.threat{animation:thr .5s ease-in-out infinite}
+@keyframes thr{0%,100%{box-shadow:0 0 0 rgba(226,35,26,0)}50%{box-shadow:0 0 0 4px rgba(226,35,26,.35)}}
+.prompt{position:absolute;left:0;top:58px;width:1280px;text-align:center;font-family:'Space Grotesk',monospace;font-size:44px;font-weight:700;color:var(--ink)}
+.hint{position:absolute;left:0;top:112px;width:1280px;text-align:center;font-size:13px;color:var(--slate)}
+.hud{position:absolute;left:24px;top:18px;font-size:13px;color:var(--slate);font-family:monospace;line-height:19px}
+.hud2{position:absolute;right:24px;top:18px;font-size:12.5px;color:var(--slate);line-height:19px;text-align:right}
+.win{position:absolute;left:0;top:250px;width:1280px;text-align:center;font-size:60px;font-weight:700;color:var(--slate);opacity:0;transition:opacity .3s}
+.holdbar{position:absolute;height:6px;background:var(--slate);opacity:0;pointer-events:none}
+</style></head><body>
+
+<div class="lab"><b>三阶段 · 「抢线」</b>　<i>点一下起点、再点一下终点 ＝ 连一对 ✓</i>　<u>拖动鼠标划过它的红线 ＝ 斩断它</u> ✓（代价：其余线 +10%）
+　<u>被抢走的词 → 按住它 2 秒反抢回来</u> ✓（它会往回拽 ✓）</div>
+
+<div class="stage" id="stage">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <canvas id="cv" width="1280" height="720"></canvas>
+
+  <div class="hud" id="hud"></div>
+  <div class="hud2">点两下＝连一对　拖一下＝斩它的线<br>按住被抢的词 2 秒＝反抢</div>
+  <div class="prompt" id="prompt">address</div>
+  <div class="hint">把 3 个词连到它们真正的生义上（有 1 个释义是别的词的 ✗）· 它的线正在爬过来 ✓</div>
+
+  <!-- 上带：3 个英文词（它的线主要抢这些 ✓）-->
+  <div class="slip en" data-kind="en" data-pair="address"  style="left:150px;top:180px">address</div>
+  <div class="slip en" data-kind="en" data-pair="company"  style="left:470px;top:180px">company</div>
+  <div class="slip en" data-kind="en" data-pair="last"     style="left:790px;top:180px">last</div>
+  <!-- 下带：4 个释义（3 对 ＋ 1 个干扰 ✗）-->
+  <div class="slip" data-kind="zh" data-pair="address" style="left:150px;top:470px">向……讲话；称呼</div>
+  <div class="slip" data-kind="zh" data-pair="company" style="left:400px;top:470px">陪伴；同伴</div>
+  <div class="slip" data-kind="zh" data-pair="last"    style="left:650px;top:470px">持续；够用</div>
+  <div class="slip" data-kind="zh" data-pair="__x__"   style="left:900px;top:470px">易碎的；脆的</div>
+</div>
+
+<script>
+/* 与游戏同款实现 ✓：它的线 ＝ Graphics 线 ＋ 定时加长 ✓ 斩断 ＝ 线段相交 ✓ 全屏红闪 ＋ 碎玻璃 ＝ 现成素材 ✓ */
+(function () {
+  var stage = document.getElementById('stage'), cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  var hud = document.getElementById('hud');
+  var slips = Array.prototype.slice.call(stage.querySelectorAll('.slip'));
+  var IMG = {};
+  ['../素材/月行水上/glass_1.png', '../素材/月行水上/glass_3.png', '../素材/月行水上/glass_5.png', '../素材/月行水上/glass_7.png',
+   '../素材/众生行记/bird_left1.png', '../素材/众生行记/bird_right.png'].forEach(function (u) { var im = new Image(); im.src = u; IMG[u] = im; });
+
+  var W = 1280, H = 720;
+  var ORIGIN = { x: 1268, y: 360 };                 // ★ 它的线从**右侧**（它自己那边）伸出来 ✓
+  var fx = [], trail = [], flash = 0;
+  var locked = 0, stolenCount = 0, saved = 0;
+  var sel = null, dragStart = null, dragNow = null, dragging = false;
+  var holding = null, holdT = 0;                    // 反抢：按住计时 ✓
+  var pairs = {};                                   // pair → 已连的两端 ✓
+
+  function rect(el) {
+    var r = el.getBoundingClientRect(), s = stage.getBoundingClientRect();
+    return { x: r.left - s.left, y: r.top - s.top, w: r.width, h: r.height, cx: r.left - s.left + r.width / 2, cy: r.top - s.top + r.height / 2 };
+  }
+  function pos(e) { var s = stage.getBoundingClientRect(); return { x: e.clientX - s.left, y: e.clientY - s.top }; }
+  function hit(px, py) {
+    for (var i = 0; i < slips.length; i++) { var r = rect(slips[i]); if (px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h) return slips[i]; }
+    return null;
+  }
+  function segRect(x1, y1, x2, y2, r) {
+    for (var i = 0; i <= 12; i++) {
+      var t = i / 12, px = x1 + (x2 - x1) * t, py = y1 + (y2 - y1) * t;
+      if (px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h) return true;
+    }
+    return false;
+  }
+
+  /* ★ 它的线（1~3 根 ✓ 每题递增 ✓ 越抢越快 ✓）*/
+  var itsLines = [];
+  function spawnItsLines(n) {
+    itsLines = [];
+    var pool = slips.filter(function (s) { return s.dataset.kind === 'en'; });
+    var picked = pool.slice().sort(function () { return Math.random() - .5; }).slice(0, n);
+    picked.forEach(function (el) { itsLines.push({ el: el, p: 0, dead: false, dur: 14 }); });
+  }
+  spawnItsLines(2);                                  // 预览用 2 根 ✓（游戏里按题号 1→4 ✓）
+
+  function speedUp(mul) { itsLines.forEach(function (L) { if (!L.dead) L.dur = Math.max(3.2, L.dur / mul); }); }
+
+  function steal(L) {
+    var el = L.el;
+    L.dead = true;
+    el.dataset.stolen = '1';
+    el.classList.add('stolen'); el.classList.remove('threat');
+    stolenCount++; flash = 1;
+    var r = rect(el);
+    for (var i = 0; i < 5; i++) fx.push({ img: ['../素材/月行水上/glass_1.png','../素材/月行水上/glass_3.png','../素材/月行水上/glass_5.png','../素材/月行水上/glass_7.png'][i % 4], x: r.cx, y: r.cy, vx: (Math.random()-.5)*360, vy: -140-Math.random()*120, rot: 0, life: 1, size: 52 });
+    speedUp(1.15);                                   // ★ 抢到越多 → 其余越快 ✓✓
+    updHud('✗ 它抢走了「' + el.textContent.trim() + '」');
+  }
+  function updHud(msg) {
+    hud.innerHTML = '已连 ' + locked + ' / 3　　被抢 ' + stolenCount + '　　救回 ' + saved +
+      '<br>它的线 ' + itsLines.filter(function (L) { return !L.dead; }).length + ' 根' + (msg ? '<br>' + msg : '');
+  }
+
+  /* ---------- 交互 ---------- */
+  stage.addEventListener('mousedown', function (e) {
+    if (e.button !== 0) return;
+    var p = pos(e), el = hit(p.x, p.y);
+    dragging = true; dragStart = p; dragNow = p; dragMoved = false;
+    if (el && el.dataset.stolen === '1') { holding = el; holdT = 0; return; }   // ★ 反抢 ✓
+    if (el && !el.classList.contains('locked')) { sel = el; slips.forEach(function (s) { s.classList.remove('sel'); }); el.classList.add('sel'); }
+    e.preventDefault();
+  });
+  var dragMoved = false;
+  stage.addEventListener('mousemove', function (e) {
+    var p = pos(e);
+    if (dragging) {
+      dragNow = p;
+      if (Math.hypot(p.x - dragStart.x, p.y - dragStart.y) > 26) dragMoved = true;
+      if (dragMoved) {
+        /* ★ 拖动 ＝ 斩它的线 ✓✓ */
+        var killed = false;
+        itsLines.forEach(function (L) {
+          if (L.dead) return;
+          var r = rect(L.el), hd = head(L, r);
+          if (segRect(dragStart.x, dragStart.y, p.x, p.y, { x: hd.x - 14, y: hd.y - 14, w: 28, h: 28 })) {
+            L.dead = true; killed = true; saved++;
+            L.el.classList.remove('threat');
+            fx.push({ img: '../素材/月行水上/glass_5.png', x: hd.x, y: hd.y, vx: 0, vy: -80, rot: 0, life: .7, size: 46 });
+          }
+        });
+        if (killed) { speedUp(1.1); updHud('✓ 斩断它一根线（其余 +10% 速度 ✗）'); }
+        trail.push({ a: dragStart, b: p, t: 1 });
+        dragStart = p;
+      }
+    }
+  });
+  document.addEventListener('mouseup', function () {
+    if (holding) {
+      /* 反抢：按住满 2 秒才算 ✓ */
+      if (holdT >= 2) {
+        holding.classList.remove('stolen'); holding.dataset.stolen = '';
+        stolenCount--; saved++;
+        updHud('✓ 反抢成功！');
+      }
+      holding = null; holdT = 0;
+    }
+    if (dragging && !dragMoved && sel) {
+      /* 点两下 ＝ 连一对 ✓ */
+      var p = dragNow || dragStart;
+      var el2 = hit(p.x, p.y);
+      if (el2 && el2 !== sel && !el2.classList.contains('locked') && el2.dataset.stolen !== '1'
+          && el2.dataset.kind !== sel.dataset.kind && el2.dataset.pair === sel.dataset.pair) {
+        sel.classList.add('locked'); el2.classList.add('locked');
+        locked++;
+        pairs[sel.dataset.pair] = true;
+        itsLines.forEach(function (L) { if (L.el === sel || L.el === el2) L.dead = true; });   // 抢到手的线死掉 ✓
+        updHud('✓ 连上了');
+        if (locked >= 3) {
+          document.getElementById('win').style.opacity = 1;
+          for (var k = 0; k < 12; k++) {
+            var a = (k / 12) * Math.PI * 2;
+            fx.push({ img: (Math.cos(a) >= 0 ? '../素材/众生行记/bird_right.png' : '../素材/众生行记/bird_left1.png'),
+                      x: 640, y: 360, vx: Math.cos(a) * 470, vy: Math.sin(a) * 470, rot: 0, life: 1, size: 46 });
+          }
+        }
+      } else if (el2 && el2.dataset.pair !== sel.dataset.pair) {
+        updHud('✗ 这一对不匹配');
+      }
+    }
+    dragging = false; sel = null; dragMoved = false;
+    slips.forEach(function (s) { s.classList.remove('sel'); });
+  });
+
+  /* 它的线的头部位置 ✓ */
+  function head(L, r) {
+    return { x: ORIGIN.x + (r.cx - ORIGIN.x) * L.p, y: ORIGIN.y + (r.cy - ORIGIN.y) * L.p };
+  }
+
+  var lastT = performance.now();
+  function loop(now) {
+    var dt = Math.min((now - lastT) / 1000, .05); lastT = now;
+    /* 推进它的线 ✓ */
+    itsLines.forEach(function (L) {
+      if (L.dead) return;
+      var r = rect(L.el);
+      L.p += dt / L.dur;
+      if (L.p >= 1) { L.p = 1; steal(L); return; }
+      if (L.p > .7 && L.el.dataset.stolen !== '1') L.el.classList.add('threat');   // ★ 逼近预告 ✓
+    });
+    /* 反抢计时 ✓（它会往回拽 ✗✓）*/
+    if (holding) {
+      holdT += dt;
+      holdT -= (Math.sin(now / 260) * .5 + .5) * dt * .9;      // 拽回去一点 ✓ 时快时慢 ✓
+      if (holdT < 0) holdT = 0;
+      var r = rect(holding);
+      holding.style.boxShadow = '0 0 0 ' + Math.round(holdT / 2 * 6) + 'px rgba(84,104,106,.45)';
+    }
+    /* 画 */
+    ctx.clearRect(0, 0, W, H);
+    if (flash > 0) { ctx.fillStyle = 'rgba(226,35,26,' + (flash * .18) + ')'; ctx.fillRect(0, 0, W, H); flash -= dt * 2.2; }
+    trail.forEach(function (t) { t.t -= dt * 1.5; });
+    trail = trail.filter(function (t) { return t.t > 0; });
+    trail.forEach(function (t) {
+      ctx.strokeStyle = '#fff'; ctx.globalAlpha = t.t; ctx.lineWidth = 12 * t.t + 2; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(t.a.x, t.a.y); ctx.lineTo(t.b.x, t.b.y); ctx.stroke(); ctx.globalAlpha = 1;
+    });
+    /* 它的线：红 ＋ 故障抖动 ＋ 爪 ✓ */
+    itsLines.forEach(function (L) {
+      var r = rect(L.el);
+      if (L.dead) return;
+      var hd = head(L, r);
+      for (var pass = 0; pass < 2; pass++) {
+        ctx.strokeStyle = pass ? 'rgba(226,35,26,.9)' : 'rgba(60,224,224,.35)';
+        ctx.lineWidth = pass ? 3 : 2;
+        ctx.beginPath();
+        var SEGN = 12;
+        for (var i = 0; i <= SEGN; i++) {
+          var t = i / SEGN;
+          var jx = (Math.random() * 5 - 2.5) + (pass ? 0 : 2);
+          var jy = (Math.random() * 4 - 2) + (pass ? 0 : -1);
+          var px = ORIGIN.x + (hd.x - ORIGIN.x) * t + jx, py = ORIGIN.y + (hd.y - ORIGIN.y) * t + jy;
+          i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+        }
+        ctx.stroke();
+      }
+      /* 爪（张合 ✓）*/
+      var open = 5 + Math.sin(now / 120) * 4;
+      ctx.strokeStyle = '#e2231a'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(hd.x - open - 8, hd.y - open); ctx.lineTo(hd.x, hd.y);
+      ctx.lineTo(hd.x - open - 8, hd.y + open); ctx.stroke();
+    });
+    /* 特效 */
+    fx.forEach(function (f) {
+      f.life -= dt * 1.3; f.x += f.vx * dt; f.y += f.vy * dt; f.vy += 280 * dt; f.rot += dt * 5;
+      if (f.life <= 0) return;
+      var im = IMG[f.img]; if (!im || !im.complete) return;
+      ctx.save(); ctx.globalAlpha = Math.max(0, f.life); ctx.translate(f.x, f.y); ctx.rotate(f.rot);
+      ctx.drawImage(im, -f.size / 2, -f.size / 2, f.size, f.size); ctx.restore();
+    });
+    fx = fx.filter(function (f) { return f.life > 0 && f.y < 860; });
+    updHud('');
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body></html>

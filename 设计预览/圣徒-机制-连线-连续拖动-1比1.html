@@ -1,0 +1,246 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>圣徒 · 机制预览「连续拖动连线」（1:1 · 可交互）</title>
+<style>
+/* ============================================================================
+   圣徒 BOSS 机制预览：**连续拖动连线**（2026-09-21 用户选定方向 ✓）
+     · 一题 **3 组**：左栏 3 个英文词 ✓ 右栏 3 个打乱的中文释义 ✓ 全部缓慢漂浮 ✓
+     · **按住不放，一笔连完** ✓✓ 折线一段段连出来 ✓
+     · 连对 → 那一段**变白绷直** ✓ 并自动从这里继续 ✓
+     · 连错 → 那一段**变红崩断** ✓ 从当前端点重来 ✓
+     · 拖回**已连过的端点** → 擦掉那一段（＝反悔 ✓✓）
+     · 三对连完 → 自动结算 ✓（全对＝答对 ✓ 有任何一段断过＝答错 ✓）
+   ★ 可复现性 ✓：折线＝Graphics.lineBetween 逐段 ✓（这里用旋转的 1px div 等价表示 ✓）
+      漂浮＝y 轴 tween ✓ 断线＝glass 素材 ✓ 连对＝dove 素材 ✓ 全部现成 ✓
+   ============================================================================ */
+:root{--deep:#12232e;--acc:#54686a;--ice:#8fa8bd;--red:#e2231a}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'HarmonyOS Sans SC';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Novecento Wide';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Space Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2') format('woff2');font-weight:400 700}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#5f6266;font-family:'HarmonyOS Sans SC',sans-serif;color:#111}
+.lab{width:1280px;margin:18px auto 8px;color:#fff;font-size:13px;line-height:21px}
+.lab b{font-size:16px}.lab i{font-style:normal;color:#a9c6d6}.lab u{text-decoration:none;color:#ffd9a0}
+.stage{position:relative;width:1280px;height:720px;margin:0 auto 10px;overflow:hidden;background:#eaf2f7;cursor:crosshair;user-select:none}
+.stage *{position:absolute;box-sizing:border-box}
+.bg{left:0;top:0;width:1280px;height:720px;background:url('../素材/众生行记/bg.png') center/cover no-repeat}
+.veil{left:0;top:0;width:1280px;height:720px;background:#fff;opacity:.52}
+.grid{left:0;top:0;width:1280px;height:720px;background-image:linear-gradient(#54686a 1px,transparent 1px),linear-gradient(90deg,#54686a 1px,transparent 1px);background-size:40px 40px;opacity:.13}
+.plate{top:160px;width:272px;height:264px;background:#141a20;border:1px solid #3d5a70}
+.plateL{left:14px}.plateR{left:994px}
+.sprL{left:49px;top:160px;width:202px;height:264px;background:url('../assets/img/logos-idle.png') 0 0/3030px 2640px no-repeat}
+.sprR{left:1020px;top:182px;width:220px;height:220px;background:url('../assets/img/saint-idle.png') 0 0/1760px 4840px no-repeat;transform:scaleX(-1)}
+.nmL{left:14px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.nmR{left:994px;top:436px;font-size:19px;font-weight:700;color:var(--deep)}
+.bar{top:488px;width:272px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.barL{left:14px}.barR{left:994px}
+.bar i{left:0;top:0;height:10px;display:block}
+.cdlab{left:420px;top:96px;font-size:13px;color:var(--deep)}
+.cd{left:420px;top:126px;width:440px;height:12px;background:#e8eef3;border:1px solid var(--ice)}
+.cdfill{left:0;top:0;height:10px;width:62%;background:var(--acc)}
+.cdtxt{left:872px;top:120px;width:64px;text-align:right;font-size:16px;font-weight:700;color:var(--acc);font-family:'Space Grotesk',sans-serif}
+.hudr{right:44px;top:26px;font-size:14px;color:var(--deep)}
+.tag{left:640px;top:166px;transform:translateX(-50%);font-family:'Novecento Wide',sans-serif;font-size:10px;letter-spacing:.2em;color:var(--acc)}
+/* ---- 左右两栏节点（各自漂浮 ✓ 相位不同 ✓）---- */
+.node{background:rgba(255,255,255,.5);border:1px solid var(--acc);display:flex;align-items:center;justify-content:center;cursor:grab}
+.node.w{left:268px;width:250px;height:86px;font-family:'Space Grotesk',sans-serif;font-size:38px;font-weight:700;color:var(--deep)}
+.node.m{left:762px;width:250px;height:86px;font-size:20px;color:var(--deep)}
+.node.done{border-color:#fff;border-width:2px;background:rgba(255,255,255,.86)}
+.node.bad{border-color:var(--red);border-width:2px}
+.node.drag{border-width:2px;border-color:var(--deep);cursor:grabbing}
+.n1{top:268px;animation:fa 4.4s ease-in-out infinite}
+.n2{top:398px;animation:fb 3.6s ease-in-out infinite}
+.n3{top:528px;animation:fc 4.8s ease-in-out infinite}
+.n4{top:268px;animation:fb 4.0s ease-in-out infinite}
+.n5{top:398px;animation:fc 4.6s ease-in-out infinite}
+.n6{top:528px;animation:fa 3.8s ease-in-out infinite}
+@keyframes fa{0%{transform:translateY(-12px)}50%{transform:translateY(12px)}100%{transform:translateY(-12px)}}
+@keyframes fb{0%{transform:translateY(13px)}50%{transform:translateY(-10px)}100%{transform:translateY(13px)}}
+@keyframes fc{0%{transform:translateY(-8px)}50%{transform:translateY(14px)}100%{transform:translateY(-8px)}}
+/* ---- 折线：每段一个旋转的 1px div（＝Phaser lineBetween ✓）---- */
+.seg{height:2px;background:#fff;transform-origin:0 50%;pointer-events:none;box-shadow:0 0 2px rgba(84,104,106,.8)}
+.seg.live{background:var(--acc);height:1px;box-shadow:none}
+.seg.bad{background:var(--red);height:2px}
+.dove{width:54px;height:54px;background-position:center;background-size:contain;background-repeat:no-repeat;opacity:0;pointer-events:none}
+.dL{background-image:url('../素材/众生行记/bird_left1.png')}
+.dR{background-image:url('../素材/众生行记/bird_right.png')}
+.sh{width:54px;height:54px;background-position:center;background-size:contain;background-repeat:no-repeat;opacity:0;pointer-events:none}
+.sh1{background-image:url('../素材/月行水上/glass_1.png')}
+.sh2{background-image:url('../素材/月行水上/glass_3.png')}
+.sh3{background-image:url('../素材/月行水上/glass_5.png')}
+.sh4{background-image:url('../素材/月行水上/glass_7.png')}
+.hint{left:268px;top:626px;width:250px;font-size:12px;color:var(--acc);line-height:18px}
+.state{left:640px;top:640px;transform:translateX(-50%);font-family:'Novecento Wide',sans-serif;font-size:12px;letter-spacing:.16em;color:var(--acc)}
+.score{left:44px;top:676px;width:1192px;font-size:12px;color:var(--acc);font-family:'Novecento Wide',sans-serif;letter-spacing:.14em}
+</style></head><body>
+
+<div class="lab"><b>圣徒 · 机制「连线」（连续拖动版）</b>　<i>直接用鼠标试 ✓</i>
+　★ <u>按住任意一端 → 拖到对面 → <b>不要松手</b> → 继续拖到下一个 → …</u> 一笔连完三对 ✓
+　连对＝那一段<b>变白绷直</b> ✓　连错＝那一段<b>变红崩断</b> ✓　<b>拖回已连过的端点＝擦掉那一段</b>（反悔 ✓）　三对连完自动结算 ✓</div>
+
+<div class="stage" id="stage">
+  <div class="bg"></div><div class="veil"></div><div class="grid"></div>
+  <div class="plate plateL"></div><div class="plate plateR"></div><div class="sprL"></div><div class="sprR"></div>
+  <div class="nmL">逻各斯</div><div class="nmR">圣徒</div>
+  <div class="bar barL"><i style="background:#8fa8bd;width:60%"></i></div><div class="bar barR"><i style="background:#54686a;width:100%"></i></div>
+  <div class="cdlab">剩余时间</div><div class="cd"><div class="cdfill"></div></div><div class="cdtxt">9</div>
+  <div class="hudr">目标生命 10 / 10　·　残页 15</div>
+  <div class="tag">LEXICAL DOMAIN · 一笔连完三对</div>
+
+  <!-- 左栏 3 个英文词 -->
+  <div class="node w n1" data-side="L" data-pair="fragile">fragile</div>
+  <div class="node w n2" data-side="L" data-pair="fertile">fertile</div>
+  <div class="node w n3" data-side="L" data-pair="fragment">fragment</div>
+  <!-- 右栏 3 个释义（**打乱** ✓ 与左边不是同一顺序 ✓）-->
+  <div class="node m n4" data-side="R" data-pair="fragment">碎片</div>
+  <div class="node m n5" data-side="R" data-pair="fragile">易碎的</div>
+  <div class="node m n6" data-side="R" data-pair="fertile">肥沃的</div>
+
+  <div class="hint">按住任意一端不松手 ✓<br>依次拖到对面 ✓ 连错会断 ✓<br>拖回已连的端点＝擦掉</div>
+  <div class="state" id="state">PRESS AND DRAG (DO NOT RELEASE)</div>
+  <div class="score" id="score">本局 答对 0 ／ 答错 0　·　三对：fragile=易碎的 ✓ fertile=肥沃的 ✓ fragment=碎片</div>
+</div>
+
+<script>
+/* 连续拖动连线（真实交互 ✓）
+   与游戏的对应：折线＝逐段 lineBetween ✓ 节点命中＝矩形判定 ✓ 漂浮＝y tween ✓ 素材＝现成 PNG ✓ */
+(function () {
+  var stage = document.getElementById('stage');
+  var stateEl = document.getElementById('state'), scoreEl = document.getElementById('score');
+  var nodes = Array.prototype.slice.call(stage.querySelectorAll('.node'));
+  var ok = 0, bad = 0, settled = false;
+  var segs = [];               // 已连成的段 {a,b,el}
+  var live = null;             // 正在拖的那一段（临时）
+  var cur = null;              // 当前拖到的端点
+  var dragFrom = null;         // 本轮从哪里开始拖（未按住的起点）
+
+  function center(el) {
+    var r = el.getBoundingClientRect(), s = stage.getBoundingClientRect();
+    return { x: r.left - s.left + r.width / 2, y: r.top - s.top + r.height / 2 };
+  }
+  function segEl() {
+    var d = document.createElement('div');
+    d.className = 'seg';
+    stage.appendChild(d);
+    return d;
+  }
+  function place(el, a, b, cls) {
+    var dx = b.x - a.x, dy = b.y - a.y, len = Math.sqrt(dx * dx + dy * dy);
+    el.className = 'seg ' + (cls || '');
+    el.style.left = a.x + 'px'; el.style.top = a.y + 'px';
+    el.style.width = len + 'px';
+    el.style.transform = 'rotate(' + (Math.atan2(dy, dx) * 180 / Math.PI) + 'deg)';
+  }
+  function findAt(mx, my) {
+    var s = stage.getBoundingClientRect();
+    for (var i = 0; i < nodes.length; i++) {
+      var r = nodes[i].getBoundingClientRect();
+      var x0 = r.left - s.left, y0 = r.top - s.top;
+      if (mx >= x0 && mx <= x0 + r.width && my >= y0 && my <= y0 + r.height) return nodes[i];
+    }
+    return null;
+  }
+  function nodeSeg(n) { for (var i = 0; i < segs.length; i++) { if (segs[i].a === n || segs[i].b === n) return segs[i]; } return null; }
+  function reset() {
+    segs.forEach(function (s) { s.el.remove(); });
+    segs = [];
+    if (live) { live.remove(); live = null; }
+    cur = null; dragFrom = null; settled = false;
+    nodes.forEach(function (n) { n.classList.remove('done', 'bad', 'drag'); });
+    stateEl.textContent = 'PRESS AND DRAG (DO NOT RELEASE)';
+    scoreEl.textContent = '本局 答对 ' + ok + ' ／ 答错 ' + bad + '　·　三对：fragile=易碎的 ✓ fertile=肥沃的 ✓ fragment=碎片';
+  }
+  function settle() {
+    settled = true;
+    var allBad = segs.some(function (s) { return s.bad; });
+    if (!allBad) { ok++; stateEl.textContent = 'ALL LINKED · 正确'; }
+    else { bad++; stateEl.textContent = 'BROKEN · 错误'; }
+    scoreEl.textContent = '本局 答对 ' + ok + ' ／ 答错 ' + bad + (allBad ? '　·　有段断过 ✗' : '　·　一笔连完 ✓');
+    /* 连对：六个端点各飞一只白鸽 ✓ */
+    if (!allBad) {
+      nodes.forEach(function (n, i) {
+        var c = center(n), d = document.createElement('div');
+        d.className = 'dove ' + (i % 2 ? 'dR' : 'dL');
+        d.style.left = (c.x - 27) + 'px'; d.style.top = (c.y - 27) + 'px';
+        stage.appendChild(d);
+        requestAnimationFrame(function () {
+          d.style.transition = 'all .9s ease-out'; d.style.opacity = 1;
+          d.style.transform = 'translate(' + (i % 2 ? 60 : -60) + 'px,' + (i < 3 ? -110 : 110) + 'px) scale(1.1)';
+        });
+        setTimeout(function () { d.remove(); }, 950);
+      });
+    }
+    setTimeout(reset, 1600);
+  }
+  /* 按下：从任意端点开始（已连过的端点＝先擦掉那一段 ✓ 反悔 ✓）*/
+  stage.addEventListener('mousedown', function (e) {
+    if (settled) return;
+    var s = stage.getBoundingClientRect();
+    var n = findAt(e.clientX - s.left, e.clientY - s.top);
+    if (!n) return;
+    var ex = nodeSeg(n);
+    if (ex) { ex.el.remove(); segs.splice(segs.indexOf(ex), 1); n.classList.remove('done'); (ex.a === n ? ex.b : ex.a).classList.remove('done'); }
+    dragFrom = n; cur = n; n.classList.add('drag');
+    stateEl.textContent = 'DRAGGING… KEEP HOLDING';
+    e.preventDefault();
+  });
+  /* 拖动中：实时画"当前这一段" ＋ 经过节点时自动判定 ✓（不用松手 ✓）*/
+  stage.addEventListener('mousemove', function (e) {
+    if (!cur || settled) return;
+    var s = stage.getBoundingClientRect();
+    var mx = e.clientX - s.left, my = e.clientY - s.top;
+    var a = center(cur);
+    if (!live) { live = segEl(); }
+    place(live, a, { x: mx, y: my }, 'live');
+    var n = findAt(mx, my);
+    if (n && n !== cur && n !== dragFrom) {
+      var okPair = (n.dataset.side !== cur.dataset.side) && (n.dataset.pair === cur.dataset.pair);
+      var dup = nodeSeg(n) || nodeSeg(cur);
+      if (!dup) {
+        if (okPair) {
+          /* 连对 ✓ 段变白绷直 ✓ 并从这里继续拖 ✓ */
+          if (live) { place(live, a, center(n), 'live'); }
+          var fixed = segEl(); place(fixed, center(cur), center(n), '');
+          live.remove(); live = null;
+          segs.push({ a: cur, b: n, el: fixed });
+          cur.classList.remove('drag'); n.classList.add('done'); cur.classList.add('done');
+          cur = n;
+          if (segs.length === 3) { settle(); return; }
+          stateEl.textContent = 'LINKED ' + segs.length + ' / 3 · 继续拖';
+        } else {
+          /* 连错 ✗ 段变红崩断 ✓ 玻璃炸开 ✓ 从当前端点重来 ✓ */
+          var badEl = segEl(); place(badEl, center(cur), center(n), 'bad');
+          n.classList.add('bad'); cur.classList.add('bad');
+          var c1 = center(cur), c2 = center(n);
+          [[c1, 'sh1', -70, -70], [c1, 'sh2', 60, 80], [c2, 'sh3', 70, -60], [c2, 'sh4', -60, 70]].forEach(function (p) {
+            var d = document.createElement('div');
+            d.className = 'sh ' + p[1];
+            d.style.left = (p[0].x - 27) + 'px'; d.style.top = (p[0].y - 27) + 'px';
+            stage.appendChild(d);
+            requestAnimationFrame(function () {
+              d.style.transition = 'all .8s ease-out'; d.style.opacity = 1;
+              d.style.transform = 'translate(' + p[2] + 'px,' + p[3] + 'px) rotate(' + p[2] + 'deg) scale(1.15)';
+            });
+            setTimeout(function () { d.remove(); }, 850);
+          });
+          bad++; scoreEl.textContent = '本局 答对 ' + ok + ' ／ 答错 ' + bad + '　·　这段连错了 ✗ 线断了 ✓';
+          var keep = cur;
+          setTimeout(function () {
+            badEl.remove(); n.classList.remove('bad'); keep.classList.remove('bad');
+            cur = keep; stateEl.textContent = 'BROKEN · 从这一个端点重新拖';
+          }, 700);
+          if (live) { live.remove(); live = null; }
+        }
+      }
+    }
+  });
+  /* 松手：把当前这一段擦掉（未成段的）✓ —— 已连成的段保留 ✓ */
+  document.addEventListener('mouseup', function () {
+    if (live) { live.remove(); live = null; }
+    if (cur) { cur.classList.remove('drag'); }
+    if (!settled && segs.length > 0 && segs.length < 3) stateEl.textContent = 'RELEASED · 已连 ' + segs.length + ' / 3';
+    if (!settled && segs.length === 0) stateEl.textContent = 'PRESS AND DRAG (DO NOT RELEASE)';
+    cur = null; dragFrom = null;
+  });
+})();
+</script>
+</body></html>

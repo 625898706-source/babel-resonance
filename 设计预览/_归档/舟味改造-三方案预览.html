@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>巴别残响 · 舟味改造三方案预览</title>
+<style>
+/* ============================================================================
+   舟味改造 · 三方案静态预览（A 罗德岛制式 / B 泰拉档案 / C 源石终端）
+   —— 几何 100% 照当前游戏数值（位置与尺寸不变），只切换：配色 / 材质 / 字体应用 / 装饰层
+   几何基准（1280×720，cy=360）：
+     页眉 0~52 | 立绘牌 272×264 顶边 y=160（中心 x=150 / 1130）
+     名字带 y=446 | 血条 y=472 | 数值行 y=494
+     词卡 300~980 × 145~325 | 机制槽位 y=106（居中）/ 安多恩槽位在敌军栏下方 y=530
+     选项 320×84，中心 (468,436)/(812,436)/(468,536)/(812,536)
+     底部藏品栏 分隔线 y=656，内容 y=678
+   ========================================================================== */
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-DemiBold.089c2d.woff2')format('woff2');font-weight:600}
+@font-face{font-family:'Novecento';src:url('../assets/fonts/Novecentosanswide-Bold.7ac6f1.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Regular.3848ad.woff2')format('woff2');font-weight:400}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Medium.fa43c4.woff2')format('woff2');font-weight:500}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Bold.50b93a.woff2')format('woff2');font-weight:700}
+@font-face{font-family:'HOS';src:url('../assets/fonts/HarmonyOS_Sans_SC_Black.e135b0.woff2')format('woff2');font-weight:900}
+@font-face{font-family:'Grotesk';src:url('../assets/fonts/SpaceGrotesk.edd157.woff2')format('woff2')}
+@font-face{font-family:'Gilroy';src:url('../assets/fonts/Gilroy-Medium.376b06.woff2')format('woff2');font-weight:500}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#dcdad4;font-family:'HOS',sans-serif;-webkit-font-smoothing:antialiased;text-wrap:pretty}
+.desk{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:18px;padding:22px 18px 90px}
+.head{width:100%;max-width:1360px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.head h1{font-size:19px;margin:0;font-weight:900}
+.head p{margin:0;color:#6b6f76;font-size:12.5px}
+.viewport{position:relative;width:100%;max-width:1360px}
+.stage{width:1280px;height:720px;transform-origin:top left;box-shadow:0 22px 60px rgba(0,0,0,.22);overflow:hidden}
+.spec{width:100%;max-width:1360px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.spec .box{border-radius:4px;padding:14px 16px;font-size:12.5px;line-height:1.75}
+.spec h3{margin:0 0 8px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-family:'Novecento';font-weight:600}
+.sw{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.sw i{width:20px;height:20px;border-radius:2px;border:1px solid rgba(0,0,0,.25);flex:0 0 20px}
+.sw code{font-family:'Grotesk';font-size:11.5px;margin-left:auto;opacity:.75}
+
+/* ============ 方案切换：只换令牌与装饰层 ============ */
+/* —— 现状（对照组）—— */
+body.s-now{
+  --bg:#f1f0ec; --panel:#fffdf9; --ink:#1f2024; --muted:#6b6f76; --line:#c9c6bd; --line-ink:#1f2024;
+  --accent:#fff44f; --accent-2:#f5a623; --on-accent:#1f2024;
+  --plate:#141519; --plate-line:#2a2b30; --plate-tag:#b9b3a6;
+  --radius:4px; --shadow:3px 3px 0 rgba(31,32,36,.13); --hr:1px;
+  --grid:0; --hazard:0; --barcode:0; --halftone:0; --scanline:0; --bracket:0; --glow:0;
+}
+/* —— A 罗德岛制式（暗底 + 荧光黄 + 工业条码/警示斜纹/坐标网格）—— */
+body.s-a{
+  --bg:#101214; --panel:#191d20; --ink:#f2f5f5; --muted:#8c9499; --line:#2c3236; --line-ink:#c9d1d4;
+  --accent:#ffd400; --accent-2:#ffd400; --on-accent:#101214;
+  --plate:#0a0c0d; --plate-line:#31383c; --plate-tag:#7d868b;
+  --radius:0px; --shadow:3px 3px 0 rgba(0,0,0,.55); --hr:1px;
+  --grid:1; --hazard:1; --barcode:1; --halftone:0; --scanline:0; --bracket:0; --glow:0;
+}
+/* —— B 泰拉档案（报纸灰 + 网点 + 印章红）—— */
+body.s-b{
+  --bg:#efece4; --panel:#faf9f4; --ink:#1a1a1a; --muted:#6b6b6b; --line:#b9b3a6; --line-ink:#1a1a1a;
+  --accent:#c8102e; --accent-2:#c8102e; --on-accent:#faf9f4;
+  --plate:#171512; --plate-line:#3a352d; --plate-tag:#a79f8f;
+  --radius:0px; --shadow:none; --hr:2px;
+  --grid:0; --hazard:0; --barcode:1; --halftone:1; --scanline:0; --bracket:0; --glow:0;
+}
+/* —— C 源石终端（近黑蓝 + 源石青 + 扫描线/L 角标/发光）—— */
+body.s-c{
+  --bg:#0b0e10; --panel:#12181b; --ink:#e8f2f2; --muted:#6f8b90; --line:#243438; --line-ink:#39d0d8;
+  --accent:#39d0d8; --accent-2:#39d0d8; --on-accent:#062024;
+  --plate:#070b0c; --plate-line:#1d3b40; --plate-tag:#5d7c82;
+  --radius:0px; --shadow:0 0 0 1px rgba(57,208,216,.25); --hr:1px;
+  --grid:0; --hazard:0; --barcode:0; --halftone:0; --scanline:1; --bracket:1; --glow:1;
+}
+
+/* ============ 画面 ============ */
+.screen{position:relative;width:1280px;height:720px;background:var(--bg);color:var(--ink)}
+/* 装饰层（按方案开关；全部 pointer-events:none，不影响任何布局） */
+.deco{position:absolute;inset:0;pointer-events:none;z-index:6}
+.deco .gridlines{position:absolute;inset:0;display:none;
+  background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.045) 0 1px,transparent 1px 32px),
+                   repeating-linear-gradient(90deg,rgba(255,255,255,.045) 0 1px,transparent 1px 32px)}
+.deco .hazard{position:absolute;left:0;right:0;top:52px;height:6px;display:none;
+  background-image:repeating-linear-gradient(45deg,var(--accent) 0 8px,transparent 8px 16px);opacity:.75}
+.deco .halftone{position:absolute;inset:0;display:none;opacity:.5;
+  background-image:radial-gradient(rgba(26,26,26,.30) 1px,transparent 1.2px);background-size:5px 5px}
+.deco .scan{position:absolute;inset:0;display:none;
+  background-image:repeating-linear-gradient(0deg,rgba(57,208,216,.07) 0 1px,transparent 1px 4px)}
+body.s-a .gridlines{display:block}
+body.s-a .hazard{display:block}
+body.s-b .halftone{display:block}
+body.s-c .scan{display:block}
+
+/* 页眉 */
+.hud{position:absolute;left:0;top:0;width:1280px;height:52px;background:var(--panel);
+  border-bottom:var(--hr) solid var(--line-ink);display:flex;align-items:center;padding:0 24px;gap:12px;z-index:5}
+.pill{font-family:'Novecento';font-weight:600;font-size:12px;letter-spacing:.05em;background:var(--accent);color:var(--on-accent);
+  padding:4px 10px;border-radius:var(--radius)}
+body.s-b .pill{border-radius:0;transform:rotate(-1deg)}
+.floor{font-family:'Novecento';font-weight:600;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.floor b{font-family:'HOS';font-weight:700;font-size:14px;letter-spacing:.02em;color:var(--ink)}
+.spacer{flex:1}
+.stat{font-family:'Grotesk';font-size:15px;color:var(--ink);letter-spacing:.02em}
+.stat i{font-style:normal;color:var(--muted);font-family:'HOS';font-size:12px}
+.btn-ghost{font-family:'HOS';font-weight:700;font-size:13px;color:var(--ink);background:transparent;
+  border:1px solid var(--line);border-radius:var(--radius);padding:7px 18px;cursor:pointer}
+
+/* 立绘牌（272×264，顶边 160；两栏严格对齐） */
+.plate{position:absolute;top:160px;width:272px;height:264px;background:var(--plate);
+  border:1px solid var(--plate-line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;z-index:2}
+.plate.left{left:14px}
+.plate.right{left:994px}
+.plate .corner{position:absolute;left:0;top:0;width:0;height:0;border-top:16px solid var(--accent);border-right:16px solid transparent}
+.plate .art{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background-repeat:no-repeat;background-position:0 0}
+.plate.left .art{width:150px;height:196px;background-image:url('../assets/img/logos-idle.png');background-size:2250px 1960px}
+.plate.right .art{width:190px;height:202px;background-image:url('../assets/img/andoain-idle.png');background-size:1900px 2020px;transform:translate(-50%,-50%) scaleX(-1)}
+body.s-a .plate,body.s-c .plate{border-color:var(--line-ink)}
+/* 名字带 / 血条 / 数值行（与游戏同坐标） */
+.nameband{position:absolute;top:432px;width:272px;display:flex;align-items:baseline;z-index:3}
+.nameband.left{left:14px}.nameband.right{left:994px}
+.nameband .nm{font-weight:700;font-size:17px;color:var(--ink)}
+.hp{position:absolute;top:464px;width:272px;height:16px;border:1px solid var(--line-ink);background:var(--panel);overflow:hidden;z-index:3}
+.hp.left{left:14px}.hp.right{left:994px}
+.hp i{position:absolute;inset:0;transform-origin:left center}
+.hp i.p{background:#5cc5e8}.hp i.e{background:#ff625d}
+body.s-a .hp i.p{background:#5cc5e8}body.s-c .hp i.e{background:#ff5c5c}
+.hp .ticks{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent 0 30px,rgba(0,0,0,.28) 30px 31px)}
+body.s-a .hp .ticks,body.s-c .hp .ticks{background-image:repeating-linear-gradient(90deg,transparent 0 30px,rgba(255,255,255,.22) 30px 31px)}
+.numrow{position:absolute;top:486px;width:272px;display:flex;align-items:baseline;z-index:3}
+.numrow.left{left:14px}.numrow.right{left:994px}
+.numrow .n{font-family:'Grotesk';font-weight:600;font-size:20px;color:var(--ink)}
+.numrow .l{margin-left:auto;font-family:'Novecento';font-weight:600;font-size:10px;letter-spacing:.16em;color:var(--muted)}
+
+/* 词卡 300~980 × 145~325 */
+.card{position:absolute;left:300px;top:145px;width:680px;height:180px;background:var(--panel);
+  border:1px solid var(--line-ink);border-radius:var(--radius);box-shadow:var(--shadow);z-index:4}
+body.s-c .card{box-shadow:0 0 0 1px rgba(57,208,216,.25),0 0 18px rgba(57,208,216,.10) inset}
+.card .combo{position:absolute;right:22px;top:22px;font-family:'Grotesk';font-weight:600;font-size:15px;color:var(--muted)}
+.card .word{position:absolute;left:40px;right:40px;top:78px;transform:translateY(-50%);text-align:center;
+  font-family:'Grotesk';font-weight:600;font-size:52px;letter-spacing:-.01em;color:var(--ink)}
+body.s-b .card .word{font-family:'Novecento';font-weight:700;letter-spacing:0}
+.card .rule{position:absolute;left:24px;right:24px;top:112px;height:var(--hr);background:var(--line)}
+.card .hint{position:absolute;left:22px;top:134px;transform:translateY(-50%);font-size:13px;color:var(--muted)}
+.card .sec{position:absolute;right:22px;top:134px;transform:translateY(-50%);font-family:'Grotesk';font-weight:600;font-size:22px;color:var(--ink)}
+.card .timer{position:absolute;left:20px;right:20px;bottom:12px;height:6px;background:rgba(127,127,127,.28)}
+.card .timer i{position:absolute;left:0;top:0;bottom:0;width:61%;background:var(--accent-2)}
+.card .timer .t{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent 0 64px,rgba(0,0,0,.30) 64px 65px)}
+body.s-a .card .timer .t,body.s-c .card .timer .t{background-image:repeating-linear-gradient(90deg,transparent 0 64px,rgba(255,255,255,.25) 64px 65px)}
+/* B 方案：条形码 + 编号 */
+.card .barcode{position:absolute;right:20px;top:18px;display:none;align-items:center;gap:8px}
+.card .barcode .bars{width:74px;height:16px;
+  background-image:repeating-linear-gradient(90deg,var(--ink) 0 1px,transparent 1px 3px,var(--ink) 3px 5px,transparent 5px 8px)}
+.card .barcode .code{font-family:'Grotesk';font-size:10px;letter-spacing:.16em;color:var(--muted)}
+body.s-a .card .barcode,body.s-b .card .barcode{display:flex}
+body.s-a .card .combo,body.s-b .card .combo{display:none}
+
+/* 机制槽位（安多恩：敌军栏下方 y=530） */
+.mech{position:absolute;left:994px;top:518px;display:flex;align-items:center;gap:10px;z-index:4}
+.chip{display:inline-flex;align-items:center;height:28px;padding:0 10px;gap:6px;background:var(--panel);
+  border:1px solid var(--line-ink);border-radius:var(--radius);font-family:'Grotesk';font-weight:600;font-size:13px;color:var(--ink)}
+.pips{display:flex;gap:6px}
+.pip{width:18px;height:18px;border-radius:50%;border:1px solid var(--line-ink);background:var(--panel)}
+body.s-now .pip,body.s-b .pip{border-radius:2px}
+body.s-now .pip.on,body.s-b .pip.on{background:#ff625d}
+body.s-a .pip.on{background:#ffd400}
+body.s-c .pip.on{background:#39d0d8}
+
+/* 选项 320×84 */
+.opt{position:absolute;width:320px;height:84px;display:flex;align-items:center;justify-content:center;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);font-weight:500;font-size:25px;color:var(--ink);
+  z-index:4;transition:transform .16s cubic-bezier(.2,.7,.3,1),box-shadow .16s,border-color .16s,background .16s}
+body.s-now .opt{font-size:25px}
+body.s-c .opt{box-shadow:0 0 0 1px rgba(57,208,216,.12)}
+.opt:hover{border-color:var(--line-ink);box-shadow:var(--shadow);transform:translate(1px,-1px)}
+body.s-a .opt:hover{background:#1f2427}
+body.s-b .opt:hover{background:#f2efe6}
+body.s-c .opt:hover{background:#162024}
+.opt.a{left:308px;top:394px}.opt.b{left:652px;top:394px}
+.opt.c{left:308px;top:494px}.opt.d{left:652px;top:494px}
+/* L 型角标（方案 C） */
+.bracket{position:absolute;width:14px;height:14px;border:0 solid var(--accent);display:none;z-index:7}
+body.s-c .bracket{display:block}
+.bracket.tl{border-left-width:2px;border-top-width:2px;left:-1px;top:-1px}
+.bracket.tr{border-right-width:2px;border-top-width:2px;right:-1px;top:-1px}
+.bracket.bl{border-left-width:2px;border-bottom-width:2px;left:-1px;bottom:-1px}
+.bracket.br{border-right-width:2px;border-bottom-width:2px;right:-1px;bottom:-1px}
+
+/* 底部藏品栏（分隔线 656，内容 678） */
+.foot{position:absolute;left:300px;top:656px;width:680px;height:var(--hr);background:var(--line);z-index:3}
+.footrow{position:absolute;left:300px;top:668px;width:680px;display:flex;align-items:center;gap:8px;z-index:3}
+.footrow .lab{font-family:'Novecento';font-weight:600;font-size:10.5px;letter-spacing:.16em;color:var(--muted);margin-right:6px}
+.footrow .c{display:inline-flex;align-items:center;height:24px;padding:0 9px;background:var(--panel);color:var(--ink);
+  border:1px solid var(--line);border-radius:var(--radius);font-size:12px}
+
+/* 方案切换按钮 */
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tabs button{font-family:'HOS';font-weight:700;font-size:13px;padding:9px 16px;border-radius:4px;cursor:pointer;
+  border:1px solid #b9b6ad;background:#fff;color:#24252a}
+.tabs button.on{background:#101214;color:#fff;border-color:#101214}
+</style>
+</head>
+<body class="s-a">
+
+<div class="desk">
+  <div class="head">
+    <h1>舟味改造 · 三方案预览</h1>
+    <p>几何与游戏完全一致（位置/尺寸未变），仅切换配色·材质·字体应用·装饰层</p>
+    <div class="tabs" id="tabs" style="margin-left:auto">
+      <button data-s="s-now">现状</button>
+      <button data-s="s-a" class="on">A · 罗德岛制式</button>
+      <button data-s="s-b">B · 泰拉档案</button>
+      <button data-s="s-c">C · 源石终端</button>
+    </div>
+  </div>
+
+  <div class="viewport"><div class="stage" id="stage">
+    <div class="screen">
+      <!-- 装饰层 -->
+      <div class="deco">
+        <div class="gridlines"></div>
+        <div class="halftone"></div>
+        <div class="scan"></div>
+        <div class="hazard"></div>
+      </div>
+
+      <!-- 页眉 -->
+      <div class="hud">
+        <span class="pill">B1 / 01</span>
+        <span class="floor">// FLOOR · <b>回声层</b> · BOSS</span>
+        <span class="spacer"></span>
+        <span class="stat"><i>残页</i> 27</span>
+        <span class="stat"><i>目标生命</i> 12 / 15</span>
+        <button class="btn-ghost">返回</button>
+      </div>
+
+      <!-- 立绘牌 + 名字/血条/数值 -->
+      <div class="plate left"><div class="corner"></div><div class="art"></div>
+        <span class="bracket tl"></span><span class="bracket br"></span></div>
+      <div class="nameband left"><span class="nm">逻各斯</span></div>
+      <div class="hp left"><i class="p" style="transform:scaleX(.8)"></i><span class="ticks"></span></div>
+      <div class="numrow left"><span class="n">12 / 15</span><span class="l">目标生命</span></div>
+
+      <div class="plate right"><div class="corner"></div><div class="art"></div>
+        <span class="bracket tl"></span><span class="bracket br"></span></div>
+      <div class="nameband right"><span class="nm">殉道者 · 安多恩</span></div>
+      <div class="hp right"><i class="e" style="transform:scaleX(1)"></i><span class="ticks"></span></div>
+      <div class="numrow right"><span class="n">12 / 12</span><span class="l">ENEMY HP</span></div>
+
+      <!-- 机制槽位：圣环（敌军栏下方） -->
+      <div class="mech">
+        <span class="chip">圣环 2/3</span>
+        <span class="pips"><i class="pip on"></i><i class="pip on"></i><i class="pip"></i></span>
+      </div>
+
+      <!-- 词卡 -->
+      <div class="card">
+        <div class="combo">连击 ×2</div>
+        <div class="barcode"><span class="bars"></span><span class="code">07 / 12</span></div>
+        <div class="word">attitude</div>
+        <div class="rule"></div>
+        <div class="hint">连续答对题目以击碎圣环</div>
+        <div class="sec">11</div>
+        <div class="timer"><i></i><span class="t"></span></div>
+      </div>
+
+      <!-- 选项 2×2 -->
+      <div class="opt a">重要的；重大的</div>
+      <div class="opt b">日落；傍晚</div>
+      <div class="opt c">栖息地；产地</div>
+      <div class="opt d">态度；看法</div>
+
+      <!-- 底部藏品栏 -->
+      <div class="foot"></div>
+      <div class="footrow">
+        <span class="lab">藏品</span>
+        <span class="c">破环之诫</span>
+        <span class="c">迅捷之羽</span>
+        <span class="c">凝视之瞳</span>
+      </div>
+    </div>
+  </div></div>
+
+  <div class="spec">
+    <div class="box" id="boxA">
+      <h3>A · 罗德岛制式（推荐）</h3>
+      <div class="sw"><i style="background:#101214"></i>底 #101214<code>--bg</code></div>
+      <div class="sw"><i style="background:#191d20"></i>面 #191d20<code>--panel</code></div>
+      <div class="sw"><i style="background:#ffd400"></i>强调 #ffd400<code>唯一强调色</code></div>
+      <div class="sw"><i style="background:#8c9499"></i>次字 #8c9499<code>4.6:1</code></div>
+      <div>直角 · 冷灰 1px 边 · 3px 实心黑影 · <b>斜纹警示条</b> · <b>条形码+编号</b> · <b>坐标网格</b> · 拉丁标签全大写宽字距</div>
+    </div>
+    <div class="box" id="boxB">
+      <h3>B · 泰拉档案</h3>
+      <div class="sw"><i style="background:#efece4"></i>报纸灰 #efece4<code>--bg</code></div>
+      <div class="sw"><i style="background:#faf9f4"></i>纸面 #faf9f4<code>--panel</code></div>
+      <div class="sw"><i style="background:#c8102e"></i>印章红 #c8102e<code>唯一强调色</code></div>
+      <div class="sw"><i style="background:#6b6b6b"></i>次字 #6b6b6b<code>4.7:1</code></div>
+      <div>直角 · 无阴影（细线表格感）· <b>半调网点</b> · <b>条形码</b> · 标题用 Novecento Wide 宽体 · 对错用红图章</div>
+    </div>
+    <div class="box" id="boxC">
+      <h3>C · 源石终端</h3>
+      <div class="sw"><i style="background:#0b0e10"></i>底 #0b0e10<code>--bg</code></div>
+      <div class="sw"><i style="background:#12181b"></i>面 #12181b<code>--panel</code></div>
+      <div class="sw"><i style="background:#39d0d8"></i>源石青 #39d0d8<code>唯一强调色</code></div>
+      <div class="sw"><i style="background:#6f8b90"></i>次字 #6f8b90<code>4.6:1</code></div>
+      <div>直角 · <b>四角 L 型角标</b> · <b>横向扫描线</b> · 边框微发光 · 数字/拉丁全等宽</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const stage = document.getElementById('stage');
+const vp = document.querySelector('.viewport');
+function fit(){
+  const k = Math.min(vp.clientWidth / 1280, Math.max(.42, (window.innerHeight - 300) / 720));
+  stage.style.transform = 'scale(' + k + ')';
+  vp.style.height = (720 * k) + 'px';
+}
+window.addEventListener('resize', fit);
+document.fonts && document.fonts.ready.then(fit);
+fit();
+
+const tabs = document.getElementById('tabs');
+function setScheme(s){
+  document.body.className = s;
+  tabs.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.s === s));
+  // 高亮对应说明卡
+  const map = { 's-now':'boxA', 's-a':'boxA', 's-b':'boxB', 's-c':'boxC' };
+  ['boxA','boxB','boxC'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.outline = (id === map[s]) ? '2px solid #24252a' : 'none';
+  });
+}
+tabs.addEventListener('click', e => { if (e.target.dataset.s) setScheme(e.target.dataset.s); });
+setScheme('s-a');
+</script>
+</body>
+</html>
